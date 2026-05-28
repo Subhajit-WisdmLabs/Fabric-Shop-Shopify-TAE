@@ -130,6 +130,60 @@
 
   window.fsUpdateWishlistCount = setWishlistBadge;
 
+  /* ── Scoped search ───────────────────────────────────────────────────── */
+  const searchWrap = chrome.querySelector('.fs-search-wrap');
+  if (searchWrap) {
+    const scopeBtn   = searchWrap.querySelector('.fs-search-scope');
+    const scopeOpts  = searchWrap.querySelectorAll('.fs-search-scope__opt');
+    const form       = searchWrap.querySelector('.fs-search-form');
+    const qInput     = form && form.querySelector('input[name="q"]');
+    const typeHidden = form && form.querySelector('input[name="type"]');
+    let activeScope  = 'designs';
+
+    function slugify(str) {
+      return str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    }
+
+    function closeScopeDrop() {
+      scopeBtn.classList.remove('is-open');
+      scopeBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    scopeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = scopeBtn.classList.toggle('is-open');
+      scopeBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    scopeOpts.forEach(opt => {
+      opt.addEventListener('click', () => {
+        activeScope = opt.dataset.scope;
+        scopeBtn.querySelector('.fs-search-scope__label').textContent = opt.textContent.trim();
+        scopeOpts.forEach(o => { o.classList.remove('is-active'); o.setAttribute('aria-selected', 'false'); });
+        opt.classList.add('is-active');
+        opt.setAttribute('aria-selected', 'true');
+        if (qInput && opt.dataset.ph) qInput.placeholder = opt.dataset.ph;
+        if (typeHidden) typeHidden.disabled = (activeScope !== 'designs');
+        closeScopeDrop();
+        if (qInput) qInput.focus();
+      });
+    });
+
+    if (form) {
+      form.addEventListener('submit', e => {
+        if (activeScope !== 'designs') {
+          e.preventDefault();
+          const q = qInput ? qInput.value.trim() : '';
+          if (q) window.location.href = '/pages/partners?handle=' + slugify(q);
+        }
+      });
+    }
+
+    document.addEventListener('click', e => {
+      if (!searchWrap.contains(e.target)) closeScopeDrop();
+    });
+  }
+
   /* ── Mobile drawer ───────────────────────────────────────────────────── */
   const hamburger = chrome.querySelector('.fs-hamburger');
   const drawer    = document.getElementById('fs-drawer');
