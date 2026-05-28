@@ -228,19 +228,15 @@
       suggEl.querySelector('[data-sugg-all]')?.addEventListener('click', () => { hideSugg(); form && form.submit(); });
     }
 
-    function renderVendorSugg(products, query) {
-      const q = query.toLowerCase();
-      const seen = new Set(), vendors = [];
-      products.forEach(p => {
-        if (p.vendor && p.vendor.toLowerCase().includes(q) && !seen.has(p.vendor)) {
-          seen.add(p.vendor); vendors.push(p.vendor);
-        }
-      });
-      if (!vendors.length) { hideSugg(); return; }
+    function renderVendorSugg(partners) {
+      if (!partners.length) { hideSugg(); return; }
       const label = activeScope === 'designers' ? 'Designer' : 'Studio';
       let html = '';
-      vendors.slice(0, 6).forEach(v => {
-        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(slugify(v))}" role="option"><div class="fs-sugg__avatar">${escHtml(v[0].toUpperCase())}</div><div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(v)}</span><span class="fs-sugg__sub">${escHtml(label)}</span></div></a>`;
+      partners.forEach(p => {
+        const thumb = p.profileImageUrl
+          ? `<img class="fs-sugg__thumb" src="${escHtml(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
+          : `<div class="fs-sugg__avatar">${escHtml(p.designerName[0].toUpperCase())}</div>`;
+        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.designerName)}</span><span class="fs-sugg__sub">${escHtml(label)}</span></div></a>`;
       });
       applySugg(html);
     }
@@ -248,13 +244,17 @@
     async function loadSugg(query) {
       if (!query || query.length < 2) { hideSugg(); return; }
       try {
-        const limit = activeScope === 'designs' ? 6 : 30;
-        const r = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=${limit}&resources[options][unavailable_products]=hide`);
-        if (!r.ok) return;
-        const { resources } = await r.json();
-        const products = resources?.results?.products || [];
-        if (activeScope === 'designs') renderProductSugg(products, query);
-        else renderVendorSugg(products, query);
+        if (activeScope === 'designs') {
+          const r = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=hide`);
+          if (!r.ok) return;
+          const { resources } = await r.json();
+          renderProductSugg(resources?.results?.products || [], query);
+        } else {
+          const r = await fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`);
+          if (!r.ok) return;
+          const { results } = await r.json();
+          renderVendorSugg(results || []);
+        }
       } catch (_) {}
     }
 
