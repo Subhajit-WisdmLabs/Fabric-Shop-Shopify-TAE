@@ -122,13 +122,13 @@
 
 .fs-icon-btn:hover { background: rgba(26, 24, 20, 0.06); }
 
-.fs-cart-badge {
+.fs-icon-badge {
   position: absolute;
   top: 5px;
   right: 5px;
   min-width: 16px;
   height: 16px;
-  background: #6B4C8A;
+  background: #5C7355;
   color: #FAF8F3;
   font-size: 10px;
   font-weight: 700;
@@ -160,15 +160,17 @@
   justify-content: center;
   width: 32px;
   height: 32px;
+  min-width: 32px;
   border-radius: 50%;
   background: #6B4C8A;
   color: #FAF8F3;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-decoration: none;
   flex-shrink: 0;
+  overflow: hidden;
   transition: background 0.15s;
 }
 

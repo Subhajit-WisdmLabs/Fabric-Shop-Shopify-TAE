@@ -85,6 +85,29 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
   document.addEventListener('click', e => { if (!chrome.contains(e.target)) closeAll(); });
 
+  /* ── Wishlist badge ──────────────────────────────────────────────────────── */
+  const wishlistBadge = document.getElementById('fs-wishlist-badge');
+
+  function updateWishlistBadge(count) {
+    if (!wishlistBadge) return;
+    const n = parseInt(count, 10) || 0;
+    if (n > 0) {
+      wishlistBadge.textContent = n;
+      wishlistBadge.style.display = '';
+    } else {
+      wishlistBadge.style.display = 'none';
+    }
+  }
+
+  try {
+    const stored = localStorage.getItem('fs_wishlist_count');
+    if (stored) updateWishlistBadge(stored);
+  } catch (e) {}
+
+  // Wishlist apps can call window.fsUpdateWishlistCount(n) to update the badge
+  // or write to localStorage.setItem('fs_wishlist_count', n)
+  window.fsUpdateWishlistCount = updateWishlistBadge;
+
   /* ── Mobile drawer ───────────────────────────────────────────────────── */
   const hamburger = chrome.querySelector('.fs-hamburger');
   const drawer    = document.getElementById('fs-drawer');
