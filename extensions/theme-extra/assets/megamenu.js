@@ -88,25 +88,47 @@
   /* ── Wishlist badge ──────────────────────────────────────────────────────── */
   const wishlistBadge = document.getElementById('fs-wishlist-badge');
 
-  function updateWishlistBadge(count) {
+  function setWishlistBadge(n) {
     if (!wishlistBadge) return;
-    const n = parseInt(count, 10) || 0;
-    if (n > 0) {
-      wishlistBadge.textContent = n;
-      wishlistBadge.style.display = '';
-    } else {
-      wishlistBadge.style.display = 'none';
-    }
+    n = parseInt(n, 10) || 0;
+    wishlistBadge.textContent = n > 0 ? n : '';
+    wishlistBadge.style.display = n > 0 ? '' : 'none';
   }
 
-  try {
-    const stored = localStorage.getItem('fs_wishlist_count');
-    if (stored) updateWishlistBadge(stored);
-  } catch (e) {}
+  function readLocalWishlist() {
+    try {
+      const ids = JSON.parse(localStorage.getItem('fp_wishlist') || '[]');
+      return Array.isArray(ids) ? ids.length : 0;
+    } catch (e) { return 0; }
+  }
 
-  // Wishlist apps can call window.fsUpdateWishlistCount(n) to update the badge
-  // or write to localStorage.setItem('fs_wishlist_count', n)
-  window.fsUpdateWishlistCount = updateWishlistBadge;
+  // Seed from localStorage immediately
+  setWishlistBadge(readLocalWishlist());
+
+  // Mirror the existing .fp-wl-badge element (updated by like-wishlist.js)
+  function attachFpBadgeObserver() {
+    const fpBadge = document.querySelector('.fp-wl-badge');
+    if (!fpBadge) return false;
+    setWishlistBadge(parseInt(fpBadge.textContent, 10) || 0);
+    new MutationObserver(() => {
+      setWishlistBadge(parseInt(fpBadge.textContent, 10) || 0);
+    }).observe(fpBadge, { childList: true, characterData: true, subtree: true });
+    return true;
+  }
+
+  if (!attachFpBadgeObserver()) {
+    const bodyObserver = new MutationObserver((_, obs) => {
+      if (attachFpBadgeObserver()) obs.disconnect();
+    });
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // Cross-tab sync
+  window.addEventListener('storage', e => {
+    if (e.key === 'fp_wishlist') setWishlistBadge(readLocalWishlist());
+  });
+
+  window.fsUpdateWishlistCount = setWishlistBadge;
 
   /* ── Mobile drawer ───────────────────────────────────────────────────── */
   const hamburger = chrome.querySelector('.fs-hamburger');
