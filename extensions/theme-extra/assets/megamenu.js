@@ -179,17 +179,7 @@
       });
     });
 
-    if (form) {
-      form.addEventListener('submit', e => {
-        if (activeScope === 'designers' || activeScope === 'studios') {
-          e.preventDefault();
-          const q = qInput ? qInput.value.trim() : '';
-          if (q) window.location.href = '/pages/partners?handle=' + slugify(q);
-        } else if (activeScope === 'collections') {
-          e.preventDefault();
-        }
-      });
-    }
+    if (form) form.addEventListener('submit', e => e.preventDefault());
 
     document.addEventListener('click', e => {
       if (!searchWrap.contains(e.target)) { closeScopeDrop(); hideSugg(); }
