@@ -4,4 +4,6 @@ api_version = "2026-04"
 name = "Fabric Shop Theme Extra"
 handle = "fabric-shop-theme-extra"
 
+uid = "a531cc68-7ef7-a093-7111-37f04ba21a968ec58898"
+
 type = "theme"
