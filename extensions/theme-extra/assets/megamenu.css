@@ -284,6 +284,22 @@
 .fs-sugg__footer:hover,
 .fs-sugg__footer.is-focused { background: rgba(92, 115, 85, 0.06); }
 
+.fs-sugg__section + .fs-sugg__section {
+  border-top: 1px solid rgba(26, 24, 20, 0.08);
+}
+
+.fs-sugg__section-head {
+  padding: 10px 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #A09890;
+  user-select: none;
+}
+
+.fs-sugg__section .fs-sugg__item:last-child { border-bottom: none; }
+
 .fs-header-icons {
   display: flex;
   align-items: center;

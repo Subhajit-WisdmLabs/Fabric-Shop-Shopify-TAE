@@ -207,55 +207,99 @@
       focusIdx = -1;
     }
 
-    function renderProductSugg(products, query) {
-      if (!products.length) { hideSugg(); return; }
+    function productItems(products, limit) {
       let html = '';
-      products.slice(0, 6).forEach(p => {
+      products.slice(0, limit).forEach(p => {
         const imgUrl = p.featured_image?.url || p.image;
         const thumb = imgUrl
           ? `<img class="fs-sugg__thumb" src="${escHtml(imgUrl)}&width=96" alt="" loading="lazy">`
           : `<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>`;
         html += `<a class="fs-sugg__item" href="${escHtml(p.url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.title)}</span><span class="fs-sugg__sub">${escHtml(p.vendor)}</span></div></a>`;
       });
-      html += `<button type="button" class="fs-sugg__footer" role="option" data-sugg-all>See all results for &ldquo;${escHtml(query)}&rdquo;</button>`;
-      applySugg(html);
-      suggEl.querySelector('[data-sugg-all]')?.addEventListener('click', () => { hideSugg(); form && form.submit(); });
+      return html;
     }
 
-    function renderVendorSugg(partners) {
-      if (!partners.length) { hideSugg(); return; }
-      const label = activeScope === 'designers' ? 'Designer' : 'Studio';
+    function partnerItems(partners, limit) {
       let html = '';
-      partners.forEach(p => {
+      partners.slice(0, limit).forEach(p => {
         const thumb = p.profileImageUrl
           ? `<img class="fs-sugg__thumb" src="${escHtml(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
           : `<div class="fs-sugg__avatar">${escHtml(p.designerName[0].toUpperCase())}</div>`;
-        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.designerName)}</span><span class="fs-sugg__sub">${escHtml(label)}</span></div></a>`;
+        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.designerName)}</span><span class="fs-sugg__sub">Designer</span></div></a>`;
       });
-      applySugg(html);
+      return html;
     }
 
-    function renderCollectionSugg(collections) {
-      if (!collections.length) { hideSugg(); return; }
+    function collectionItems(collections, limit) {
       let html = '';
-      collections.forEach(c => {
+      collections.slice(0, limit).forEach(c => {
         const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug)}&tab=collection&slug=${encodeURIComponent(c.handle)}`;
         const thumb = c.image
           ? `<img class="fs-sugg__thumb" src="${escHtml(c.image)}" alt="" loading="lazy">`
           : `<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>`;
         html += `<a class="fs-sugg__item" href="${escHtml(url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(c.title)}</span><span class="fs-sugg__sub">${escHtml(c.partnerName)}</span></div></a>`;
       });
+      return html;
+    }
+
+    function renderProductSugg(products) {
+      if (!products.length) { hideSugg(); return; }
+      applySugg(productItems(products, 6));
+    }
+
+    function renderVendorSugg(partners) {
+      if (!partners.length) { hideSugg(); return; }
+      applySugg(partnerItems(partners, 6));
+    }
+
+    function renderCollectionSugg(collections) {
+      if (!collections.length) { hideSugg(); return; }
+      applySugg(collectionItems(collections, 6));
+    }
+
+    async function renderAllSugg(query) {
+      const [pRes, dRes, cRes] = await Promise.allSettled([
+        fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=3&resources[options][unavailable_products]=hide`),
+        fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`),
+        fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`),
+      ]);
+
+      let products = [], partners = [], collections = [];
+      if (pRes.status === 'fulfilled' && pRes.value.ok) {
+        const d = await pRes.value.json(); products = d.resources?.results?.products || [];
+      }
+      if (dRes.status === 'fulfilled' && dRes.value.ok) {
+        const d = await dRes.value.json(); partners = d.results || [];
+      }
+      if (cRes.status === 'fulfilled' && cRes.value.ok) {
+        const d = await cRes.value.json(); collections = d.results || [];
+      }
+
+      if (!products.length && !partners.length && !collections.length) { hideSugg(); return; }
+
+      let html = '';
+      if (products.length) {
+        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Designs</div>${productItems(products, 2)}</div>`;
+      }
+      if (partners.length) {
+        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Designers</div>${partnerItems(partners, 2)}</div>`;
+      }
+      if (collections.length) {
+        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Collections</div>${collectionItems(collections, 2)}</div>`;
+      }
       applySugg(html);
     }
 
     async function loadSugg(query) {
       if (!query || query.length < 2) { hideSugg(); return; }
       try {
-        if (activeScope === 'designs') {
+        if (activeScope === 'all') {
+          await renderAllSugg(query);
+        } else if (activeScope === 'designs') {
           const r = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=hide`);
           if (!r.ok) return;
           const { resources } = await r.json();
-          renderProductSugg(resources?.results?.products || [], query);
+          renderProductSugg(resources?.results?.products || []);
         } else if (activeScope === 'collections') {
           const r = await fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`);
           if (!r.ok) return;
