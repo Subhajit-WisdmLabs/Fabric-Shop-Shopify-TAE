@@ -55,7 +55,7 @@
 
 {%- if block.settings.nav_1_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_1_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}</a>
+  <a href="{{ block.settings.nav_1_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -82,7 +82,7 @@
 
 {%- if block.settings.nav_2_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_2_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}</a>
+  <a href="{{ block.settings.nav_2_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -109,7 +109,7 @@
 
 {%- if block.settings.nav_3_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_3_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}</a>
+  <a href="{{ block.settings.nav_3_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -145,7 +145,7 @@
 
 {%- if block.settings.nav_about_label != blank -%}
 <li class="fs-nav__item{% if has_about_sub %} fs-nav__item--mini{% endif %}">
-  <a href="{{ block.settings.nav_about_url | default: '#' }}" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}</a>
+  <a href="{{ block.settings.nav_about_url | default: '#' }}" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}{% if has_about_sub %}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>{% endif %}</a>
   {%- if has_about_sub -%}
   <div class="fs-mini-panel" role="region">
     <ul class="fs-mega-list" role="list">
@@ -158,11 +158,10 @@
 </li>
 {%- endif -%}
 
-{%- if block.settings.nav_contact_label != blank -%}
-<li class="fs-nav__item"><a href="{{ block.settings.nav_contact_url | default: '#' }}" class="fs-nav__link">{{- block.settings.nav_contact_label | escape -}}</a></li>
-{%- endif -%}
-
     </ul>
+    {%- if block.settings.nav_contact_label != blank -%}
+    <a href="{{ block.settings.nav_contact_url | default: '#' }}" class="fs-nav-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>{{- block.settings.nav_contact_label | escape -}}</a>
+    {%- endif -%}
   </div>
 </nav>
 </div>

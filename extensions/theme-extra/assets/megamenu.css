@@ -188,6 +188,9 @@
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .fs-nav {
@@ -196,6 +199,7 @@
   padding: 0;
   display: flex;
   align-items: stretch;
+  gap: 32px;
 }
 
 .fs-nav__item { position: static; }
@@ -204,7 +208,8 @@
 .fs-nav__link {
   display: flex;
   align-items: center;
-  padding: 14px 18px;
+  gap: 5px;
+  padding: 14px 0;
   font-size: 14px;
   font-weight: 500;
   color: #1A1814;
@@ -219,6 +224,29 @@
 
 .fs-nav__link:hover,
 .fs-nav__item.is-open > .fs-nav__link { color: #5C7355; }
+
+.fs-nav__chevron {
+  color: #A09890;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.fs-nav__item.is-open > .fs-nav__link .fs-nav__chevron { transform: rotate(180deg); }
+
+.fs-nav-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 0;
+  font-size: 13px;
+  color: #9A9285;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.fs-nav-contact:hover { color: #5C7355; }
 
 /* ── Mega Panel ──────────────────────────────────────────────────────────── */
 
@@ -618,6 +646,7 @@
   .fs-nav-bar__inner,
   .fs-mega-panel__inner { padding-left: 24px; padding-right: 24px; }
   .fs-mega-grid { gap: 0 28px; }
+  .fs-nav { gap: 20px; }
 }
 
 @media (max-width: 768px) {
