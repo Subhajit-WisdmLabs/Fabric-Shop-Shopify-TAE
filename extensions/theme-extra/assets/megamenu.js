@@ -130,7 +130,7 @@
 
   window.fsUpdateWishlistCount = setWishlistBadge;
 
-  /* ── Scoped search ───────────────────────────────────────────────────── */
+  /* ── Scoped search + predictive suggestions ─────────────────────────── */
   const searchWrap = chrome.querySelector('.fs-search-wrap');
   if (searchWrap) {
     const scopeBtn   = searchWrap.querySelector('.fs-search-scope');
@@ -138,12 +138,21 @@
     const form       = searchWrap.querySelector('.fs-search-form');
     const qInput     = form && form.querySelector('input[name="q"]');
     const typeHidden = form && form.querySelector('input[name="type"]');
+    const suggEl     = searchWrap.querySelector('.fs-search-sugg');
     let activeScope  = 'designs';
+    let suggTimer    = null;
+    let focusIdx     = -1;
+    let suggItems    = [];
 
     function slugify(str) {
       return str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     }
 
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── scope dropdown ── */
     function closeScopeDrop() {
       scopeBtn.classList.remove('is-open');
       scopeBtn.setAttribute('aria-expanded', 'false');
@@ -165,6 +174,7 @@
         if (qInput && opt.dataset.ph) qInput.placeholder = opt.dataset.ph;
         if (typeHidden) typeHidden.disabled = (activeScope !== 'designs');
         closeScopeDrop();
+        hideSugg();
         if (qInput) qInput.focus();
       });
     });
@@ -180,8 +190,92 @@
     }
 
     document.addEventListener('click', e => {
-      if (!searchWrap.contains(e.target)) closeScopeDrop();
+      if (!searchWrap.contains(e.target)) { closeScopeDrop(); hideSugg(); }
     });
+
+    /* ── predictive suggestions ── */
+    function hideSugg() {
+      if (suggEl) { suggEl.hidden = true; suggEl.innerHTML = ''; }
+      focusIdx = -1; suggItems = [];
+    }
+
+    function moveFocus(dir) {
+      if (!suggItems.length) return;
+      focusIdx = (focusIdx + dir + suggItems.length) % suggItems.length;
+      suggItems.forEach((el, i) => el.classList.toggle('is-focused', i === focusIdx));
+    }
+
+    function applySugg(html) {
+      if (!suggEl) return;
+      suggEl.innerHTML = html;
+      suggEl.hidden = false;
+      suggItems = Array.from(suggEl.querySelectorAll('[role="option"]'));
+      focusIdx = -1;
+    }
+
+    function renderProductSugg(products, query) {
+      if (!products.length) { hideSugg(); return; }
+      let html = '';
+      products.slice(0, 6).forEach(p => {
+        const imgUrl = p.featured_image?.url || p.image;
+        const thumb = imgUrl
+          ? `<img class="fs-sugg__thumb" src="${escHtml(imgUrl)}&width=96" alt="" loading="lazy">`
+          : `<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>`;
+        html += `<a class="fs-sugg__item" href="${escHtml(p.url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.title)}</span><span class="fs-sugg__sub">${escHtml(p.vendor)}</span></div></a>`;
+      });
+      html += `<button type="button" class="fs-sugg__footer" role="option" data-sugg-all>See all results for &ldquo;${escHtml(query)}&rdquo;</button>`;
+      applySugg(html);
+      suggEl.querySelector('[data-sugg-all]')?.addEventListener('click', () => { hideSugg(); form && form.submit(); });
+    }
+
+    function renderVendorSugg(products, query) {
+      const q = query.toLowerCase();
+      const seen = new Set(), vendors = [];
+      products.forEach(p => {
+        if (p.vendor && p.vendor.toLowerCase().includes(q) && !seen.has(p.vendor)) {
+          seen.add(p.vendor); vendors.push(p.vendor);
+        }
+      });
+      if (!vendors.length) { hideSugg(); return; }
+      const label = activeScope === 'designers' ? 'Designer' : 'Studio';
+      let html = '';
+      vendors.slice(0, 6).forEach(v => {
+        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(slugify(v))}" role="option"><div class="fs-sugg__avatar">${escHtml(v[0].toUpperCase())}</div><div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(v)}</span><span class="fs-sugg__sub">${escHtml(label)}</span></div></a>`;
+      });
+      applySugg(html);
+    }
+
+    async function loadSugg(query) {
+      if (!query || query.length < 2) { hideSugg(); return; }
+      try {
+        const limit = activeScope === 'designs' ? 6 : 30;
+        const r = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=${limit}&resources[options][unavailable_products]=hide`);
+        if (!r.ok) return;
+        const { resources } = await r.json();
+        const products = resources?.results?.products || [];
+        if (activeScope === 'designs') renderProductSugg(products, query);
+        else renderVendorSugg(products, query);
+      } catch (_) {}
+    }
+
+    if (qInput) {
+      qInput.addEventListener('input', () => {
+        clearTimeout(suggTimer);
+        const q = qInput.value.trim();
+        if (!q) { hideSugg(); return; }
+        suggTimer = setTimeout(() => loadSugg(q), 280);
+      });
+
+      qInput.addEventListener('keydown', e => {
+        if (!suggEl || suggEl.hidden) return;
+        if (e.key === 'ArrowDown')       { e.preventDefault(); moveFocus(1); }
+        else if (e.key === 'ArrowUp')    { e.preventDefault(); moveFocus(-1); }
+        else if (e.key === 'Enter' && focusIdx >= 0) { e.preventDefault(); suggItems[focusIdx]?.click(); }
+        else if (e.key === 'Escape')     { hideSugg(); }
+      });
+
+      qInput.addEventListener('blur', () => setTimeout(hideSugg, 200));
+    }
   }
 
   /* ── Mobile drawer ───────────────────────────────────────────────────── */
