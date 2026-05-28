@@ -1,0 +1,18 @@
+api_version = "2026-04"
+
+client_id = ""
+name = "Fabric Shop Theme Extra"
+application_url = "https://nakul-shopify.vercel.app"
+embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-04"
+
+[access_scopes]
+scopes = ""
+
+[auth]
+redirect_urls = [ "https://nakul-shopify.vercel.app/tae/auth/callback" ]

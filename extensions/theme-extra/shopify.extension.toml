@@ -1,0 +1,7 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "Fabric Shop Theme Extra"
+handle = "fabric-shop-theme-extra"
+
+type = "theme"
