@@ -139,7 +139,7 @@
     const qInput     = form && form.querySelector('input[name="q"]');
     const typeHidden = form && form.querySelector('input[name="type"]');
     const suggEl     = searchWrap.querySelector('.fs-search-sugg');
-    let activeScope  = 'designs';
+    let activeScope  = 'all';
     let suggTimer    = null;
     let focusIdx     = -1;
     let suggItems    = [];
@@ -257,9 +257,14 @@
       applySugg(collectionItems(collections, 6));
     }
 
+    function productSearchUrl(query, limit) {
+      const q = query + ' -tag:_fp-base-fabric';
+      return `/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=${limit}&resources[options][unavailable_products]=hide`;
+    }
+
     async function renderAllSugg(query) {
       const [pRes, dRes, cRes] = await Promise.allSettled([
-        fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=3&resources[options][unavailable_products]=hide`),
+        fetch(productSearchUrl(query, 3)),
         fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`),
         fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`),
       ]);
@@ -296,7 +301,7 @@
         if (activeScope === 'all') {
           await renderAllSugg(query);
         } else if (activeScope === 'designs') {
-          const r = await fetch(`/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=hide`);
+          const r = await fetch(productSearchUrl(query, 6));
           if (!r.ok) return;
           const { resources } = await r.json();
           renderProductSugg(resources?.results?.products || []);
