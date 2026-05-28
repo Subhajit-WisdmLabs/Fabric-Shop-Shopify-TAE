@@ -141,40 +141,38 @@
   pointer-events: none;
 }
 
+/* ── Icons divider ───────────────────────────────────────────────────────── */
+
+.fs-icons-divider {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: rgba(26, 24, 20, 0.18);
+  flex-shrink: 0;
+  margin: 0 6px;
+}
+
 /* ── DP Chip ─────────────────────────────────────────────────────────────── */
 
 .fs-dp-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 20px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   background: #6B4C8A;
   color: #FAF8F3;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
-  white-space: nowrap;
+  flex-shrink: 0;
   transition: background 0.15s;
 }
 
 .fs-dp-chip:hover { background: #8A6AAA; }
-
-.fs-dp-chip__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #C4A8E0;
-  animation: fs-dp-pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes fs-dp-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.75); }
-}
 
 /* ── Row 3: Nav Bar ──────────────────────────────────────────────────────── */
 
