@@ -1,12 +1,17 @@
+{%- liquid
+  assign _est_h = 121
+  if block.settings.utility_text != blank
+    assign _est_h = 157
+  endif
+-%}
+<style>body{padding-top:{{ _est_h }}px}.fs-chrome{position:fixed;top:0;left:0;right:0;z-index:1000;background:#FAF8F3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5}{%- if block.settings.hide_native_header -%}{{ block.settings.native_header_selector }}{display:none!important}{%- endif -%}</style>
 {{ 'megamenu.css' | asset_url | stylesheet_tag }}
-{%- if block.settings.hide_native_header -%}<style>{{ block.settings.native_header_selector }}{display:none!important}</style>{%- endif -%}
-
 {%- liquid
   assign is_dp = false
   if customer
     for tag in customer.tags
       assign tag_lower = tag | downcase
-      if tag_lower == 'design-partner'
+      if tag_lower == 'partner_approved'
         assign is_dp = true
       endif
     endfor
