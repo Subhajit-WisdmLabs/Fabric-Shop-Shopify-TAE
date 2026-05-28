@@ -194,6 +194,8 @@
     });
 
     /* ── predictive suggestions ── */
+    if (suggEl) suggEl.addEventListener('mousedown', e => e.preventDefault());
+
     function hideSugg() {
       if (suggEl) { suggEl.hidden = true; suggEl.innerHTML = ''; }
       focusIdx = -1; suggItems = [];
