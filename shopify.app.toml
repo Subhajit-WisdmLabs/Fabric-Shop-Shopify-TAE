@@ -1,18 +1,20 @@
-api_version = "2026-04"
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = ""
-name = "Fabric Shop Theme Extra"
-application_url = "https://nakul-shopify.vercel.app"
-embedded = false
+client_id = "59c3e2608fb25d578d45613b1002e478"
+name = "Fabric Shop Theme Extras"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
+include_config_on_deploy = true
 
 [webhooks]
-api_version = "2026-04"
+api_version = "2026-07"
 
 [access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://nakul-shopify.vercel.app/tae/auth/callback" ]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]

@@ -1,0 +1,11 @@
+{
+  "name": "fabric-shop-theme-extras",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "shopify app deploy"
+  },
+  "devDependencies": {
+    "@shopify/cli": "3"
+  }
+}
