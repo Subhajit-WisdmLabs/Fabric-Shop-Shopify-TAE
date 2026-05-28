@@ -181,10 +181,12 @@
 
     if (form) {
       form.addEventListener('submit', e => {
-        if (activeScope !== 'designs') {
+        if (activeScope === 'designers' || activeScope === 'studios') {
           e.preventDefault();
           const q = qInput ? qInput.value.trim() : '';
           if (q) window.location.href = '/pages/partners?handle=' + slugify(q);
+        } else if (activeScope === 'collections') {
+          e.preventDefault();
         }
       });
     }
@@ -243,6 +245,19 @@
       applySugg(html);
     }
 
+    function renderCollectionSugg(collections) {
+      if (!collections.length) { hideSugg(); return; }
+      let html = '';
+      collections.forEach(c => {
+        const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug)}&tab=collection&slug=${encodeURIComponent(c.handle)}`;
+        const thumb = c.image
+          ? `<img class="fs-sugg__thumb" src="${escHtml(c.image)}" alt="" loading="lazy">`
+          : `<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>`;
+        html += `<a class="fs-sugg__item" href="${escHtml(url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(c.title)}</span><span class="fs-sugg__sub">${escHtml(c.partnerName)}</span></div></a>`;
+      });
+      applySugg(html);
+    }
+
     async function loadSugg(query) {
       if (!query || query.length < 2) { hideSugg(); return; }
       try {
@@ -251,6 +266,11 @@
           if (!r.ok) return;
           const { resources } = await r.json();
           renderProductSugg(resources?.results?.products || [], query);
+        } else if (activeScope === 'collections') {
+          const r = await fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`);
+          if (!r.ok) return;
+          const { results } = await r.json();
+          renderCollectionSugg(results || []);
         } else {
           const r = await fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`);
           if (!r.ok) return;
