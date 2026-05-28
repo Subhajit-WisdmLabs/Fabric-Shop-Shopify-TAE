@@ -54,11 +54,13 @@
 .fs-logo__img { display: block; height: auto; }
 
 .fs-logo__text {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
 .fs-search {
@@ -111,8 +113,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 6px;
   color: #1A1814;
   text-decoration: none;
@@ -435,8 +437,8 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   cursor: pointer;

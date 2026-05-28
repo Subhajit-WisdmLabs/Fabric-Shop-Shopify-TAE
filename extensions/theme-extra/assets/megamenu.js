@@ -107,7 +107,7 @@
 
   // Mirror the existing .fp-wl-badge element (updated by like-wishlist.js)
   function attachFpBadgeObserver() {
-    const fpBadge = document.querySelector('.fp-wl-badge');
+    const fpBadge = document.getElementById('fp-wl-badge');
     if (!fpBadge) return false;
     setWishlistBadge(parseInt(fpBadge.textContent, 10) || 0);
     new MutationObserver(() => {
