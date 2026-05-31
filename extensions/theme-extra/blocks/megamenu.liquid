@@ -1,10 +1,7 @@
 {%- liquid
-  assign _est_h = 121
-  if block.settings.utility_text != blank
-    assign _est_h = 157
-  endif
+  assign est_h = 157
 -%}
-<style>body{padding-top:{{ _est_h }}px}.fs-chrome{position:fixed;top:0;left:0;right:0;z-index:1000;background:#FAF8F3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5}{%- if block.settings.hide_native_header -%}{{ block.settings.native_header_selector }}{display:none!important}{%- endif -%}</style>
+<style>body{padding-top:{{ est_h }}px}.fs-chrome{position:fixed;top:0;left:0;right:0;z-index:1000;background:#FAF8F3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5}{%- if block.settings.hide_native_header -%}.shopify-section-header{display:none!important}{%- endif -%}</style>
 {{ 'megamenu.css' | asset_url | stylesheet_tag }}
 {%- liquid
   assign is_dp = false
@@ -16,17 +13,35 @@
       endif
     endfor
   endif
+  assign about_menu = linklists[block.settings.nav_about_menu]
   assign has_about_sub = false
-  if block.settings.nav_about_sub_1_label != blank or block.settings.nav_about_sub_2_label != blank or block.settings.nav_about_sub_3_label != blank
+  if about_menu.links.size > 0
     assign has_about_sub = true
   endif
 -%}
 
 <div class="fs-chrome" id="fs-chrome-{{ block.id }}">
 
-{%- if block.settings.utility_text != blank -%}
-<div class="fs-util-bar"><span>{{- block.settings.utility_text | escape -}}</span></div>
-{%- endif -%}
+<div class="fs-util-bar">
+  <div class="fs-util-bar__inner">
+    {%- if block.settings.utility_text != blank -%}
+    <span class="fs-util-bar__text">{{- block.settings.utility_text | escape -}}</span>
+    {%- else -%}
+    <span class="fs-util-bar__text">Made on order &middot; shipped worldwide</span>
+    {%- endif -%}
+    {%- if localization.available_countries.size > 1 -%}
+    <div class="fs-util-bar__right">
+      {%- form 'localization' -%}
+        <select name="country_code" class="fs-currency-select" onchange="this.form.submit()" aria-label="Country/Currency">
+          {%- for country in localization.available_countries -%}
+            <option value="{{ country.iso_code }}"{% if country.iso_code == localization.country.iso_code %} selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})</option>
+          {%- endfor -%}
+        </select>
+      {%- endform -%}
+    </div>
+    {%- endif -%}
+  </div>
+</div>
 
 <div class="fs-main-header">
   <div class="fs-main-header__inner">
@@ -37,7 +52,7 @@
     </a>
     <div class="fs-search-wrap">
       <button class="fs-search-scope" type="button" aria-haspopup="listbox" aria-expanded="false">
-        <span class="fs-search-scope__label">Designs</span>
+        <span class="fs-search-scope__label">All</span>
         <svg class="fs-search-scope__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
       </button>
       <ul class="fs-search-scope__drop" role="listbox" aria-label="Search scope">
@@ -60,7 +75,7 @@
       <a href="{{ routes.account_url }}" class="fs-icon-btn" aria-label="Account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
       <a href="/pages/wishlist" class="fs-icon-btn" aria-label="Wishlist"><span class="fs-icon-badge" id="fs-wishlist-badge" style="display:none"></span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></a>
       <a href="{{ routes.cart_url }}" class="fs-icon-btn" aria-label="Cart ({{ cart.item_count }} items)">{%- if cart.item_count > 0 -%}<span class="fs-icon-badge">{{ cart.item_count }}</span>{%- endif -%}<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></a>
-      {%- if is_dp -%}<span class="fs-icons-divider" aria-hidden="true"></span><a href="/apps/fabric-shop" class="fs-dp-chip" aria-label="Partner Studio">{{- customer.first_name | slice: 0 | upcase -}}{{- customer.last_name | slice: 0 | upcase -}}</a>{%- endif -%}
+      {%- if is_dp -%}<span class="fs-icons-divider" aria-hidden="true"></span><a href="/pages/partner-dashboard" class="fs-dp-chip" aria-label="Partner Studio">{{- customer.first_name | slice: 0 | upcase -}}{{- customer.last_name | slice: 0 | upcase -}}</a>{%- endif -%}
       <button class="fs-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="fs-drawer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     </div>
   </div>
@@ -72,25 +87,49 @@
 
 {%- if block.settings.nav_1_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_1_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
-        <p class="fs-mega-col__heading">Browse {{- block.settings.nav_1_label | escape -}}</p>
+        <p class="fs-mega-col__heading">Browse</p>
+        {%- assign nav1_menu = linklists[block.settings.nav_1_browse_menu] -%}
         <ul class="fs-mega-list" role="list">
-          {%- for i in (1..4) -%}{%- assign l = 'nav_1_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_1_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<li><a href="{{ block.settings[u] | default: '#' }}" class="fs-mega-list__link">{{- block.settings[l] | escape -}}</a></li>{%- endif -%}{%- endfor -%}
+          {%- for link in nav1_menu.links -%}
+            {%- if link.links.size > 0 -%}
+            <li class="fs-mega-list__item fs-mega-list__item--parent">
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            </li>
+            {%- else -%}
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            {%- endif -%}
+          {%- endfor -%}
         </ul>
       </div>
       <div class="fs-mega-col fs-mega-col--featured">
         <p class="fs-mega-col__heading">Featured this month</p>
         <ul class="fs-mega-featured" role="list">
-          {%- for i in (1..3) -%}{%- assign fl = 'nav_1_feat_' | append: i | append: '_label' -%}{%- assign fu = 'nav_1_feat_' | append: i | append: '_url' -%}{%- if block.settings[fl] != blank -%}<li><a href="{{ block.settings[fu] | default: '#' }}" class="fs-mega-feat-item"><div class="fs-mega-feat-item__thumb"><div class="fs-mega-feat-item__placeholder"></div></div><div class="fs-mega-feat-item__text"><strong>{{- block.settings[fl] | escape -}}</strong></div></a></li>{%- endif -%}{%- endfor -%}
+          {%- for fp in block.settings.nav_1_feat_products -%}
+            <li><a href="{{ fp.url }}" class="fs-mega-feat-item">
+              <div class="fs-mega-feat-item__thumb">
+                {%- if fp.featured_image -%}{{ fp.featured_image | image_url: width: 120 | image_tag: loading: 'lazy', alt: fp.title, class: 'fs-mega-feat-item__img' }}{%- else -%}<div class="fs-mega-feat-item__placeholder"></div>{%- endif -%}
+              </div>
+              <div class="fs-mega-feat-item__text">
+                <strong class="fs-mega-feat-item__title">{{- fp.title | escape -}}</strong>
+                {%- if fp.vendor != blank -%}<span class="fs-mega-feat-item__studio">{{- fp.vendor | escape -}}</span>{%- endif -%}
+                <span class="fs-mega-feat-item__designer" data-vendor="{{ fp.vendor | escape }}"></span>
+              </div>
+            </a></li>
+          {%- endfor -%}
         </ul>
       </div>
-      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_1_cta_surface }}">
-        {%- if block.settings.nav_1_cta_headline != blank -%}<h3 class="fs-mega-cta__headline">{{- block.settings.nav_1_cta_headline | escape -}}</h3>{%- endif -%}
-        {%- if block.settings.nav_1_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_1_cta_body | escape -}}</p>{%- endif -%}
-        {%- if block.settings.nav_1_cta_btn_label != blank -%}<a href="{{ block.settings.nav_1_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn">{{- block.settings.nav_1_cta_btn_label | escape -}}</a>{%- endif -%}
+      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_1_cta_surface }}"{% assign _n1c = block.settings.nav_1_cta_btn_bg | append: block.settings.nav_1_cta_btn_color | append: block.settings.nav_1_cta_btn_bg_hover | append: block.settings.nav_1_cta_btn_color_hover %}{% if _n1c != blank %} style="{% if block.settings.nav_1_cta_btn_bg != blank %}--cta-btn-bg:{{ block.settings.nav_1_cta_btn_bg }};{% endif %}{% if block.settings.nav_1_cta_btn_color != blank %}--cta-btn-color:{{ block.settings.nav_1_cta_btn_color }};{% endif %}{% if block.settings.nav_1_cta_btn_bg_hover != blank %}--cta-btn-bg-hover:{{ block.settings.nav_1_cta_btn_bg_hover }};{% endif %}{% if block.settings.nav_1_cta_btn_color_hover != blank %}--cta-btn-color-hover:{{ block.settings.nav_1_cta_btn_color_hover }};{% endif %}"{% endif %}>
+        {%- if block.settings.nav_1_cta_eyebrow != blank -%}<p class="fs-mega-cta__eyebrow">{{- block.settings.nav_1_cta_eyebrow | escape -}}</p>{%- endif -%}
+        <div class="fs-mega-cta__content">
+          {%- if block.settings.nav_1_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_1_cta_headline }}</div>{%- endif -%}
+          {%- if block.settings.nav_1_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_1_cta_body | escape -}}</p>{%- endif -%}
+        </div>
+        {%- if block.settings.nav_1_cta_btn_label != blank -%}<a href="{{ block.settings.nav_1_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_1_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -99,25 +138,59 @@
 
 {%- if block.settings.nav_2_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_2_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
-        <p class="fs-mega-col__heading">Browse {{- block.settings.nav_2_label | escape -}}</p>
+        <p class="fs-mega-col__heading">Browse</p>
+        {%- assign nav2_menu = linklists[block.settings.nav_2_browse_menu] -%}
         <ul class="fs-mega-list" role="list">
-          {%- for i in (1..4) -%}{%- assign l = 'nav_2_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_2_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<li><a href="{{ block.settings[u] | default: '#' }}" class="fs-mega-list__link">{{- block.settings[l] | escape -}}</a></li>{%- endif -%}{%- endfor -%}
+          {%- for link in nav2_menu.links -%}
+            {%- if link.links.size > 0 -%}
+            <li class="fs-mega-list__item fs-mega-list__item--parent">
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            </li>
+            {%- else -%}
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            {%- endif -%}
+          {%- endfor -%}
         </ul>
       </div>
       <div class="fs-mega-col fs-mega-col--featured">
         <p class="fs-mega-col__heading">Featured this month</p>
         <ul class="fs-mega-featured" role="list">
-          {%- for i in (1..3) -%}{%- assign fl = 'nav_2_feat_' | append: i | append: '_label' -%}{%- assign fu = 'nav_2_feat_' | append: i | append: '_url' -%}{%- if block.settings[fl] != blank -%}<li><a href="{{ block.settings[fu] | default: '#' }}" class="fs-mega-feat-item"><div class="fs-mega-feat-item__thumb"><div class="fs-mega-feat-item__placeholder"></div></div><div class="fs-mega-feat-item__text"><strong>{{- block.settings[fl] | escape -}}</strong></div></a></li>{%- endif -%}{%- endfor -%}
+          {%- for fp in block.settings.nav_2_feat_products -%}
+            {%- assign fp_desc = fp.metafields.fabric.descriptor.value -%}
+            {%- assign fp_ptype = fp.metafields.fabric.type.value -%}
+            <li><a href="{{ fp.url }}" class="fs-mega-feat-item">
+              <div class="fs-mega-feat-item__thumb">
+                {%- if fp.featured_image -%}{{ fp.featured_image | image_url: width: 120 | image_tag: loading: 'lazy', alt: fp.title, class: 'fs-mega-feat-item__img' }}{%- else -%}<div class="fs-mega-feat-item__placeholder"></div>{%- endif -%}
+              </div>
+              <div class="fs-mega-feat-item__text">
+                <strong class="fs-mega-feat-item__title">{{- fp.title | escape -}}</strong>
+                {%- if fp_desc != blank -%}
+                  <span class="fs-mega-feat-item__meta">{{- fp_desc | escape -}}</span>
+                {%- elsif fp.variants.size > 0 -%}
+                  <span class="fs-mega-feat-item__meta">{{ fp.variants.size }} colour{% if fp.variants.size != 1 %}s{% endif %}</span>
+                {%- endif -%}
+                {%- if fp_ptype != blank -%}
+                  <span class="fs-mega-feat-item__meta fs-mega-feat-item__meta--muted">{{- fp_ptype | escape -}}</span>
+                {%- elsif fp.price_min > 0 -%}
+                  <span class="fs-mega-feat-item__meta fs-mega-feat-item__meta--muted">From {{ fp.price_min | money }}</span>
+                {%- endif -%}
+              </div>
+            </a></li>
+          {%- endfor -%}
         </ul>
       </div>
-      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_2_cta_surface }}">
-        {%- if block.settings.nav_2_cta_headline != blank -%}<h3 class="fs-mega-cta__headline">{{- block.settings.nav_2_cta_headline | escape -}}</h3>{%- endif -%}
-        {%- if block.settings.nav_2_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_2_cta_body | escape -}}</p>{%- endif -%}
-        {%- if block.settings.nav_2_cta_btn_label != blank -%}<a href="{{ block.settings.nav_2_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn">{{- block.settings.nav_2_cta_btn_label | escape -}}</a>{%- endif -%}
+      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_2_cta_surface }}"{% assign _n2c = block.settings.nav_2_cta_btn_bg | append: block.settings.nav_2_cta_btn_color | append: block.settings.nav_2_cta_btn_bg_hover | append: block.settings.nav_2_cta_btn_color_hover %}{% if _n2c != blank %} style="{% if block.settings.nav_2_cta_btn_bg != blank %}--cta-btn-bg:{{ block.settings.nav_2_cta_btn_bg }};{% endif %}{% if block.settings.nav_2_cta_btn_color != blank %}--cta-btn-color:{{ block.settings.nav_2_cta_btn_color }};{% endif %}{% if block.settings.nav_2_cta_btn_bg_hover != blank %}--cta-btn-bg-hover:{{ block.settings.nav_2_cta_btn_bg_hover }};{% endif %}{% if block.settings.nav_2_cta_btn_color_hover != blank %}--cta-btn-color-hover:{{ block.settings.nav_2_cta_btn_color_hover }};{% endif %}"{% endif %}>
+        {%- if block.settings.nav_2_cta_eyebrow != blank -%}<p class="fs-mega-cta__eyebrow">{{- block.settings.nav_2_cta_eyebrow | escape -}}</p>{%- endif -%}
+        <div class="fs-mega-cta__content">
+          {%- if block.settings.nav_2_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_2_cta_headline }}</div>{%- endif -%}
+          {%- if block.settings.nav_2_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_2_cta_body | escape -}}</p>{%- endif -%}
+        </div>
+        {%- if block.settings.nav_2_cta_btn_label != blank -%}<a href="{{ block.settings.nav_2_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_2_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -126,34 +199,79 @@
 
 {%- if block.settings.nav_3_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <a href="{{ block.settings.nav_3_url | default: '#' }}" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></a>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
-        <p class="fs-mega-col__heading">Browse {{- block.settings.nav_3_label | escape -}}</p>
+        <p class="fs-mega-col__heading">Browse</p>
+        {%- assign nav3_menu = linklists[block.settings.nav_3_browse_menu] -%}
         <ul class="fs-mega-list" role="list">
-          {%- for i in (1..4) -%}{%- assign l = 'nav_3_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_3_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<li><a href="{{ block.settings[u] | default: '#' }}" class="fs-mega-list__link">{{- block.settings[l] | escape -}}</a></li>{%- endif -%}{%- endfor -%}
+          {%- for link in nav3_menu.links -%}
+            {%- if link.links.size > 0 -%}
+            <li class="fs-mega-list__item fs-mega-list__item--parent">
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            </li>
+            {%- else -%}
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            {%- endif -%}
+          {%- endfor -%}
         </ul>
-        {%- if block.settings.nav_3_designer_link_1_label != blank or block.settings.nav_3_designer_link_2_label != blank -%}
-        <div class="fs-mega-designer-block">
-          <p class="fs-mega-designer-block__label">— For designers</p>
-          <ul class="fs-mega-list" role="list">
-            {%- if block.settings.nav_3_designer_link_1_label != blank -%}<li><a href="{{ block.settings.nav_3_designer_link_1_url | default: '#' }}" class="fs-mega-list__link fs-mega-list__link--aubergine">{{- block.settings.nav_3_designer_link_1_label | escape -}}</a></li>{%- endif -%}
-            {%- if block.settings.nav_3_designer_link_2_label != blank -%}<li><a href="{{ block.settings.nav_3_designer_link_2_url | default: '#' }}" class="fs-mega-list__link fs-mega-list__link--aubergine">{{- block.settings.nav_3_designer_link_2_label | escape -}}</a></li>{%- endif -%}
-          </ul>
-        </div>
-        {%- endif -%}
       </div>
       <div class="fs-mega-col fs-mega-col--featured">
-        <p class="fs-mega-col__heading">Featured studios</p>
+        <p class="fs-mega-col__heading">Featured this month</p>
+        {%- if block.settings.nav_3_feat_mode == 'partners' -%}
         <ul class="fs-mega-featured" role="list">
-          {%- for i in (1..3) -%}{%- assign fl = 'nav_3_feat_' | append: i | append: '_label' -%}{%- assign fu = 'nav_3_feat_' | append: i | append: '_url' -%}{%- if block.settings[fl] != blank -%}<li><a href="{{ block.settings[fu] | default: '#' }}" class="fs-mega-feat-item"><div class="fs-mega-feat-item__thumb"><div class="fs-mega-feat-item__placeholder"></div></div><div class="fs-mega-feat-item__text"><strong>{{- block.settings[fl] | escape -}}</strong></div></a></li>{%- endif -%}{%- endfor -%}
+          {%- for i in (1..3) -%}
+            {%- liquid
+              assign pslug = ''
+              if i == 1
+                assign pslug = block.settings.nav_3_feat_partner_1 | strip
+              elsif i == 2
+                assign pslug = block.settings.nav_3_feat_partner_2 | strip
+              else
+                assign pslug = block.settings.nav_3_feat_partner_3 | strip
+              endif
+            -%}
+            {%- if pslug != blank -%}
+            <li><a href="/pages/partners?handle={{ pslug | escape }}" class="fs-mega-feat-item fs-mega-feat-item--partner" data-partner-handle="{{ pslug | escape }}">
+              <div class="fs-mega-feat-item__thumb fs-mega-feat-item__thumb--avatar">
+                <span class="fs-mega-feat-item__avatar-initials"></span>
+              </div>
+              <div class="fs-mega-feat-item__text">
+                <strong class="fs-mega-feat-item__title"></strong>
+                <span class="fs-mega-feat-item__studio"></span>
+                <span class="fs-mega-feat-item__meta fs-mega-feat-item__meta--muted"></span>
+              </div>
+            </a></li>
+            {%- endif -%}
+          {%- endfor -%}
         </ul>
+        {%- else -%}
+        <ul class="fs-mega-featured" role="list">
+          {%- for col in block.settings.nav_3_feat_collections -%}
+            {%- assign col_vendor = col.products.first.vendor -%}
+            <li><a href="{{ col.url }}" class="fs-mega-feat-item" data-col-handle="{{ col.handle | escape }}">
+              <div class="fs-mega-feat-item__thumb">
+                {%- if col.image -%}{{ col.image | image_url: width: 120 | image_tag: loading: 'lazy', alt: col.title, class: 'fs-mega-feat-item__img' }}{%- else -%}<div class="fs-mega-feat-item__placeholder"></div>{%- endif -%}
+              </div>
+              <div class="fs-mega-feat-item__text">
+                <strong class="fs-mega-feat-item__title">{{- col.title | escape -}}</strong>
+                <span class="fs-mega-feat-item__studio" data-col-vendor="{{ col_vendor | escape }}">{{- col_vendor | escape -}}</span>
+                <span class="fs-mega-feat-item__meta fs-mega-feat-item__meta--muted">{{ col.products_count }} design{% if col.products_count != 1 %}s{% endif %}</span>
+              </div>
+            </a></li>
+          {%- endfor -%}
+        </ul>
+        {%- endif -%}
       </div>
-      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_3_cta_surface }}">
-        {%- if block.settings.nav_3_cta_headline != blank -%}<h3 class="fs-mega-cta__headline">{{- block.settings.nav_3_cta_headline | escape -}}</h3>{%- endif -%}
-        {%- if block.settings.nav_3_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_3_cta_body | escape -}}</p>{%- endif -%}
-        {%- if block.settings.nav_3_cta_btn_label != blank -%}<a href="{{ block.settings.nav_3_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn">{{- block.settings.nav_3_cta_btn_label | escape -}}</a>{%- endif -%}
+      <div class="fs-mega-col fs-mega-col--cta fs-mega-cta--{{ block.settings.nav_3_cta_surface }}"{% assign _n3c = block.settings.nav_3_cta_btn_bg | append: block.settings.nav_3_cta_btn_color | append: block.settings.nav_3_cta_btn_bg_hover | append: block.settings.nav_3_cta_btn_color_hover %}{% if _n3c != blank %} style="{% if block.settings.nav_3_cta_btn_bg != blank %}--cta-btn-bg:{{ block.settings.nav_3_cta_btn_bg }};{% endif %}{% if block.settings.nav_3_cta_btn_color != blank %}--cta-btn-color:{{ block.settings.nav_3_cta_btn_color }};{% endif %}{% if block.settings.nav_3_cta_btn_bg_hover != blank %}--cta-btn-bg-hover:{{ block.settings.nav_3_cta_btn_bg_hover }};{% endif %}{% if block.settings.nav_3_cta_btn_color_hover != blank %}--cta-btn-color-hover:{{ block.settings.nav_3_cta_btn_color_hover }};{% endif %}"{% endif %}>
+        {%- if block.settings.nav_3_cta_eyebrow != blank -%}<p class="fs-mega-cta__eyebrow">{{- block.settings.nav_3_cta_eyebrow | escape -}}</p>{%- endif -%}
+        <div class="fs-mega-cta__content">
+          {%- if block.settings.nav_3_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_3_cta_headline }}</div>{%- endif -%}
+          {%- if block.settings.nav_3_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_3_cta_body | escape -}}</p>{%- endif -%}
+        </div>
+        {%- if block.settings.nav_3_cta_btn_label != blank -%}<a href="{{ block.settings.nav_3_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_3_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -162,13 +280,11 @@
 
 {%- if block.settings.nav_about_label != blank -%}
 <li class="fs-nav__item{% if has_about_sub %} fs-nav__item--mini{% endif %}">
-  <a href="{{ block.settings.nav_about_url | default: '#' }}" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}{% if has_about_sub %}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>{% endif %}</a>
+  <button type="button" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}{% if has_about_sub %}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>{% endif %}</button>
   {%- if has_about_sub -%}
   <div class="fs-mini-panel" role="region">
     <ul class="fs-mega-list" role="list">
-      {%- if block.settings.nav_about_sub_1_label != blank -%}<li><a href="{{ block.settings.nav_about_sub_1_url | default: '#' }}" class="fs-mega-list__link">{{- block.settings.nav_about_sub_1_label | escape -}}</a></li>{%- endif -%}
-      {%- if block.settings.nav_about_sub_2_label != blank -%}<li><a href="{{ block.settings.nav_about_sub_2_url | default: '#' }}" class="fs-mega-list__link">{{- block.settings.nav_about_sub_2_label | escape -}}</a></li>{%- endif -%}
-      {%- if block.settings.nav_about_sub_3_label != blank -%}<li><a href="{{ block.settings.nav_about_sub_3_url | default: '#' }}" class="fs-mega-list__link">{{- block.settings.nav_about_sub_3_label | escape -}}</a></li>{%- endif -%}
+      {%- for link in about_menu.links -%}<li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>{%- endfor -%}
     </ul>
   </div>
   {%- endif -%}
@@ -177,7 +293,9 @@
 
     </ul>
     {%- if block.settings.nav_contact_label != blank -%}
-    <a href="{{ block.settings.nav_contact_url | default: '#' }}" class="fs-nav-contact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>{{- block.settings.nav_contact_label | escape -}}</a>
+    {%- assign contact_href = block.settings.nav_contact_url | default: '#' -%}
+    {%- if block.settings.nav_contact_email != blank -%}{%- assign contact_href = 'mailto:' | append: block.settings.nav_contact_email -%}{%- endif -%}
+    <a href="{{ contact_href }}" class="fs-nav-contact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>{{- block.settings.nav_contact_label | escape -}}</a>
     {%- endif -%}
   </div>
 </nav>
@@ -195,14 +313,14 @@
       {%- if block.settings.nav_1_label != blank -%}
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_1_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="fs-drawer__sub">{%- for i in (1..4) -%}{%- assign l = 'nav_1_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_1_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<a href="{{ block.settings[u] | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings[l] | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
+        <div class="fs-drawer__sub">{%- for link in nav1_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
       {%- if block.settings.nav_2_label != blank -%}
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_2_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="fs-drawer__sub">{%- for i in (1..4) -%}{%- assign l = 'nav_2_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_2_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<a href="{{ block.settings[u] | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings[l] | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
+        <div class="fs-drawer__sub">{%- for link in nav2_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
@@ -210,9 +328,7 @@
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_3_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
         <div class="fs-drawer__sub">
-          {%- for i in (1..4) -%}{%- assign l = 'nav_3_link_' | append: i | append: '_label' -%}{%- assign u = 'nav_3_link_' | append: i | append: '_url' -%}{%- if block.settings[l] != blank -%}<a href="{{ block.settings[u] | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings[l] | escape -}}</a>{%- endif -%}{%- endfor -%}
-          {%- if block.settings.nav_3_designer_link_1_label != blank -%}<a href="{{ block.settings.nav_3_designer_link_1_url | default: '#' }}" class="fs-drawer__sub-link" style="color:#6B4C8A">{{- block.settings.nav_3_designer_link_1_label | escape -}}</a>{%- endif -%}
-          {%- if block.settings.nav_3_designer_link_2_label != blank -%}<a href="{{ block.settings.nav_3_designer_link_2_url | default: '#' }}" class="fs-drawer__sub-link" style="color:#6B4C8A">{{- block.settings.nav_3_designer_link_2_label | escape -}}</a>{%- endif -%}
+          {%- for link in nav3_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
         </div>
       </div>
       {%- endif -%}
@@ -222,9 +338,7 @@
         <div class="fs-drawer__item">
           <button class="fs-drawer__trigger">{{- block.settings.nav_about_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div class="fs-drawer__sub">
-            {%- if block.settings.nav_about_sub_1_label != blank -%}<a href="{{ block.settings.nav_about_sub_1_url | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings.nav_about_sub_1_label | escape -}}</a>{%- endif -%}
-            {%- if block.settings.nav_about_sub_2_label != blank -%}<a href="{{ block.settings.nav_about_sub_2_url | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings.nav_about_sub_2_label | escape -}}</a>{%- endif -%}
-            {%- if block.settings.nav_about_sub_3_label != blank -%}<a href="{{ block.settings.nav_about_sub_3_url | default: '#' }}" class="fs-drawer__sub-link">{{- block.settings.nav_about_sub_3_label | escape -}}</a>{%- endif -%}
+            {%- for link in about_menu.links -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endfor -%}
           </div>
         </div>
         {%- else -%}
@@ -232,9 +346,6 @@
         {%- endif -%}
       {%- endif -%}
 
-      {%- if block.settings.nav_contact_label != blank -%}
-      <a href="{{ block.settings.nav_contact_url | default: '#' }}" class="fs-drawer__plain-link">{{- block.settings.nav_contact_label | escape -}}</a>
-      {%- endif -%}
 
     </nav>
     <div class="fs-drawer__footer">
@@ -253,85 +364,65 @@
   "settings": [
     { "type": "header", "content": "Branding & Theme" },
     { "type": "checkbox", "id": "hide_native_header", "label": "Hide native theme header", "default": true },
-    { "type": "text", "id": "native_header_selector", "label": "Native header CSS selector", "default": ".shopify-section-header" },
     { "type": "image_picker", "id": "logo", "label": "Logo" },
     { "type": "header", "content": "Utility Bar" },
     { "type": "text", "id": "utility_text", "label": "Utility bar text", "default": "Made on order · shipped worldwide" },
     { "type": "header", "content": "PrintLab Menu" },
     { "type": "text", "id": "nav_1_label", "label": "Label", "default": "PrintLab" },
     { "type": "url", "id": "nav_1_url", "label": "URL" },
-    { "type": "text", "id": "nav_1_link_1_label", "label": "Link 1" },
-    { "type": "url", "id": "nav_1_link_1_url", "label": "URL 1" },
-    { "type": "text", "id": "nav_1_link_2_label", "label": "Link 2" },
-    { "type": "url", "id": "nav_1_link_2_url", "label": "URL 2" },
-    { "type": "text", "id": "nav_1_link_3_label", "label": "Link 3" },
-    { "type": "url", "id": "nav_1_link_3_url", "label": "URL 3" },
-    { "type": "text", "id": "nav_1_link_4_label", "label": "Link 4" },
-    { "type": "url", "id": "nav_1_link_4_url", "label": "URL 4" },
-    { "type": "text", "id": "nav_1_feat_1_label", "label": "Feat 1" },
-    { "type": "url", "id": "nav_1_feat_1_url", "label": "Feat 1 URL" },
-    { "type": "text", "id": "nav_1_feat_2_label", "label": "Feat 2" },
-    { "type": "url", "id": "nav_1_feat_2_url", "label": "Feat 2 URL" },
-    { "type": "text", "id": "nav_1_cta_headline", "label": "CTA headline" },
+    { "type": "text", "id": "nav_1_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
+    { "type": "product_list", "id": "nav_1_feat_products", "label": "Featured products", "limit": 3 },
+    { "type": "text", "id": "nav_1_cta_eyebrow", "label": "CTA eyebrow" },
+    { "type": "richtext", "id": "nav_1_cta_headline", "label": "CTA headline (italics = sage)" },
     { "type": "textarea", "id": "nav_1_cta_body", "label": "CTA body" },
     { "type": "text", "id": "nav_1_cta_btn_label", "label": "CTA button" },
     { "type": "url", "id": "nav_1_cta_btn_url", "label": "CTA button URL" },
+    { "type": "color", "id": "nav_1_cta_btn_bg", "label": "Button bg" },
+    { "type": "color", "id": "nav_1_cta_btn_color", "label": "Button text" },
+    { "type": "color", "id": "nav_1_cta_btn_bg_hover", "label": "Button bg (hover)" },
+    { "type": "color", "id": "nav_1_cta_btn_color_hover", "label": "Button text (hover)" },
     { "type": "select", "id": "nav_1_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "linen" },
     { "type": "header", "content": "The Yard Menu" },
     { "type": "text", "id": "nav_2_label", "label": "Label", "default": "The Yard" },
     { "type": "url", "id": "nav_2_url", "label": "URL" },
-    { "type": "text", "id": "nav_2_link_1_label", "label": "Link 1" },
-    { "type": "url", "id": "nav_2_link_1_url", "label": "URL 1" },
-    { "type": "text", "id": "nav_2_link_2_label", "label": "Link 2" },
-    { "type": "url", "id": "nav_2_link_2_url", "label": "URL 2" },
-    { "type": "text", "id": "nav_2_link_3_label", "label": "Link 3" },
-    { "type": "url", "id": "nav_2_link_3_url", "label": "URL 3" },
-    { "type": "text", "id": "nav_2_link_4_label", "label": "Link 4" },
-    { "type": "url", "id": "nav_2_link_4_url", "label": "URL 4" },
-    { "type": "text", "id": "nav_2_feat_1_label", "label": "Feat 1" },
-    { "type": "url", "id": "nav_2_feat_1_url", "label": "Feat 1 URL" },
-    { "type": "text", "id": "nav_2_feat_2_label", "label": "Feat 2" },
-    { "type": "url", "id": "nav_2_feat_2_url", "label": "Feat 2 URL" },
-    { "type": "text", "id": "nav_2_cta_headline", "label": "CTA headline" },
+    { "type": "text", "id": "nav_2_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
+    { "type": "product_list", "id": "nav_2_feat_products", "label": "Featured products", "limit": 3 },
+    { "type": "text", "id": "nav_2_cta_eyebrow", "label": "CTA eyebrow" },
+    { "type": "richtext", "id": "nav_2_cta_headline", "label": "CTA headline (italics = sage)" },
     { "type": "textarea", "id": "nav_2_cta_body", "label": "CTA body" },
     { "type": "text", "id": "nav_2_cta_btn_label", "label": "CTA button" },
     { "type": "url", "id": "nav_2_cta_btn_url", "label": "CTA button URL" },
+    { "type": "color", "id": "nav_2_cta_btn_bg", "label": "Button bg" },
+    { "type": "color", "id": "nav_2_cta_btn_color", "label": "Button text" },
+    { "type": "color", "id": "nav_2_cta_btn_bg_hover", "label": "Button bg (hover)" },
+    { "type": "color", "id": "nav_2_cta_btn_color_hover", "label": "Button text (hover)" },
     { "type": "select", "id": "nav_2_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "sage" },
     { "type": "header", "content": "Studios Menu" },
     { "type": "text", "id": "nav_3_label", "label": "Label", "default": "Studios" },
     { "type": "url", "id": "nav_3_url", "label": "URL" },
-    { "type": "text", "id": "nav_3_link_1_label", "label": "Link 1" },
-    { "type": "url", "id": "nav_3_link_1_url", "label": "URL 1" },
-    { "type": "text", "id": "nav_3_link_2_label", "label": "Link 2" },
-    { "type": "url", "id": "nav_3_link_2_url", "label": "URL 2" },
-    { "type": "text", "id": "nav_3_link_3_label", "label": "Link 3" },
-    { "type": "url", "id": "nav_3_link_3_url", "label": "URL 3" },
-    { "type": "text", "id": "nav_3_link_4_label", "label": "Link 4" },
-    { "type": "url", "id": "nav_3_link_4_url", "label": "URL 4" },
-    { "type": "text", "id": "nav_3_feat_1_label", "label": "Feat 1" },
-    { "type": "url", "id": "nav_3_feat_1_url", "label": "Feat 1 URL" },
-    { "type": "text", "id": "nav_3_feat_2_label", "label": "Feat 2" },
-    { "type": "url", "id": "nav_3_feat_2_url", "label": "Feat 2 URL" },
-    { "type": "text", "id": "nav_3_cta_headline", "label": "CTA headline" },
+    { "type": "text", "id": "nav_3_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
+    { "type": "select", "id": "nav_3_feat_mode", "label": "Featured section type", "options": [{ "value": "collections", "label": "Collections" }, { "value": "partners", "label": "Partners" }], "default": "collections" },
+    { "type": "collection_list", "id": "nav_3_feat_collections", "label": "Featured collections", "limit": 3 },
+    { "type": "text", "id": "nav_3_feat_partner_1", "label": "Featured partner 1 (slug)", "info": "Partner handle, e.g. jane-studio" },
+    { "type": "text", "id": "nav_3_feat_partner_2", "label": "Featured partner 2 (slug)" },
+    { "type": "text", "id": "nav_3_feat_partner_3", "label": "Featured partner 3 (slug)" },
+    { "type": "text", "id": "nav_3_cta_eyebrow", "label": "CTA eyebrow" },
+    { "type": "richtext", "id": "nav_3_cta_headline", "label": "CTA headline (italics = sage)" },
     { "type": "textarea", "id": "nav_3_cta_body", "label": "CTA body" },
     { "type": "text", "id": "nav_3_cta_btn_label", "label": "CTA button" },
     { "type": "url", "id": "nav_3_cta_btn_url", "label": "CTA button URL" },
+    { "type": "color", "id": "nav_3_cta_btn_bg", "label": "Button bg" },
+    { "type": "color", "id": "nav_3_cta_btn_color", "label": "Button text" },
+    { "type": "color", "id": "nav_3_cta_btn_bg_hover", "label": "Button bg (hover)" },
+    { "type": "color", "id": "nav_3_cta_btn_color_hover", "label": "Button text (hover)" },
     { "type": "select", "id": "nav_3_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "ink" },
-    { "type": "text", "id": "nav_3_designer_link_1_label", "label": "Designer link 1" },
-    { "type": "url", "id": "nav_3_designer_link_1_url", "label": "Designer link 1 URL" },
-    { "type": "text", "id": "nav_3_designer_link_2_label", "label": "Designer link 2" },
-    { "type": "url", "id": "nav_3_designer_link_2_url", "label": "Designer link 2 URL" },
     { "type": "header", "content": "About & Contact" },
     { "type": "text", "id": "nav_about_label", "label": "About label", "default": "About" },
     { "type": "url", "id": "nav_about_url", "label": "About URL" },
-    { "type": "text", "id": "nav_about_sub_1_label", "label": "About sub-link 1" },
-    { "type": "url", "id": "nav_about_sub_1_url", "label": "Sub-link 1 URL" },
-    { "type": "text", "id": "nav_about_sub_2_label", "label": "About sub-link 2" },
-    { "type": "url", "id": "nav_about_sub_2_url", "label": "Sub-link 2 URL" },
-    { "type": "text", "id": "nav_about_sub_3_label", "label": "About sub-link 3" },
-    { "type": "url", "id": "nav_about_sub_3_url", "label": "Sub-link 3 URL" },
-    { "type": "text", "id": "nav_contact_label", "label": "Contact label", "default": "Contact us" },
-    { "type": "url", "id": "nav_contact_url", "label": "Contact URL" }
+    { "type": "text", "id": "nav_about_menu", "label": "About menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
+    { "type": "text", "id": "nav_contact_label", "label": "Contact label", "default": "Contact Us" },
+    { "type": "text", "id": "nav_contact_email", "label": "Contact email (mailto)", "info": "If set, the Contact link opens your email client. Overrides Contact URL." },
+    { "type": "url", "id": "nav_contact_url", "label": "Contact URL", "info": "Used only if Contact email is blank." }
   ]
 }
 {% endschema %}

@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   'use strict';
 
   const chrome = document.querySelector('.fs-chrome');
@@ -50,6 +50,12 @@
       panel.addEventListener('mouseenter', () => clearTimeout(closeTimer));
       panel.addEventListener('mouseleave', () => {
         closeTimer = setTimeout(() => closeItem(item), 120);
+      });
+    }
+
+    if (link) {
+      link.addEventListener('click', () => {
+        item.classList.contains('is-open') ? closeItem(item) : openItem(item);
       });
     }
 
@@ -224,8 +230,8 @@
       partners.slice(0, limit).forEach(p => {
         const thumb = p.profileImageUrl
           ? `<img class="fs-sugg__thumb" src="${escHtml(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
-          : `<div class="fs-sugg__avatar">${escHtml(p.designerName[0].toUpperCase())}</div>`;
-        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.designerName)}</span><span class="fs-sugg__sub">Designer</span></div></a>`;
+          : `<div class="fs-sugg__avatar">${escHtml(p.studioName[0].toUpperCase())}</div>`;
+        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.studioName)}</span><span class="fs-sugg__sub">Designer</span></div></a>`;
       });
       return html;
     }
@@ -262,23 +268,24 @@
       return `/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=${limit}&resources[options][unavailable_products]=hide`;
     }
 
+    async function cachedSearchFetch(url) {
+      return cachedFetch(url, 5 * MIN, sessionStorage);
+    }
+
     async function renderAllSugg(query) {
       const [pRes, dRes, cRes] = await Promise.allSettled([
         fetch(productSearchUrl(query, 3)),
-        fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`),
-        fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`),
+        cachedSearchFetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`),
+        cachedSearchFetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`),
       ]);
 
       let products = [], partners = [], collections = [];
       if (pRes.status === 'fulfilled' && pRes.value.ok) {
-        const d = await pRes.value.json(); products = d.resources?.results?.products || [];
+        const d = await pRes.value.json();
+        products = d.resources?.results?.products || [];
       }
-      if (dRes.status === 'fulfilled' && dRes.value.ok) {
-        const d = await dRes.value.json(); partners = d.results || [];
-      }
-      if (cRes.status === 'fulfilled' && cRes.value.ok) {
-        const d = await cRes.value.json(); collections = d.results || [];
-      }
+      if (dRes.status === 'fulfilled') partners = dRes.value?.results || [];
+      if (cRes.status === 'fulfilled') collections = cRes.value?.results || [];
 
       if (!products.length && !partners.length && !collections.length) { hideSugg(); return; }
 
@@ -306,15 +313,11 @@
           const { resources } = await r.json();
           renderProductSugg(resources?.results?.products || []);
         } else if (activeScope === 'collections') {
-          const r = await fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`);
-          if (!r.ok) return;
-          const { results } = await r.json();
-          renderCollectionSugg(results || []);
+          const data = await cachedSearchFetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`);
+          renderCollectionSugg(data?.results || []);
         } else {
-          const r = await fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`);
-          if (!r.ok) return;
-          const { results } = await r.json();
-          renderVendorSugg(results || []);
+          const data = await cachedSearchFetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`);
+          renderVendorSugg(data?.results || []);
         }
       } catch (_) {}
     }
@@ -379,4 +382,160 @@
       });
     });
   }
+  /* ── Browse menu nested item accordion ─────────────────────────────── */
+  chrome.querySelectorAll('.fs-mega-list__link--btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.fs-mega-list__item--parent');
+      const isOpen = item.classList.contains('is-open');
+      item.classList.toggle('is-open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      const sub = item.querySelector('.fs-mega-sub');
+      if (sub) sub.hidden = isOpen;
+    });
+  });
+
+  /* ── Cache helpers ──────────────────────────────────────────────────── */
+  const HOUR = 3600000;
+  const MIN  = 60000;
+
+  function cacheGet(store, key) {
+    try {
+      const raw = store.getItem(key);
+      if (!raw) return null;
+      const { data, expires } = JSON.parse(raw);
+      if (Date.now() > expires) { store.removeItem(key); return null; }
+      return data;
+    } catch (_) { return null; }
+  }
+
+  function cacheSet(store, key, data, ttlMs) {
+    try { store.setItem(key, JSON.stringify({ data, expires: Date.now() + ttlMs })); } catch (_) {}
+  }
+
+  async function cachedFetch(url, ttlMs, store) {
+    store = store || localStorage;
+    const key = 'fs_cache:' + url;
+    const hit = cacheGet(store, key);
+    if (hit !== null) return hit;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    cacheSet(store, key, data, ttlMs);
+    return data;
+  }
+
+  /* shared promise so both featured sections use one network call */
+  let _slugMapPromise = null;
+  function getSlugMap() {
+    if (!_slugMapPromise) {
+      _slugMapPromise = cachedFetch('/apps/fabric-shop/api/partner-vendor-slugs', HOUR)
+        .catch(() => ({}));
+    }
+    return _slugMapPromise;
+  }
+
+  async function getPartnerProfile(slug) {
+    const url = `/apps/fabric-shop/api/partner-profile?handle=${encodeURIComponent(slug)}`;
+    return cachedFetch(url, HOUR);
+  }
+
+  /* ── Featured product designer names ───────────────────────────────── */
+  (async function loadFeaturedstudioNames() {
+    const designerEls = Array.from(
+      chrome.querySelectorAll('.fs-mega-feat-item__designer[data-vendor]')
+    );
+    if (!designerEls.length) return;
+
+    const vendors = [...new Set(designerEls.map(el => el.dataset.vendor).filter(Boolean))];
+    if (!vendors.length) return;
+
+    try {
+      const slugMap = await getSlugMap();
+
+      await Promise.allSettled(vendors.map(async vendor => {
+        const slug = slugMap[vendor];
+        if (!slug) return;
+        const profile = await getPartnerProfile(slug);
+        if (!profile.fullName) return;
+        designerEls.forEach(el => {
+          if (el.dataset.vendor === vendor) el.textContent = profile.fullName;
+        });
+      }));
+    } catch (_) {}
+  })();
+
+  /* ── Featured partner cards ─────────────────────────────────────────── */
+  (async function loadFeaturedPartners() {
+    const partnerLinks = Array.from(
+      chrome.querySelectorAll('.fs-mega-feat-item--partner[data-partner-handle]')
+    );
+    if (!partnerLinks.length) return;
+
+    const handles = [...new Set(partnerLinks.map(el => el.dataset.partnerHandle).filter(Boolean))];
+
+    await Promise.allSettled(handles.map(async handle => {
+      try {
+        const profile = await getPartnerProfile(handle);
+
+        partnerLinks.forEach(el => {
+          if (el.dataset.partnerHandle !== handle) return;
+
+          const thumb    = el.querySelector('.fs-mega-feat-item__thumb--avatar');
+          const initials = el.querySelector('.fs-mega-feat-item__avatar-initials');
+          const titleEl  = el.querySelector('.fs-mega-feat-item__title');
+          const studioEl = el.querySelector('.fs-mega-feat-item__studio');
+          const metaEl   = el.querySelector('.fs-mega-feat-item__meta');
+
+          if (profile.profileImageUrl && thumb) {
+            const img = document.createElement('img');
+            img.className = 'fs-mega-feat-item__img';
+            img.src = profile.profileImageUrl;
+            img.alt = profile.studioName || profile.fullName || '';
+            img.loading = 'lazy';
+            if (initials) initials.replaceWith(img);
+          } else if (initials && profile.fullName) {
+            initials.textContent = profile.fullName.slice(0, 1).toUpperCase();
+          }
+
+          if (titleEl) titleEl.textContent = profile.studioName || profile.fullName || handle;
+          if (studioEl) studioEl.textContent = profile.fullName || '';
+          if (metaEl && profile.designCount != null) {
+            metaEl.textContent = profile.designCount + ' design' + (profile.designCount !== 1 ? 's' : '');
+          }
+        });
+      } catch (_) {}
+    }));
+  })();
+
+  /* ── Featured collection designer names ─────────────────────────────── */
+  (async function loadCollectionstudioNames() {
+    const colEls = Array.from(
+      chrome.querySelectorAll('.fs-mega-feat-item__studio[data-col-vendor]')
+    );
+    if (!colEls.length) return;
+
+    const vendors = [...new Set(colEls.map(el => el.dataset.colVendor).filter(Boolean))];
+    if (!vendors.length) return;
+
+    try {
+      const slugMap = await getSlugMap();
+
+      await Promise.allSettled(vendors.map(async vendor => {
+        const slug = slugMap[vendor];
+        if (!slug) return;
+        const profile = await getPartnerProfile(slug);
+        if (!profile.fullName) return;
+        colEls.forEach(el => {
+          if (el.dataset.colVendor === vendor) {
+            el.textContent = vendor + ' · ' + profile.fullName;
+            const anchor = el.closest('a.fs-mega-feat-item');
+            if (anchor && anchor.dataset.colHandle) {
+              anchor.href = `/pages/partners?handle=${encodeURIComponent(slug)}&tab=collection&slug=${encodeURIComponent(anchor.dataset.colHandle)}`;
+            }
+          }
+        });
+      }));
+    } catch (_) {}
+  })();
+
 })();

@@ -1,0 +1,264 @@
+{{ 'featured-collection.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign fc_collection  = block.settings.collection
+  assign columns        = block.settings.columns | plus: 0
+  assign products_limit = block.settings.products_to_show
+  assign browse_url     = block.settings.browse_url
+
+  if browse_url == blank and fc_collection != blank
+    assign browse_url = fc_collection.url
+  endif
+
+  assign product_count = 0
+  if fc_collection != blank
+    assign product_count = fc_collection.products_count
+    if product_count > products_limit
+      assign product_count = products_limit
+    endif
+  endif
+
+  assign scroll_ms = block.settings.scroll_interval | times: 1000
+-%}
+
+<style>
+  #fc-{{ block.id }} {
+    --fc-bg:              {{ block.settings.bg_color }};
+    --fc-eyebrow-color:   {{ block.settings.eyebrow_color }};
+    --fc-heading-size:    {{ block.settings.heading_size }}px;
+    --fc-heading-color:   {{ block.settings.heading_color }};
+    --fc-subtitle-color:  {{ block.settings.subtitle_color }};
+    --fc-browse-color:    {{ block.settings.browse_color }};
+    --fc-card-bg:         {{ block.settings.card_bg }};
+    --fc-card-name-color: {{ block.settings.card_name_color }};
+    --fc-card-spec-color: {{ block.settings.card_spec_color }};
+  }
+</style>
+
+<div class="fc-wrap" id="fc-{{ block.id }}">
+  <div class="fc-inner">
+
+    <div class="fc-header">
+      <div class="fc-header__left">
+        {%- if block.settings.eyebrow != blank -%}
+          <p class="fc-eyebrow">{{ block.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        {%- if block.settings.heading != blank -%}
+          <h2 class="fc-heading">{{ block.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if block.settings.subtitle != blank -%}
+          <p class="fc-subtitle">{{ block.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </div>
+      {%- if block.settings.browse_label != blank -%}
+        <a href="{{ browse_url | default: '#' }}" class="fc-browse">
+          {{ block.settings.browse_label | escape }} →
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="fc-grid fc-grid--{{ columns }}"
+         data-columns="{{ columns }}"
+         data-count="{{ product_count }}"
+         data-autoscroll="{{ block.settings.enable_autoscroll }}"
+         data-delay="{{ scroll_ms }}">
+
+      {%- if fc_collection != blank -%}
+        {%- for product in fc_collection.products limit: products_limit -%}
+          {%- liquid
+            assign spec = product.metafields.fabric.descriptor.value
+            assign has_spec = false
+            if spec != blank
+              assign has_spec = true
+            endif
+
+            assign variant_img_count = 0
+            unless has_spec
+              for variant in product.variants
+                if variant.image != blank
+                  assign variant_img_count = variant_img_count | plus: 1
+                endif
+              endfor
+            endunless
+          -%}
+          <a href="{{ product.url }}" class="fc-card">
+            <div class="fc-card__img-wrap">
+              {%- if product.featured_image -%}
+                {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', class: 'fc-card__img', alt: product.title }}
+              {%- else -%}
+                <div class="fc-card__img-placeholder"></div>
+              {%- endif -%}
+            </div>
+            <div class="fc-card__meta">
+              <h3 class="fc-card__name">{{ product.title | escape }}</h3>
+              {%- if has_spec -%}
+                <span class="fc-card__spec">{{ spec | escape }}</span>
+              {%- elsif variant_img_count > 0 -%}
+                <div class="fc-card__variants">
+                  {%- assign shown = 0 -%}
+                  {%- for variant in product.variants -%}
+                    {%- if variant.image != blank and shown < 5 -%}
+                      <div class="fc-card__variant-swatch" title="{{ variant.title | escape }}">
+                        {{ variant.image | image_url: width: 60 | image_tag: loading: 'lazy', class: 'fc-card__variant-img', alt: variant.title }}
+                      </div>
+                      {%- assign shown = shown | plus: 1 -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- if variant_img_count > 5 -%}
+                    <span class="fc-card__variants-more">+{{ variant_img_count | minus: 5 }}</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..products_limit) -%}
+          <div class="fc-card fc-card--placeholder">
+            <div class="fc-card__img-wrap"><div class="fc-card__img-placeholder"></div></div>
+            <div class="fc-card__meta">
+              <h3 class="fc-card__name">Product name</h3>
+              <span class="fc-card__spec">000 GSM · 100% MATERIAL</span>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    <div class="fc-arrows" hidden>
+      <button type="button" class="fc-arrow fc-arrow--prev" aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button type="button" class="fc-arrow fc-arrow--next" aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var wrap = document.getElementById('fc-{{ block.id }}');
+  if (!wrap) return;
+
+  var grid      = wrap.querySelector('.fc-grid');
+  var arrowsEl  = wrap.querySelector('.fc-arrows');
+  var prevBtn   = wrap.querySelector('.fc-arrow--prev');
+  var nextBtn   = wrap.querySelector('.fc-arrow--next');
+
+  var cols       = parseInt(grid.dataset.columns, 10);
+  var count      = parseInt(grid.dataset.count, 10);
+  var autoScroll = grid.dataset.autoscroll === 'true';
+  var delay      = parseInt(grid.dataset.delay, 10);
+
+  /* Only show arrows when products exceed visible columns (responsive) */
+  function visibleCols() {
+    var w = window.innerWidth;
+    if (w <= 640)  return Math.min(cols, 2);
+    if (w <= 1024) return Math.min(cols, 3);
+    return cols;
+  }
+  if (count <= visibleCols()) return;
+  arrowsEl.removeAttribute('hidden');
+
+  function cardWidth() {
+    var c = grid.querySelector('.fc-card');
+    if (!c) return 220;
+    var gap = parseFloat(window.getComputedStyle(grid).gap) || 12;
+    return c.offsetWidth + gap;
+  }
+
+  function atStart() { return grid.scrollLeft <= 4; }
+  function atEnd()   { return grid.scrollLeft >= grid.scrollWidth - grid.clientWidth - 4; }
+
+  function scrollNext() {
+    if (atEnd()) {
+      grid.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      grid.scrollBy({ left: cardWidth(), behavior: 'smooth' });
+    }
+  }
+
+  function scrollPrev() {
+    if (atStart()) {
+      grid.scrollTo({ left: grid.scrollWidth, behavior: 'smooth' });
+    } else {
+      grid.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
+    }
+  }
+
+  nextBtn.addEventListener('click', scrollNext);
+  prevBtn.addEventListener('click', scrollPrev);
+
+  function updateArrows() {
+    prevBtn.classList.toggle('fc-arrow--disabled', atStart());
+    nextBtn.classList.toggle('fc-arrow--disabled', atEnd());
+  }
+  grid.addEventListener('scroll', updateArrows, { passive: true });
+  updateArrows();
+
+  /* Autoscroll */
+  if (autoScroll) {
+    var timer = null;
+
+    function start() { timer = setInterval(scrollNext, delay); }
+    function stop()  { clearInterval(timer); timer = null; }
+
+    grid.addEventListener('mouseenter', stop);
+    grid.addEventListener('mouseleave', start);
+    grid.addEventListener('touchstart', stop, { passive: true });
+    grid.addEventListener('touchend', function () { setTimeout(start, 1000); });
+
+    start();
+  }
+}());
+</script>
+
+{% schema %}
+{
+  "name": "Featured Collection",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Section" },
+    { "type": "color", "id": "bg_color",      "label": "Background colour", "default": "#1A1814" },
+    { "type": "text",  "id": "eyebrow",        "label": "Eyebrow text",     "default": "In stock · ready to ship" },
+    { "type": "color", "id": "eyebrow_color",  "label": "Eyebrow colour",   "default": "#8B8580" },
+    { "type": "text",  "id": "heading",        "label": "Heading",          "default": "Featured Collection" },
+    { "type": "range", "id": "heading_size",   "label": "Heading font size","min": 24, "max": 64, "step": 2, "unit": "px", "default": 40 },
+    { "type": "color", "id": "heading_color",  "label": "Heading colour",   "default": "#FAF8F3" },
+    { "type": "text",  "id": "subtitle",       "label": "Subtitle" },
+    { "type": "color", "id": "subtitle_color", "label": "Subtitle colour",  "default": "#A09890" },
+
+    { "type": "header", "content": "Collection" },
+    { "type": "collection", "id": "collection",      "label": "Collection" },
+    { "type": "range",      "id": "products_to_show","label": "Products to show","min": 4,"max": 20,"step": 1,"default": 5 },
+    {
+      "type": "select", "id": "columns", "label": "Columns",
+      "options": [
+        { "value": "4", "label": "4 columns" },
+        { "value": "5", "label": "5 columns" }
+      ],
+      "default": "5"
+    },
+
+    { "type": "header", "content": "Browse Link" },
+    { "type": "text",  "id": "browse_label", "label": "Link label",  "default": "Browse the collection" },
+    { "type": "url",   "id": "browse_url",   "label": "Link URL",    "info": "Leave blank to auto-link to the selected collection" },
+    { "type": "color", "id": "browse_color", "label": "Link colour", "default": "#FAF8F3" },
+
+    { "type": "header", "content": "Carousel" },
+    { "type": "checkbox", "id": "enable_autoscroll", "label": "Enable autoscroll",                                              "default": false },
+    { "type": "range",    "id": "scroll_interval",   "label": "Autoscroll delay", "min": 2, "max": 10, "step": 1, "unit": "s", "default": 4, "info": "Seconds between each scroll step" },
+
+    { "type": "header", "content": "Cards" },
+    { "type": "color", "id": "card_bg",         "label": "Card background",    "default": "#FAF8F3" },
+    { "type": "color", "id": "card_name_color",  "label": "Product name colour","default": "#1A1814" },
+    { "type": "color", "id": "card_spec_color",  "label": "Spec text colour",   "default": "#A87A2E" }
+  ]
+}
+{% endschema %}

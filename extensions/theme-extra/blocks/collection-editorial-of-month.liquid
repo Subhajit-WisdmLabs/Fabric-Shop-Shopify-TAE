@@ -1,0 +1,204 @@
+{{ 'collection-editorial-of-month.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign fc_collection = block.settings.collection
+
+  if block.settings.eyebrow != blank
+    assign eyebrow_text = block.settings.eyebrow
+  else
+    assign current_month = 'now' | date: '%B'
+    assign eyebrow_text = 'Featured Collection · ' | append: current_month
+  endif
+
+  assign collection_gid = ''
+  if fc_collection != blank
+    assign collection_gid = 'gid://shopify/Collection/' | append: fc_collection.id
+  endif
+-%}
+
+<style>
+  #eom-{{ block.id }} {
+    --eom-bg:        {{ block.settings.bg_color }};
+    --eom-ink:       {{ block.settings.ink_color }};
+    --eom-sage:      {{ block.settings.accent_color }};
+    --eom-aubergine: {{ block.settings.button_color }};
+  }
+</style>
+
+<div class="eom-wrap" id="eom-{{ block.id }}"
+     data-collection-gid="{{ collection_gid | escape }}">
+  <div class="eom-inner">
+
+    <div class="eom-head">
+      <p class="eom-eyebrow">{{ eyebrow_text | escape }}</p>
+      {%- if block.settings.viewall_label != blank -%}
+        <a class="eom-viewall" href="{{ block.settings.viewall_url | default: '/collections' }}">
+          {{- block.settings.viewall_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="eom-grid">
+
+      <!-- MEDIA -->
+      <div class="eom-media">
+        <div class="eom-media-wrap"
+             data-alt="{{ fc_collection.title | escape }}">
+          <div class="eom-img eom-img--placeholder"></div>
+        </div>
+        <div class="eom-badge">
+          {%- if fc_collection != blank -%}
+            {{ fc_collection.products_count }}
+          {%- else -%}
+            &ndash;
+          {%- endif -%}
+          <span>designs</span>
+        </div>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="eom-body">
+        {%- if fc_collection != blank -%}
+          <h2 class="eom-title">{{ fc_collection.title | escape }}</h2>
+          {%- if fc_collection.description != blank -%}
+            <p class="eom-desc">{{ fc_collection.description | strip_html | truncate: 220 }}</p>
+          {%- endif -%}
+        {%- else -%}
+          <h2 class="eom-title">Select a collection</h2>
+          <p class="eom-desc">Choose a collection in the theme editor to display it here.</p>
+        {%- endif -%}
+
+        <hr class="eom-rule" />
+
+        <div class="eom-owner" hidden>
+          <div class="eom-avatar">
+            <img class="eom-avatar__img" width="52" height="52" alt="" hidden />
+            <span class="eom-avatar__initials"></span>
+          </div>
+          <div class="eom-owner-details">
+            <div class="eom-owner-name">
+              <small class="eom-owner-label">Curated by</small>
+              <span class="eom-owner-name__text"></span>
+            </div>
+            <p class="eom-owner-studio"></p>
+            <p class="eom-owner-bio"></p>
+          </div>
+        </div>
+
+        <div class="eom-foot">
+          {%- if fc_collection != blank -%}
+            <a class="eom-btn" href="{{ fc_collection.url }}">
+              Explore the collection <span aria-hidden="true">&rarr;</span>
+            </a>
+          {%- endif -%}
+          <a class="eom-btn eom-btn--ghost eom-studio-btn" href="#" hidden>
+            Explore the studio <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var wrap = document.getElementById('eom-{{ block.id }}');
+  if (!wrap) return;
+
+  var gid = wrap.dataset.collectionGid;
+  if (!gid) return;
+
+  fetch('/apps/fabric-shop/api/featured-collection?collection_gid=' + encodeURIComponent(gid))
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      if (!data || !data.coverImageUrl) return;
+
+      // Swap placeholder div for a real <img>
+      var mediaWrap = wrap.querySelector('.eom-media-wrap');
+      var placeholder = mediaWrap ? mediaWrap.querySelector('.eom-img--placeholder') : null;
+      if (placeholder) {
+        var img = document.createElement('img');
+        img.className = 'eom-img';
+        img.alt = (mediaWrap && mediaWrap.dataset.alt) ? mediaWrap.dataset.alt : '';
+        img.src = data.coverImageUrl;
+        placeholder.replaceWith(img);
+      }
+
+      // Split last word of title into <em>
+      var titleEl = wrap.querySelector('.eom-title');
+      if (titleEl) {
+        var text = titleEl.textContent.trim();
+        var lastSpace = text.lastIndexOf(' ');
+        if (lastSpace !== -1) {
+          titleEl.innerHTML = text.slice(0, lastSpace) + ' <em>' + text.slice(lastSpace + 1) + '</em>';
+        }
+      }
+
+      // Designer card
+      if (!data.designer) return;
+      var d = data.designer;
+
+      var avatarImg      = wrap.querySelector('.eom-avatar__img');
+      var avatarInitials = wrap.querySelector('.eom-avatar__initials');
+
+      if (d.profileImageUrl && avatarImg) {
+        avatarImg.src = d.profileImageUrl;
+        avatarImg.alt = d.name || '';
+        avatarImg.removeAttribute('hidden');
+        if (avatarInitials) avatarInitials.setAttribute('hidden', '');
+      } else if (avatarInitials) {
+        avatarInitials.textContent = d.initials || '';
+      }
+
+      var nameText = wrap.querySelector('.eom-owner-name__text');
+      if (nameText) nameText.textContent = d.name || '';
+
+      var studioEl = wrap.querySelector('.eom-owner-studio');
+      if (studioEl) studioEl.textContent = d.name || '';
+
+      var bioEl = wrap.querySelector('.eom-owner-bio');
+      if (bioEl) bioEl.textContent = d.bio || '';
+
+      var ownerEl = wrap.querySelector('.eom-owner');
+      if (ownerEl) ownerEl.removeAttribute('hidden');
+
+      // Studio CTA
+      if (d.slug) {
+        var studioBtn = wrap.querySelector('.eom-studio-btn');
+        if (studioBtn) {
+          studioBtn.href = '/pages/partners?handle=' + encodeURIComponent(d.slug);
+          studioBtn.removeAttribute('hidden');
+        }
+      }
+    })
+    .catch(function () { /* graceful fail — Shopify data still shows */ });
+}());
+</script>
+
+{% schema %}
+{
+  "name": "Collection of the Month",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Collection" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+
+    { "type": "header", "content": "Labels" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "info": "Leave blank to auto-generate from the current month, e.g. \"Featured Collection · May\""
+    },
+    { "type": "text", "id": "viewall_label", "label": "All-collections link label", "default": "All collections" },
+    { "type": "url",  "id": "viewall_url",   "label": "All-collections link URL", "info": "Leave blank to link to /collections" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "bg_color",     "label": "Background",           "default": "#f5f0e6" },
+    { "type": "color", "id": "ink_color",    "label": "Headings / ink",        "default": "#1c1a17" },
+    { "type": "color", "id": "accent_color", "label": "Accent (italic / eyebrow)", "default": "#7d8a5c" },
+    { "type": "color", "id": "button_color", "label": "Button / avatar",       "default": "#4a2742" }
+  ]
+}
+{% endschema %}
