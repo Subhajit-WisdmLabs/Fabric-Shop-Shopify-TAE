@@ -26,7 +26,8 @@
 </style>
 
 <div class="eom-wrap" id="eom-{{ block.id }}"
-     data-collection-gid="{{ collection_gid | escape }}">
+     data-collection-gid="{{ collection_gid | escape }}"
+     data-collection-handle="{{ fc_collection.handle | escape }}">
   <div class="eom-inner">
 
     <div class="eom-head">
@@ -87,7 +88,7 @@
 
         <div class="eom-foot">
           {%- if fc_collection != blank -%}
-            <a class="eom-btn" href="{{ fc_collection.url }}">
+            <a class="eom-btn eom-collection-btn" href="{{ fc_collection.url }}">
               Explore the collection <span aria-hidden="true">&rarr;</span>
             </a>
           {%- endif -%}
@@ -112,17 +113,19 @@
   fetch('/apps/fabric-shop/api/featured-collection?collection_gid=' + encodeURIComponent(gid))
     .then(function (res) { return res.ok ? res.json() : null; })
     .then(function (data) {
-      if (!data || !data.coverImageUrl) return;
+      if (!data) return;
 
-      // Swap placeholder div for a real <img>
-      var mediaWrap = wrap.querySelector('.eom-media-wrap');
-      var placeholder = mediaWrap ? mediaWrap.querySelector('.eom-img--placeholder') : null;
-      if (placeholder) {
-        var img = document.createElement('img');
-        img.className = 'eom-img';
-        img.alt = (mediaWrap && mediaWrap.dataset.alt) ? mediaWrap.dataset.alt : '';
-        img.src = data.coverImageUrl;
-        placeholder.replaceWith(img);
+      // Swap placeholder with cover image if available
+      if (data.coverImageUrl) {
+        var mediaWrap = wrap.querySelector('.eom-media-wrap');
+        var placeholder = mediaWrap ? mediaWrap.querySelector('.eom-img--placeholder') : null;
+        if (placeholder) {
+          var img = document.createElement('img');
+          img.className = 'eom-img';
+          img.alt = (mediaWrap && mediaWrap.dataset.alt) ? mediaWrap.dataset.alt : '';
+          img.src = data.coverImageUrl;
+          placeholder.replaceWith(img);
+        }
       }
 
       // Split last word of title into <em>
@@ -151,8 +154,9 @@
         avatarInitials.textContent = d.initials || '';
       }
 
+      // Designer name (fullName) and studio name (studioName) are separate fields
       var nameText = wrap.querySelector('.eom-owner-name__text');
-      if (nameText) nameText.textContent = d.name || '';
+      if (nameText) nameText.textContent = d.fullName || d.name || '';
 
       var studioEl = wrap.querySelector('.eom-owner-studio');
       if (studioEl) studioEl.textContent = d.name || '';
@@ -163,8 +167,16 @@
       var ownerEl = wrap.querySelector('.eom-owner');
       if (ownerEl) ownerEl.removeAttribute('hidden');
 
-      // Studio CTA
+      // Update "Explore the collection" button to partner collection URL
       if (d.slug) {
+        var collHandle = wrap.dataset.collectionHandle || '';
+        var collBtn = wrap.querySelector('.eom-collection-btn');
+        if (collBtn && collHandle) {
+          collBtn.href = '/pages/partners?handle=' + encodeURIComponent(d.slug) +
+            '&tab=collection&slug=' + encodeURIComponent(collHandle);
+        }
+
+        // Studio CTA
         var studioBtn = wrap.querySelector('.eom-studio-btn');
         if (studioBtn) {
           studioBtn.href = '/pages/partners?handle=' + encodeURIComponent(d.slug);
