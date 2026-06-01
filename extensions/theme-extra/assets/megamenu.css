@@ -82,8 +82,8 @@
 .fs-logo__img { display: block; height: auto; }
 
 .fs-logo__text {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
@@ -747,9 +747,9 @@
   min-height: 270px;
 }
 
-.fs-mega-cta--linen { background: #F5EDD8; }
-.fs-mega-cta--sage  { background: #EEF1EC; }
-.fs-mega-cta--ink   { background: #2C2C2C; color: #F5F5F0; }
+.fs-mega-cta--linen { background: var(--cta-bg, #F5EDD8); }
+.fs-mega-cta--sage  { background: var(--cta-bg, #EEF1EC); }
+.fs-mega-cta--ink   { background: var(--cta-bg, #2C2C2C); color: #F5F5F0; }
 
 .fs-mega-cta__eyebrow {
   font-size: 10px;
@@ -892,12 +892,18 @@
 }
 
 .fs-drawer__title {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: #1A1814;
   text-decoration: none;
+}
+
+.fs-drawer__title-text {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 0;
+  padding: 0;
 }
 
 .fs-drawer__close {
@@ -1050,8 +1056,11 @@
     grid-template-columns: auto auto;
     justify-content: space-between;
     gap: 0;
-    padding: 0 16px;
+    padding: 12px 16px;
     max-width: 100%;
+    height: auto;
+    min-height: 64px;
+    align-items: center;
   }
   .fs-search-wrap { display: none; }
   .fs-nav-bar { display: none; }
@@ -1060,4 +1069,14 @@
   .fs-currency-select { max-width: 110px; font-size: 10px; padding: 2px 4px; }
   .fs-hamburger { display: flex; }
   .fs-header-icons { gap: 0; }
+}
+
+@media (max-width: 500px) {
+  .fs-logo__text {
+    font-size: 25px;
+    white-space: normal;
+    word-break: normal;
+    max-width: 135px;
+    line-height: 1.1;
+  }
 }

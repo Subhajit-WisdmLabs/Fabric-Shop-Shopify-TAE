@@ -486,25 +486,62 @@
           const studioEl = el.querySelector('.fs-mega-feat-item__studio');
           const metaEl   = el.querySelector('.fs-mega-feat-item__meta');
 
+          const studioName = profile.studioName || profile.designerName || '';
+          const fullName   = profile.fullName || '';
+
           if (profile.profileImageUrl && thumb) {
             const img = document.createElement('img');
             img.className = 'fs-mega-feat-item__img';
             img.src = profile.profileImageUrl;
-            img.alt = profile.studioName || profile.fullName || '';
+            img.alt = studioName || fullName;
             img.loading = 'lazy';
             if (initials) initials.replaceWith(img);
-          } else if (initials && profile.fullName) {
-            initials.textContent = profile.fullName.slice(0, 1).toUpperCase();
+          } else if (initials) {
+            initials.textContent = (studioName || fullName).slice(0, 1).toUpperCase();
           }
 
-          if (titleEl) titleEl.textContent = profile.studioName || profile.fullName || handle;
-          if (studioEl) studioEl.textContent = profile.fullName || '';
+          if (titleEl) titleEl.textContent = studioName || fullName || handle;
+          if (studioEl) studioEl.textContent = fullName;
           if (metaEl && profile.designCount != null) {
             metaEl.textContent = profile.designCount + ' design' + (profile.designCount !== 1 ? 's' : '');
           }
         });
       } catch (_) {}
     }));
+  })();
+
+  /* ── Nav-1 collection studio + designer names ──────────────────────────── */
+  (async function loadNav1CollectionMeta() {
+    const studioEls  = Array.from(chrome.querySelectorAll('[data-col-studio]'));
+    const designerEls = Array.from(chrome.querySelectorAll('[data-col-designer]'));
+    if (!studioEls.length && !designerEls.length) return;
+
+    const vendors = [...new Set([
+      ...studioEls.map(el => el.dataset.colStudio),
+      ...designerEls.map(el => el.dataset.colDesigner),
+    ].filter(Boolean))];
+    if (!vendors.length) return;
+
+    try {
+      const slugMap = await getSlugMap();
+      await Promise.allSettled(vendors.map(async vendor => {
+        const slug = slugMap[vendor];
+        if (!slug) return;
+        const profile = await getPartnerProfile(slug);
+        studioEls.forEach(el => {
+          if (el.dataset.colStudio !== vendor) return;
+          el.textContent = profile.studioName || profile.fullName || vendor;
+          const anchor = el.closest('a.fs-mega-feat-item');
+          if (anchor && anchor.dataset.colHandle) {
+            anchor.href = `/pages/partners?handle=${encodeURIComponent(slug)}&tab=collection&slug=${encodeURIComponent(anchor.dataset.colHandle)}`;
+          }
+        });
+        designerEls.forEach(el => {
+          if (el.dataset.colDesigner !== vendor || !profile.fullName) return;
+          el.textContent = profile.fullName + ' · ';
+        });
+      }));
+    } catch (_) {}
   })();
 
   /* ── Featured collection designer names ─────────────────────────────── */
