@@ -80,6 +80,24 @@
   background: linear-gradient(150deg, #e9ead9, #dfe2cb 60%, #e7dfd0);
 }
 
+.eom-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+  height: 460px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.eom-mosaic__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .eom-badge {
   position: absolute;
   top: 18px;
@@ -238,7 +256,8 @@
   .eom-inner { padding: 48px 24px; }
   .eom-grid  { grid-template-columns: 1fr; gap: 32px; }
   .eom-img,
-  .eom-img--placeholder { height: 320px; }
+  .eom-img--placeholder,
+  .eom-mosaic { height: 320px; }
   .eom-title { font-size: 38px; }
 }
 @media (max-width: 480px) {
