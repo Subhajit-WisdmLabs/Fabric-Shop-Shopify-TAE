@@ -15,6 +15,13 @@
   }
   syncBodyPadding();
 
+  /* ── Scroll: collapse util bar ──────────────────────────────────────── */
+  function syncScrollState() {
+    chrome.classList.toggle('fs-chrome--scrolled', window.scrollY > 10);
+  }
+  window.addEventListener('scroll', syncScrollState, { passive: true });
+  syncScrollState();
+
   /* ── Mega + mini dropdowns ───────────────────────────────────────────── */
   const dropItems = Array.from(
     chrome.querySelectorAll('.fs-nav__item--mega, .fs-nav__item--mini')
@@ -145,17 +152,29 @@
     const qInput     = form && form.querySelector('input[name="q"]');
     const typeHidden = form && form.querySelector('input[name="type"]');
     const suggEl     = searchWrap.querySelector('.fs-search-sugg');
+    const clearBtn   = searchWrap.querySelector('.fs-search-clear');
     let activeScope  = 'all';
     let suggTimer    = null;
     let focusIdx     = -1;
     let suggItems    = [];
-
-    function slugify(str) {
-      return str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    }
+    let activeAbort  = null;
+    let activeTab    = 'designs';
 
     function escHtml(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── clear button ── */
+    function syncClear() {
+      if (clearBtn) clearBtn.hidden = !(qInput && qInput.value);
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (qInput) { qInput.value = ''; qInput.focus(); }
+        hideSugg();
+        syncClear();
+      });
     }
 
     /* ── scope dropdown ── */
@@ -191,12 +210,13 @@
       if (!searchWrap.contains(e.target)) { closeScopeDrop(); hideSugg(); }
     });
 
-    /* ── predictive suggestions ── */
+    /* ── suggestion helpers ── */
     if (suggEl) suggEl.addEventListener('mousedown', e => e.preventDefault());
 
     function hideSugg() {
       if (suggEl) { suggEl.hidden = true; suggEl.innerHTML = ''; }
-      focusIdx = -1; suggItems = [];
+      focusIdx = -1; suggItems = []; activeTab = 'designs';
+      activeAbort?.abort(); activeAbort = null;
     }
 
     function moveFocus(dir) {
@@ -213,9 +233,84 @@
       focusIdx = -1;
     }
 
-    function productItems(products, limit) {
+    /* ── skeleton ── */
+    function skelHtml(n) {
+      let h = '';
+      for (let i = 0; i < n; i++) {
+        h += '<div class="fs-sugg-skel"><div class="fs-sugg-skel__thumb"></div><div class="fs-sugg-skel__body"><div class="fs-sugg-skel__line fs-sugg-skel__line--title"></div><div class="fs-sugg-skel__line fs-sugg-skel__line--sub"></div></div></div>';
+      }
+      return h;
+    }
+
+    /* ── tab shell ── */
+    const TAB_LABELS = { designs: 'Designs', collections: 'Collections', studios: 'Studios' };
+
+    function initTabShell() {
+      if (!suggEl) return;
+      let html = '<div class="fs-sugg-tabs" role="tablist">';
+      ['designs', 'collections', 'studios'].forEach((t, i) => {
+        html += `<button class="fs-sugg-tab${i === 0 ? ' is-active' : ''}" role="tab" data-tab="${t}" aria-selected="${i === 0}" type="button">${TAB_LABELS[t]}</button>`;
+      });
+      html += '</div>';
+      html += `<div class="fs-sugg-panel is-active" data-panel="designs">${skelHtml(4)}</div>`;
+      html += `<div class="fs-sugg-panel" data-panel="collections">${skelHtml(3)}</div>`;
+      html += `<div class="fs-sugg-panel" data-panel="studios">${skelHtml(3)}</div>`;
+      suggEl.innerHTML = html;
+      suggEl.hidden = false;
+      activeTab = 'designs';
+
+      suggEl.querySelectorAll('.fs-sugg-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.tab;
+          suggEl.querySelectorAll('.fs-sugg-tab').forEach(b => {
+            const on = b === btn;
+            b.classList.toggle('is-active', on);
+            b.setAttribute('aria-selected', String(on));
+          });
+          suggEl.querySelectorAll('.fs-sugg-panel').forEach(p => {
+            p.classList.toggle('is-active', p.dataset.panel === activeTab);
+          });
+          suggItems = Array.from(
+            suggEl.querySelectorAll(`.fs-sugg-panel[data-panel="${activeTab}"] [role="option"]`)
+          );
+          focusIdx = -1;
+        });
+      });
+    }
+
+    function updatePanel(panelName, items, type) {
+      if (!suggEl || suggEl.hidden) return;
+      const panel = suggEl.querySelector(`.fs-sugg-panel[data-panel="${panelName}"]`);
+      if (!panel) return;
+      if (!items.length) {
+        panel.innerHTML = `<div class="fs-sugg-empty">No ${TAB_LABELS[panelName] || panelName} found</div>`;
+      } else if (type === 'products') {
+        panel.innerHTML = productItems(items);
+      } else if (type === 'collections') {
+        panel.innerHTML = collectionItems(items);
+      } else {
+        panel.innerHTML = partnerItems(items);
+      }
+      const tabBtn = suggEl.querySelector(`.fs-sugg-tab[data-tab="${panelName}"]`);
+      if (tabBtn && items.length) {
+        let badge = tabBtn.querySelector('.fs-sugg-tab__badge');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'fs-sugg-tab__badge';
+          tabBtn.appendChild(badge);
+        }
+        badge.textContent = String(items.length);
+      }
+      if (panelName === activeTab) {
+        suggItems = Array.from(panel.querySelectorAll('[role="option"]'));
+        focusIdx = -1;
+      }
+    }
+
+    /* ── item renderers ── */
+    function productItems(products) {
       let html = '';
-      products.slice(0, limit).forEach(p => {
+      products.forEach(p => {
         const imgUrl = p.featured_image?.url || p.image;
         const thumb = imgUrl
           ? `<img class="fs-sugg__thumb" src="${escHtml(imgUrl)}&width=96" alt="" loading="lazy">`
@@ -225,20 +320,24 @@
       return html;
     }
 
-    function partnerItems(partners, limit) {
+    function partnerItems(partners) {
       let html = '';
-      partners.slice(0, limit).forEach(p => {
+      partners.forEach(p => {
+        const studio = p.studioName || p.displayName || '';
+        const person = p.fullName || p.designerName || p.ownerName || '';
+        const initLetter = (studio || person || '?')[0].toUpperCase();
         const thumb = p.profileImageUrl
           ? `<img class="fs-sugg__thumb" src="${escHtml(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
-          : `<div class="fs-sugg__avatar">${escHtml(p.studioName[0].toUpperCase())}</div>`;
-        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(p.studioName)}</span><span class="fs-sugg__sub">Designer</span></div></a>`;
+          : `<div class="fs-sugg__avatar">${escHtml(initLetter)}</div>`;
+        const subText = person || studio;
+        html += `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${escHtml(studio || person)}</span>${subText ? `<span class="fs-sugg__sub">${escHtml(subText)}</span>` : ''}</div></a>`;
       });
       return html;
     }
 
-    function collectionItems(collections, limit) {
+    function collectionItems(collections) {
       let html = '';
-      collections.slice(0, limit).forEach(c => {
+      collections.forEach(c => {
         const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug)}&tab=collection&slug=${encodeURIComponent(c.handle)}`;
         const thumb = c.image
           ? `<img class="fs-sugg__thumb" src="${escHtml(c.image)}" alt="" loading="lazy">`
@@ -248,86 +347,98 @@
       return html;
     }
 
+    /* ── scoped flat renderers ── */
     function renderProductSugg(products) {
       if (!products.length) { hideSugg(); return; }
-      applySugg(productItems(products, 6));
+      applySugg(productItems(products));
     }
 
     function renderVendorSugg(partners) {
       if (!partners.length) { hideSugg(); return; }
-      applySugg(partnerItems(partners, 6));
+      applySugg(partnerItems(partners));
     }
 
     function renderCollectionSugg(collections) {
       if (!collections.length) { hideSugg(); return; }
-      applySugg(collectionItems(collections, 6));
+      applySugg(collectionItems(collections));
     }
 
-    function productSearchUrl(query, limit) {
+    function productSearchUrl(query) {
       const q = query + ' -tag:_fp-base-fabric';
-      return `/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=${limit}&resources[options][unavailable_products]=hide`;
+      return `/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=10&resources[options][unavailable_products]=hide`;
     }
 
-    async function cachedSearchFetch(url) {
-      return cachedFetch(url, 5 * MIN, sessionStorage);
+    /* ── progressive all-scope render (tabs) ── */
+    function renderAllSugg(query, signal) {
+      initTabShell();
+
+      // Designs: Shopify edge CDN — arrives first (~80ms)
+      fetch(productSearchUrl(query), { signal })
+        .then(async r => {
+          if (signal.aborted || !r.ok) { updatePanel('designs', [], 'products'); return; }
+          const d = await r.json();
+          if (!signal.aborted) updatePanel('designs', d.resources?.results?.products || [], 'products');
+        })
+        .catch(e => { if (e?.name !== 'AbortError') updatePanel('designs', [], 'products'); });
+
+      // Collections + Studios: app proxy, concurrent, SWR-cached
+      cachedFetchSWR(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`, 5 * MIN, sessionStorage, signal)
+        .then(data => {
+          if (!signal.aborted) updatePanel('collections', data?.results || [], 'collections');
+        })
+        .catch(e => { if (e?.name !== 'AbortError') updatePanel('collections', [], 'collections'); });
+
+      cachedFetchSWR(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`, 5 * MIN, sessionStorage, signal)
+        .then(data => {
+          if (!signal.aborted) updatePanel('studios', data?.results || [], 'studios');
+        })
+        .catch(e => { if (e?.name !== 'AbortError') updatePanel('studios', [], 'studios'); });
     }
 
-    async function renderAllSugg(query) {
-      const [pRes, dRes, cRes] = await Promise.allSettled([
-        fetch(productSearchUrl(query, 3)),
-        cachedSearchFetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`),
-        cachedSearchFetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`),
-      ]);
-
-      let products = [], partners = [], collections = [];
-      if (pRes.status === 'fulfilled' && pRes.value.ok) {
-        const d = await pRes.value.json();
-        products = d.resources?.results?.products || [];
-      }
-      if (dRes.status === 'fulfilled') partners = dRes.value?.results || [];
-      if (cRes.status === 'fulfilled') collections = cRes.value?.results || [];
-
-      if (!products.length && !partners.length && !collections.length) { hideSugg(); return; }
-
-      let html = '';
-      if (products.length) {
-        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Designs</div>${productItems(products, 2)}</div>`;
-      }
-      if (partners.length) {
-        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Designers</div>${partnerItems(partners, 2)}</div>`;
-      }
-      if (collections.length) {
-        html += `<div class="fs-sugg__section"><div class="fs-sugg__section-head">Collections</div>${collectionItems(collections, 2)}</div>`;
-      }
-      applySugg(html);
-    }
-
+    /* ── main loader ── */
     async function loadSugg(query) {
       if (!query || query.length < 2) { hideSugg(); return; }
+
+      activeAbort?.abort();
+      activeAbort = new AbortController();
+      const { signal } = activeAbort;
+
       try {
         if (activeScope === 'all') {
-          await renderAllSugg(query);
+          renderAllSugg(query, signal);
         } else if (activeScope === 'designs') {
-          const r = await fetch(productSearchUrl(query, 6));
-          if (!r.ok) return;
+          const r = await fetch(productSearchUrl(query), { signal });
+          if (signal.aborted || !r.ok) return;
           const { resources } = await r.json();
-          renderProductSugg(resources?.results?.products || []);
+          if (!signal.aborted) renderProductSugg(resources?.results?.products || []);
         } else if (activeScope === 'collections') {
-          const data = await cachedSearchFetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`);
-          renderCollectionSugg(data?.results || []);
+          const data = await cachedFetchSWR(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(query)}`, 5 * MIN, sessionStorage, signal);
+          if (!signal.aborted) renderCollectionSugg(data?.results || []);
         } else {
-          const data = await cachedSearchFetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`);
-          renderVendorSugg(data?.results || []);
+          const data = await cachedFetchSWR(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(query)}`, 5 * MIN, sessionStorage, signal);
+          if (!signal.aborted) renderVendorSugg(data?.results || []);
         }
-      } catch (_) {}
+      } catch (e) {
+        if (e?.name !== 'AbortError') {}
+      }
     }
 
+    /* ── prefetch on focus (warm up app-proxy) ── */
     if (qInput) {
+      qInput.addEventListener('focus', () => {
+        ['partner-search', 'collection-search'].forEach(ep => {
+          const url = `/apps/fabric-shop/api/${ep}?q=a`;
+          const key = 'fs_cache:' + url;
+          try { if (!sessionStorage.getItem(key)) fetch(url).catch(() => {}); } catch (_) {}
+        });
+      }, { once: true });
+
       qInput.addEventListener('input', () => {
         clearTimeout(suggTimer);
         const q = qInput.value.trim();
+        syncClear();
         if (!q) { hideSugg(); return; }
-        suggTimer = setTimeout(() => loadSugg(q), 280);
+        suggTimer = setTimeout(() => loadSugg(q), 150);
       });
 
       qInput.addEventListener('keydown', e => {
@@ -422,6 +533,30 @@
     const data = await res.json();
     cacheSet(store, key, data, ttlMs);
     return data;
+  }
+
+  /* Returns cached data immediately (even if stale) while refreshing in background.
+     On cache miss, fetches fresh and blocks. Accepts an AbortSignal for fresh fetches. */
+  async function cachedFetchSWR(url, ttlMs, store, signal) {
+    store = store || sessionStorage;
+    const key = 'fs_cache:' + url;
+    try {
+      const raw = store.getItem(key);
+      if (raw) {
+        const { data, expires } = JSON.parse(raw);
+        if (Date.now() > expires) {
+          fetch(url).then(async r => {
+            if (r.ok) cacheSet(store, key, await r.json(), ttlMs);
+          }).catch(() => {});
+        }
+        return data;
+      }
+    } catch (_) {}
+    const res = await fetch(url, signal ? { signal } : {});
+    if (!res.ok) throw new Error(res.status);
+    const result = await res.json();
+    cacheSet(store, key, result, ttlMs);
+    return result;
   }
 
   /* shared promise so both featured sections use one network call */
