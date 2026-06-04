@@ -1,0 +1,154 @@
+{{ 'printlab-catalogue-header.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign stat1_num   = block.settings.stat1_number
+  assign stat2_num   = block.settings.stat2_number
+  assign stat3_num   = block.settings.stat3_number
+  assign stat4_num   = block.settings.stat4_number
+
+  if block.settings.designs_collection != blank
+    assign stat1_num = block.settings.designs_collection.products_count
+  endif
+-%}
+
+<style>
+  #plch-{{ block.id }} {
+    --plch-bg:       {{ block.settings.bg_color }};
+    --plch-ink:      {{ block.settings.ink_color }};
+    --plch-ink-soft: {{ block.settings.ink_soft_color }};
+    --plch-sage:     {{ block.settings.sage_color }};
+    --plch-rule:     {{ block.settings.rule_color }};
+  }
+</style>
+
+<div class="plch-wrap" id="plch-{{ block.id }}">
+  <div class="plch-inner">
+
+    {%- if block.settings.eyebrow != blank -%}
+      <p class="plch-eyebrow">{{ block.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+
+    {%- if block.settings.heading != blank -%}
+      <h1 class="plch-title">{{ block.settings.heading | escape }}</h1>
+    {%- endif -%}
+
+    {%- if block.settings.subtitle != blank -%}
+      <p class="plch-sub">{{ block.settings.subtitle | escape }}</p>
+    {%- endif -%}
+
+    <div class="plch-stats">
+      <div class="plch-stat">
+        <strong class="plch-stat__num">{{ stat1_num | escape }}</strong>
+        <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
+      </div>
+      <div class="plch-divide" aria-hidden="true"></div>
+      <div class="plch-stat">
+        <strong class="plch-stat__num">{{ stat2_num | escape }}</strong>
+        <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
+      </div>
+      <div class="plch-divide" aria-hidden="true"></div>
+      <div class="plch-stat">
+        <strong class="plch-stat__num">{{ stat3_num | escape }}</strong>
+        <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
+      </div>
+      <div class="plch-divide" aria-hidden="true"></div>
+      <div class="plch-stat">
+        <strong class="plch-stat__num">{{ stat4_num | escape }}</strong>
+        <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "PrintLab Catalogue Header",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "PrintLab · the catalogue"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Original prints, from independent studios."
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
+    },
+
+    { "type": "header", "content": "Stats" },
+    {
+      "type": "collection",
+      "id": "designs_collection",
+      "label": "Designs collection",
+      "info": "When set, the first stat number is pulled live from this collection's product count."
+    },
+    {
+      "type": "text",
+      "id": "stat1_number",
+      "label": "Stat 1 — number",
+      "default": "847",
+      "info": "Overridden by the designs collection count if a collection is selected above."
+    },
+    {
+      "type": "text",
+      "id": "stat1_label",
+      "label": "Stat 1 — label",
+      "default": "Original designs"
+    },
+    {
+      "type": "text",
+      "id": "stat2_number",
+      "label": "Stat 2 — number",
+      "default": "62"
+    },
+    {
+      "type": "text",
+      "id": "stat2_label",
+      "label": "Stat 2 — label",
+      "default": "Independent studios"
+    },
+    {
+      "type": "text",
+      "id": "stat3_number",
+      "label": "Stat 3 — number",
+      "default": "34"
+    },
+    {
+      "type": "text",
+      "id": "stat3_label",
+      "label": "Stat 3 — label",
+      "default": "New this month"
+    },
+    {
+      "type": "text",
+      "id": "stat4_number",
+      "label": "Stat 4 — number",
+      "default": "12"
+    },
+    {
+      "type": "text",
+      "id": "stat4_label",
+      "label": "Stat 4 — label",
+      "default": "Curated collections"
+    },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg_color",       "label": "Background",        "default": "#FAF8F3" },
+    { "type": "color", "id": "ink_color",       "label": "Heading / ink",     "default": "#1A1814" },
+    { "type": "color", "id": "ink_soft_color",  "label": "Subtitle / labels", "default": "#5C564A" },
+    { "type": "color", "id": "sage_color",      "label": "Eyebrow accent",    "default": "#5C7355" },
+    { "type": "color", "id": "rule_color",      "label": "Dividers / border", "default": "#E8E3D8" }
+  ]
+}
+{% endschema %}

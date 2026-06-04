@@ -1,0 +1,99 @@
+/* ── Wrap ─────────────────────────────────────────────────────── */
+.plch-wrap {
+  background: var(--plch-bg, #FAF8F3);
+  border-bottom: 1px solid var(--plch-rule, #E8E3D8);
+  box-sizing: border-box;
+  width: 100%;
+}
+.plch-wrap *,
+.plch-wrap *::before,
+.plch-wrap *::after { box-sizing: border-box; }
+
+/* ── Inner — constrained to page-width, full-bleed background ── */
+.plch-inner {
+  max-width: calc(var(--page-width, 1320px) + var(--gutter, 64px) * 2);
+  margin: 0 auto;
+  padding: 48px var(--gutter, 64px) 36px;
+}
+
+/* ── Eyebrow ─────────────────────────────────────────────────── */
+.plch-eyebrow {
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--plch-sage, #5C7355);
+  margin: 0 0 16px;
+}
+
+/* ── Title ───────────────────────────────────────────────────── */
+.plch-title {
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--plch-ink, #1A1814);
+  margin: 0 0 16px;
+  max-width: 720px;
+}
+
+/* ── Subtitle ────────────────────────────────────────────────── */
+.plch-sub {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--plch-ink-soft, #5C564A);
+  max-width: 620px;
+  margin: 0 0 32px;
+}
+
+/* ── Stats strip ─────────────────────────────────────────────── */
+.plch-stats {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.plch-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.plch-stat__num {
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--plch-ink, #1A1814);
+}
+
+.plch-stat__label {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--plch-ink-soft, #5C564A);
+}
+
+.plch-divide {
+  width: 1px;
+  height: 28px;
+  background: var(--plch-rule, #E8E3D8);
+  flex-shrink: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .plch-inner { padding-left: 40px; padding-right: 40px; }
+  .plch-title { font-size: 44px; }
+}
+
+@media (max-width: 768px) {
+  .plch-inner { padding: 40px 24px 28px; }
+  .plch-title { font-size: 36px; }
+  .plch-divide { display: none; }
+  .plch-stats  { gap: 16px 28px; }
+}
+
+@media (max-width: 480px) {
+  .plch-title { font-size: 28px; }
+  .plch-sub   { font-size: 13.5px; }
+}
