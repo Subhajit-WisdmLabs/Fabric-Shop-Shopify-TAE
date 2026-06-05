@@ -192,6 +192,14 @@
   color: var(--cl-card-title-color, #1A1814);
 }
 
+.cl-card__partner {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(26, 24, 20, 0.5);
+  line-height: 1.3;
+}
+
 .cl-card__count {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-size: 10px;
@@ -214,16 +222,19 @@
   animation: cl-shimmer 1.4s ease infinite;
 }
 
-.cl-card--pending .cl-card__title {
+.cl-card--pending .cl-card__title,
+.cl-card--pending .cl-card__partner,
+.cl-card--pending .cl-card__count {
   display: block;
-  height: 14px;
-  width: 70%;
-  margin: 0 auto;
+  height: 12px;
   border-radius: 4px;
   background: linear-gradient(90deg, #e8e4de 25%, #f0ede6 50%, #e8e4de 75%);
   background-size: 200% 100%;
   animation: cl-shimmer 1.4s ease infinite;
 }
+.cl-card--pending .cl-card__title   { height: 14px; width: 70%; margin: 0 auto; }
+.cl-card--pending .cl-card__partner { width: 50%; margin: 0 auto; }
+.cl-card--pending .cl-card__count   { width: 40%; margin: 0 auto; }
 
 /* ── Arrows ───────────────────────────────────────────────────── */
 .cl-arrows {

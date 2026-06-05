@@ -64,6 +64,8 @@
             </div>
             <div class="cl-card__info">
               <span class="cl-card__title"></span>
+              <span class="cl-card__partner"></span>
+              <span class="cl-card__count"></span>
             </div>
           </a>
         {%- endif -%}
@@ -109,8 +111,12 @@
         card.href = '/pages/partners?handle=' + encodeURIComponent(result.partnerSlug)
                   + '&tab=collection&slug=' + encodeURIComponent(result.handle);
 
-        var titleEl = card.querySelector('.cl-card__title');
-        if (titleEl) titleEl.textContent = result.title;
+        var titleEl   = card.querySelector('.cl-card__title');
+        var partnerEl = card.querySelector('.cl-card__partner');
+        var countEl   = card.querySelector('.cl-card__count');
+        if (titleEl)   titleEl.textContent   = result.title;
+        if (partnerEl) partnerEl.textContent  = result.partnerName;
+        if (countEl)   countEl.textContent    = result.productsCount + ' designs';
 
         if (!card.dataset.imageSet && result.image) {
           var placeholder = card.querySelector('.cl-card__img-placeholder');
