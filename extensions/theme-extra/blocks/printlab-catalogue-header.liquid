@@ -1,16 +1,5 @@
 {{ 'printlab-catalogue-header.css' | asset_url | stylesheet_tag }}
 
-{%- liquid
-  assign stat1_num   = block.settings.stat1_number
-  assign stat2_num   = block.settings.stat2_number
-  assign stat3_num   = block.settings.stat3_number
-  assign stat4_num   = block.settings.stat4_number
-
-  if block.settings.designs_collection != blank
-    assign stat1_num = block.settings.designs_collection.products_count
-  endif
--%}
-
 <style>
   #plch-{{ block.id }} {
     --plch-bg:       {{ block.settings.bg_color }};
@@ -38,28 +27,46 @@
 
     <div class="plch-stats">
       <div class="plch-stat">
-        <strong class="plch-stat__num">{{ stat1_num | escape }}</strong>
+        <strong class="plch-stat__num" data-plch-stat="designs">{{ block.settings.stat1_number | escape }}</strong>
         <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
       </div>
       <div class="plch-divide" aria-hidden="true"></div>
       <div class="plch-stat">
-        <strong class="plch-stat__num">{{ stat2_num | escape }}</strong>
+        <strong class="plch-stat__num" data-plch-stat="studios">{{ block.settings.stat2_number | escape }}</strong>
         <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
       </div>
       <div class="plch-divide" aria-hidden="true"></div>
       <div class="plch-stat">
-        <strong class="plch-stat__num">{{ stat3_num | escape }}</strong>
+        <strong class="plch-stat__num" data-plch-stat="newThisMonth">{{ block.settings.stat3_number | escape }}</strong>
         <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
       </div>
       <div class="plch-divide" aria-hidden="true"></div>
       <div class="plch-stat">
-        <strong class="plch-stat__num">{{ stat4_num | escape }}</strong>
+        <strong class="plch-stat__num" data-plch-stat="collections">{{ block.settings.stat4_number | escape }}</strong>
         <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+(function () {
+  var wrap = document.getElementById('plch-{{ block.id }}');
+  if (!wrap) return;
+
+  fetch('/apps/fabric-shop/api/printlab-stats')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data) return;
+      ['designs', 'studios', 'newThisMonth', 'collections'].forEach(function (key) {
+        var el = wrap.querySelector('[data-plch-stat="' + key + '"]');
+        if (el && data[key] != null) el.textContent = data[key];
+      });
+    })
+    .catch(function () { /* keep static fallback values */ });
+})();
+</script>
 
 {% schema %}
 {
@@ -86,19 +93,12 @@
       "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
     },
 
-    { "type": "header", "content": "Stats" },
-    {
-      "type": "collection",
-      "id": "designs_collection",
-      "label": "Designs collection",
-      "info": "When set, the first stat number is pulled live from this collection's product count."
-    },
+    { "type": "header", "content": "Stats", "info": "These are fallback values shown before the live API responds." },
     {
       "type": "text",
       "id": "stat1_number",
-      "label": "Stat 1 — number",
-      "default": "847",
-      "info": "Overridden by the designs collection count if a collection is selected above."
+      "label": "Stat 1 — number (fallback)",
+      "default": "847"
     },
     {
       "type": "text",
@@ -109,7 +109,7 @@
     {
       "type": "text",
       "id": "stat2_number",
-      "label": "Stat 2 — number",
+      "label": "Stat 2 — number (fallback)",
       "default": "62"
     },
     {
@@ -121,7 +121,7 @@
     {
       "type": "text",
       "id": "stat3_number",
-      "label": "Stat 3 — number",
+      "label": "Stat 3 — number (fallback)",
       "default": "34"
     },
     {
@@ -133,7 +133,7 @@
     {
       "type": "text",
       "id": "stat4_number",
-      "label": "Stat 4 — number",
+      "label": "Stat 4 — number (fallback)",
       "default": "12"
     },
     {
