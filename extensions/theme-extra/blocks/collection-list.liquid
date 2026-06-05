@@ -142,10 +142,23 @@
 
   var prevBtn = arrowsEl.querySelector('.cl-arrow--prev');
   var nextBtn = arrowsEl.querySelector('.cl-arrow--next');
-  var cols    = parseInt(grid.dataset.columns, 10) || 4;
-  var count   = grid.querySelectorAll('.cl-card[data-slug]').length;
+  var cols  = parseInt(grid.dataset.columns, 10) || 4;
+  var count = grid.querySelectorAll('.cl-card[data-slug]').length;
 
-  if (count > cols) arrowsEl.removeAttribute('hidden');
+  function visibleCols() {
+    var w = window.innerWidth;
+    if (w <= 640)  return Math.min(cols, 2);
+    if (w <= 1024) return Math.min(cols, 3);
+    return cols;
+  }
+
+  function maybeShowArrows() {
+    if (count > visibleCols()) arrowsEl.removeAttribute('hidden');
+    else arrowsEl.setAttribute('hidden', '');
+  }
+
+  maybeShowArrows();
+  window.addEventListener('resize', maybeShowArrows);
 
   function syncPulse() {
     [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = 'none'; });
