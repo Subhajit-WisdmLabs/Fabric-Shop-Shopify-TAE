@@ -166,6 +166,16 @@
   if (count <= visibleCols()) return;
   arrowsEl.removeAttribute('hidden');
 
+  function syncPulse() {
+    [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = 'none'; });
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = ''; });
+      });
+    });
+  }
+  syncPulse();
+
   function cardWidth() {
     var c = grid.querySelector('.fc-card');
     if (!c) return 220;
@@ -196,8 +206,14 @@
   prevBtn.addEventListener('click', scrollPrev);
 
   function updateArrows() {
+    var prevWas = prevBtn.classList.contains('fc-arrow--disabled');
+    var nextWas = nextBtn.classList.contains('fc-arrow--disabled');
     prevBtn.classList.toggle('fc-arrow--disabled', atStart());
     nextBtn.classList.toggle('fc-arrow--disabled', atEnd());
+    if ((prevWas && !prevBtn.classList.contains('fc-arrow--disabled')) ||
+        (nextWas && !nextBtn.classList.contains('fc-arrow--disabled'))) {
+      syncPulse();
+    }
   }
   grid.addEventListener('scroll', updateArrows, { passive: true });
   updateArrows();

@@ -147,6 +147,16 @@
 
   if (count > cols) arrowsEl.removeAttribute('hidden');
 
+  function syncPulse() {
+    [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = 'none'; });
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = ''; });
+      });
+    });
+  }
+  syncPulse();
+
   function cardWidth() {
     var c = grid.querySelector('.cl-card');
     if (!c) return 240;
@@ -172,8 +182,14 @@
   prevBtn.addEventListener('click', scrollPrev);
 
   function updateArrows() {
+    var prevWas = prevBtn.classList.contains('cl-arrow--disabled');
+    var nextWas = nextBtn.classList.contains('cl-arrow--disabled');
     prevBtn.classList.toggle('cl-arrow--disabled', atStart());
     nextBtn.classList.toggle('cl-arrow--disabled', atEnd());
+    if ((prevWas && !prevBtn.classList.contains('cl-arrow--disabled')) ||
+        (nextWas && !nextBtn.classList.contains('cl-arrow--disabled'))) {
+      syncPulse();
+    }
   }
   grid.addEventListener('scroll', updateArrows, { passive: true });
   updateArrows();
