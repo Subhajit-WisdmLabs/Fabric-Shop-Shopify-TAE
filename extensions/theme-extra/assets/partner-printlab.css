@@ -1,0 +1,127 @@
+/* ── Wrap ─────────────────────────────────────────────────────── */
+.partner-wrap {
+  background: var(--partner-bg, #5D4566);
+  color: var(--partner-fg, #FAF8F3);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.partner-wrap *,
+.partner-wrap *::before,
+.partner-wrap *::after { box-sizing: border-box; }
+
+/* Dot-pattern overlay — right quarter, matches wireframe */
+.partner-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 55%;
+  background: radial-gradient(circle, rgba(250,248,243,0.18) 0 1.6px, transparent 2.6px) 0 0 / 16px 16px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 18%);
+  mask-image: linear-gradient(to right, transparent 0%, black 18%);
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+/* ── Inner grid ───────────────────────────────────────────────── */
+.partner-inner {
+  max-width: calc(var(--page-width, 1320px) + var(--gutter, 64px) * 2);
+  margin: 0 auto;
+  padding: 88px var(--gutter, 64px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 64px;
+  align-items: end;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Eyebrow ──────────────────────────────────────────────────── */
+.partner-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(250,248,243,0.55);
+  margin: 0 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.partner-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  background: rgba(250,248,243,0.45);
+}
+
+/* ── Heading ──────────────────────────────────────────────────── */
+.partner-title {
+  font-family: 'Ageia', 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 52px;
+  line-height: 1.05;
+  letter-spacing: -0.022em;
+  color: var(--partner-fg, #FAF8F3);
+  margin: 0 0 18px;
+  max-width: 660px;
+}
+.partner-title em {
+  font-style: italic;
+  color: var(--partner-accent, #A8BFA0);
+}
+
+/* ── Body copy ────────────────────────────────────────────────── */
+.partner-sub {
+  font-size: 15px;
+  opacity: 0.85;
+  max-width: 560px;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--partner-fg, #FAF8F3);
+}
+
+/* ── CTA ──────────────────────────────────────────────────────── */
+.partner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 28px;
+  background: var(--partner-cta-bg, #FAF8F3);
+  color: var(--partner-cta-fg, #5D4566);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 180ms cubic-bezier(0.4,0,0.2,1),
+              color 180ms cubic-bezier(0.4,0,0.2,1);
+}
+.partner-cta:hover {
+  background: var(--partner-accent, #A8BFA0);
+  color: #1A1814;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .partner-inner {
+    padding: 64px 40px;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .partner-cta { justify-self: start; }
+  .partner-title { font-size: 40px; }
+}
+
+@media (max-width: 600px) {
+  .partner-inner { padding: 48px 24px; }
+  .partner-title { font-size: 32px; max-width: none; }
+  .partner-sub { max-width: none; }
+  .partner-wrap::after { width: 160px; }
+}

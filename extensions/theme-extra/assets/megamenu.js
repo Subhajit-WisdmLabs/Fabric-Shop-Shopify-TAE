@@ -177,6 +177,21 @@
       });
     }
 
+    /* ── Mobile search toggle ── */
+    const mobileSearchBtn = chrome.querySelector('.fs-mobile-search-btn');
+    if (mobileSearchBtn) {
+      mobileSearchBtn.addEventListener('click', () => {
+        const isOpen = chrome.classList.toggle('fs-chrome--search-open');
+        mobileSearchBtn.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) {
+          if (qInput) { setTimeout(() => qInput.focus(), 50); }
+        } else {
+          if (qInput) { qInput.value = ''; syncClear(); }
+          hideSugg();
+        }
+      });
+    }
+
     /* ── scope dropdown ── */
     function closeScopeDrop() {
       scopeBtn.classList.remove('is-open');

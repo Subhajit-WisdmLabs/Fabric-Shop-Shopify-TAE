@@ -1,0 +1,178 @@
+{{ 'before-you-order.css' | asset_url | stylesheet_tag }}
+
+<style>
+  #byo-{{ block.id }} {
+    --byo-bg:          {{ block.settings.bg_color }};
+    --byo-ink:         {{ block.settings.ink_color }};
+    --byo-accent:      {{ block.settings.accent_color }};
+    --byo-number:      {{ block.settings.number_color }};
+    --byo-card-bg:     {{ block.settings.card_bg }};
+    --byo-cta-primary: {{ block.settings.cta_primary_color }};
+  }
+</style>
+
+<div class="byo-wrap" id="byo-{{ block.id }}">
+  <div class="byo-inner">
+
+    <!-- LEFT: How it works -->
+    <div class="byo-how">
+      {%- if block.settings.eyebrow != blank -%}
+        <p class="byo-eyebrow">{{ block.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      <h2 class="byo-heading">
+        {{- block.settings.heading | escape -}}
+        {%- if block.settings.heading_em != blank -%}
+          &nbsp;<em>{{ block.settings.heading_em | escape }}</em>
+        {%- endif -%}
+      </h2>
+
+      <div class="byo-steps">
+        {%- for i in (1..3) -%}
+          {%- assign num_key   = 'step_' | append: i | append: '_number' -%}
+          {%- assign title_key = 'step_' | append: i | append: '_title' -%}
+          {%- assign body_key  = 'step_' | append: i | append: '_body' -%}
+          {%- assign step_title = block.settings[title_key] -%}
+          {%- if step_title != blank -%}
+            <div class="byo-step">
+              <div class="byo-step__num">{{ block.settings[num_key] | escape }}</div>
+              <div class="byo-step__text">
+                <h4 class="byo-step__title">{{ step_title | escape }}</h4>
+                {%- assign step_body = block.settings[body_key] -%}
+                {%- if step_body != blank -%}
+                  <p class="byo-step__body">{{ step_body | escape }}</p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <!-- RIGHT: Sample card -->
+    <div class="byo-card">
+      {%- if block.settings.card_eyebrow != blank -%}
+        <p class="byo-card__eyebrow">{{ block.settings.card_eyebrow | escape }}</p>
+      {%- endif -%}
+
+      <h3 class="byo-card__heading">
+        {{- block.settings.card_heading | escape -}}
+        {%- if block.settings.card_heading_em != blank -%}
+          &nbsp;<em>{{ block.settings.card_heading_em | escape }}</em>
+        {%- endif -%}
+      </h3>
+
+      {%- if block.settings.card_body != blank -%}
+        <p class="byo-card__body">{{ block.settings.card_body | escape }}</p>
+      {%- endif -%}
+
+      <div class="byo-ctas">
+        {%- if block.settings.cta_primary_label != blank -%}
+          <a href="{{ block.settings.cta_primary_url | default: '#' }}"
+             class="byo-btn byo-btn--primary">
+            {{- block.settings.cta_primary_label | escape -}}
+          </a>
+        {%- endif -%}
+        {%- if block.settings.cta_secondary_label != blank -%}
+          <a href="{{ block.settings.cta_secondary_url | default: '#' }}"
+             class="byo-btn byo-btn--secondary">
+            {{- block.settings.cta_secondary_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- liquid
+        assign has_swatches = false
+        for i in (1..12)
+          assign sw_key = 'swatch_' | append: i
+          if block.settings[sw_key] != blank
+            assign has_swatches = true
+            break
+          endif
+        endfor
+      -%}
+
+      {%- if has_swatches -%}
+        <div class="byo-swatch">
+          <div class="byo-swatch-track" id="byo-track-{{ block.id }}">
+            {%- for i in (1..12) -%}
+              {%- assign sw_key = 'swatch_' | append: i -%}
+              {%- if block.settings[sw_key] != blank -%}
+                {{ block.settings[sw_key] | image_url: width: 52 | image_tag: loading: 'eager', alt: '' }}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+  </div>
+</div>
+
+{%- if has_swatches -%}
+<script>
+(function () {
+  var track = document.getElementById('byo-track-{{ block.id }}');
+  if (track && track.children.length > 0) track.innerHTML += track.innerHTML;
+}());
+</script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Before You Order",
+  "target": "section",
+  "settings": [
+    { "type": "text",     "id": "eyebrow",     "label": "Eyebrow",                  "default": "Before you order" },
+    { "type": "text",     "id": "heading",     "label": "Heading",                  "default": "From your order," },
+    { "type": "text",     "id": "heading_em",  "label": "Heading — italic suffix",  "default": "to your door." },
+
+    { "type": "header", "content": "Step 1" },
+    { "type": "text",     "id": "step_1_number", "label": "Number", "default": "01" },
+    { "type": "text",     "id": "step_1_title",  "label": "Title",  "default": "Pick a print. Pick a fabric." },
+    { "type": "textarea", "id": "step_1_body",   "label": "Body",   "default": "Browse hundreds of original prints on PrintLab, or upload your own artwork. Then choose the base fabric you want it printed on." },
+
+    { "type": "header", "content": "Step 2" },
+    { "type": "text",     "id": "step_2_number", "label": "Number", "default": "02" },
+    { "type": "text",     "id": "step_2_title",  "label": "Title",  "default": "Printed on demand." },
+    { "type": "textarea", "id": "step_2_body",   "label": "Body",   "default": "Printed to length by trusted print partners we've worked with for twenty years. Every metre hand-checked before it ships — the QC we built supplying the trade." },
+
+    { "type": "header", "content": "Step 3" },
+    { "type": "text",     "id": "step_3_number", "label": "Number", "default": "03" },
+    { "type": "text",     "id": "step_3_title",  "label": "Title",  "default": "Delivered, worldwide." },
+    { "type": "textarea", "id": "step_3_body",   "label": "Body",   "default": "Printed and packed in 7–10 business days. Shipped worldwide in 10–18, tracked from dispatch to delivery." },
+
+    { "type": "header", "content": "Sample card — right column" },
+    { "type": "text",     "id": "card_eyebrow",    "label": "Card eyebrow",                 "default": "Sample first" },
+    { "type": "text",     "id": "card_heading",    "label": "Card heading",                 "default": "See it. Feel it." },
+    { "type": "text",     "id": "card_heading_em", "label": "Card heading — italic suffix", "default": "Then order metres." },
+    { "type": "textarea", "id": "card_body",       "label": "Card body",                    "default": "Order a swatch pack of our base fabrics to find your weight, drape and hand. Or order a single printed swatch of any design on the base of your choice — to see exactly how the colour, scale and detail land before committing to metres. Both shipped worldwide." },
+    { "type": "text",     "id": "cta_primary_label",   "label": "Primary button label",   "default": "Order a Base Fabrics Pack →" },
+    { "type": "url",      "id": "cta_primary_url",     "label": "Primary button URL" },
+    { "type": "text",     "id": "cta_secondary_label", "label": "Secondary button label", "default": "Print a Swatch →" },
+    { "type": "url",      "id": "cta_secondary_url",   "label": "Secondary button URL" },
+
+    { "type": "header", "content": "Swatch carousel" },
+    { "type": "image_picker", "id": "swatch_1",  "label": "Swatch 1" },
+    { "type": "image_picker", "id": "swatch_2",  "label": "Swatch 2" },
+    { "type": "image_picker", "id": "swatch_3",  "label": "Swatch 3" },
+    { "type": "image_picker", "id": "swatch_4",  "label": "Swatch 4" },
+    { "type": "image_picker", "id": "swatch_5",  "label": "Swatch 5" },
+    { "type": "image_picker", "id": "swatch_6",  "label": "Swatch 6" },
+    { "type": "image_picker", "id": "swatch_7",  "label": "Swatch 7" },
+    { "type": "image_picker", "id": "swatch_8",  "label": "Swatch 8" },
+    { "type": "image_picker", "id": "swatch_9",  "label": "Swatch 9" },
+    { "type": "image_picker", "id": "swatch_10", "label": "Swatch 10" },
+    { "type": "image_picker", "id": "swatch_11", "label": "Swatch 11" },
+    { "type": "image_picker", "id": "swatch_12", "label": "Swatch 12" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "bg_color",        "label": "Background",             "default": "#e8eddc" },
+    { "type": "color", "id": "ink_color",        "label": "Text / ink",             "default": "#1c1a17" },
+    { "type": "color", "id": "accent_color",     "label": "Accent (italic / eyebrow)", "default": "#7d8a5c" },
+    { "type": "color", "id": "number_color",     "label": "Step numbers",           "default": "#b8890e" },
+    { "type": "color", "id": "card_bg",          "label": "Card background",        "default": "#f5f0e6" },
+    { "type": "color", "id": "cta_primary_color","label": "Primary button",         "default": "#c44430" }
+  ]
+}
+{% endschema %}

@@ -17,6 +17,9 @@
 /* ── Row 1: Utility Bar ──────────────────────────────────────────────────── */
 
 .fs-util-bar {
+  overflow: hidden;
+  max-height: 48px;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
   background: #1A1814;
   color: #FAF8F3;
   font-family: var(--body-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif);
@@ -52,6 +55,11 @@
 
 .fs-currency-select:hover { border-color: rgba(255, 255, 255, 0.5); }
 .fs-currency-select option { background: #FAF8F3; color: #1A1814; }
+
+.fs-chrome--scrolled .fs-util-bar {
+  max-height: 0;
+  opacity: 0;
+}
 
 /* ── Row 2: Main Header ──────────────────────────────────────────────────── */
 
@@ -1051,6 +1059,10 @@
   .fs-nav { gap: 20px; }
 }
 
+/* Mobile search toggle — hidden on desktop */
+.fs-mobile-search-btn { display: none; }
+.fs-mob-close-icon { display: none; }
+
 @media (max-width: 768px) {
   .fs-main-header__inner {
     grid-template-columns: auto auto;
@@ -1062,6 +1074,7 @@
     min-height: 64px;
     align-items: center;
   }
+  .fs-main-header { position: relative; }
   .fs-search-wrap { display: none; }
   .fs-nav-bar { display: none; }
   .fs-util-bar { font-size: 11px; padding: 6px 16px; }
@@ -1069,6 +1082,49 @@
   .fs-currency-select { max-width: 110px; font-size: 10px; padding: 2px 4px; }
   .fs-hamburger { display: flex; }
   .fs-header-icons { gap: 0; }
+
+  /* Show mobile search toggle */
+  .fs-mobile-search-btn { display: flex; }
+
+  /* Search open — flex row: [search bar flex:1][close button] */
+  .fs-chrome--search-open .fs-main-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .fs-chrome--search-open .fs-logo { display: none; }
+
+  .fs-chrome--search-open .fs-icon-btn:not(.fs-mobile-search-btn),
+  .fs-chrome--search-open .fs-hamburger,
+  .fs-chrome--search-open .fs-dp-chip,
+  .fs-chrome--search-open .fs-icons-divider { display: none; }
+
+  .fs-chrome--search-open .fs-main-header .fs-search-wrap {
+    display: flex;
+    position: static;
+    flex: 1;
+    max-width: none;
+    width: auto;
+    height: 46px;
+    border-radius: 6px;
+    animation: mobileSearchIn 0.2s ease;
+  }
+
+  .fs-chrome--search-open .fs-mobile-search-btn {
+    color: #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  /* Swap search icon → close icon */
+  .fs-chrome--search-open .fs-mobile-search-btn .fs-mob-search-icon { display: none; }
+  .fs-chrome--search-open .fs-mobile-search-btn .fs-mob-close-icon  { display: block; }
+
+  @keyframes mobileSearchIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 }
 
 @media (max-width: 500px) {
@@ -1079,4 +1135,129 @@
     max-width: 135px;
     line-height: 1.1;
   }
+}
+
+/* ── Search clear button ─────────────────────────────────────────────────── */
+
+.fs-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(26, 24, 20, 0.10);
+  border: none;
+  cursor: pointer;
+  color: #6B6560;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+  margin-right: 2px;
+}
+
+.fs-search-clear:hover { background: rgba(26, 24, 20, 0.18); color: #1A1814; }
+
+/* ── Suggestion tabs ─────────────────────────────────────────────────────── */
+
+.fs-sugg-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(26, 24, 20, 0.08);
+  padding: 0 8px;
+  gap: 0;
+}
+
+.fs-sugg-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px 9px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #9A9285;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.fs-sugg-tab:hover { color: #1A1814; }
+
+.fs-sugg-tab.is-active {
+  color: #5C7355;
+  border-bottom-color: #5C7355;
+  font-weight: 600;
+}
+
+.fs-sugg-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgba(92, 115, 85, 0.12);
+  color: #5C7355;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Suggestion panels ───────────────────────────────────────────────────── */
+
+.fs-sugg-panel { display: none; max-height: 320px; overflow-y: auto; }
+.fs-sugg-panel.is-active { display: block; }
+
+.fs-sugg-empty {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: #A09890;
+  text-align: center;
+}
+
+/* ── Skeleton loading ────────────────────────────────────────────────────── */
+
+.fs-sugg-skel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(26, 24, 20, 0.06);
+}
+
+.fs-sugg-skel:last-child { border-bottom: none; }
+
+.fs-sugg-skel__thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #EEE8DE 25%, #E4DDCF 50%, #EEE8DE 75%);
+  background-size: 200% 100%;
+  animation: fs-shimmer 1.4s infinite;
+}
+
+.fs-sugg-skel__body { flex: 1; }
+
+.fs-sugg-skel__line {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #EEE8DE 25%, #E4DDCF 50%, #EEE8DE 75%);
+  background-size: 200% 100%;
+  animation: fs-shimmer 1.4s infinite;
+}
+
+.fs-sugg-skel__line--title { height: 13px; width: 58%; margin-bottom: 8px; }
+.fs-sugg-skel__line--sub   { height: 11px; width: 34%; }
+
+@keyframes fs-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

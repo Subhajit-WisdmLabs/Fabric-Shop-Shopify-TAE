@@ -1,0 +1,256 @@
+/* ── Wrap ─────────────────────────────────────────────────────── */
+.cl-wrap {
+  background: var(--cl-bg, #FAF8F3);
+}
+.cl-wrap *,
+.cl-wrap *::before,
+.cl-wrap *::after { box-sizing: border-box; }
+
+/* ── Inner ────────────────────────────────────────────────────── */
+.cl-inner {
+  max-width: calc(var(--page-width, 1320px) + var(--gutter, 64px) * 2);
+  margin: 0 auto;
+  padding: 80px 0;
+}
+
+/* ── Header + Arrows — side padding mirrors the grid ─────────── */
+.cl-wrap .cl-header,
+.cl-wrap .cl-arrows {
+  padding-left: var(--gutter, 64px);
+  padding-right: var(--gutter, 64px);
+}
+
+.cl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  gap: 32px;
+}
+.cl-header__left { flex: 1; }
+
+/* ── Eyebrow ──────────────────────────────────────────────────── */
+.cl-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cl-eyebrow-color, rgba(26, 24, 20, 0.5));
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cl-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── Heading ──────────────────────────────────────────────────── */
+.cl-wrap .cl-heading {
+  font-size: var(--cl-heading-size, 36px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--cl-heading-color, #1A1814);
+  margin: 0 0 10px;
+  max-width: 640px;
+}
+
+/* ── Subtitle ─────────────────────────────────────────────────── */
+.cl-subtitle {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--cl-subtitle-color, rgba(26, 24, 20, 0.6));
+  max-width: 480px;
+  margin: 0;
+}
+
+/* ── Browse link ──────────────────────────────────────────────── */
+.cl-browse {
+  font-size: 13px;
+  color: var(--cl-browse-color, #1A1814);
+  border-bottom: 1px solid var(--cl-browse-color, #1A1814);
+  padding-bottom: 2px;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-end;
+  transition: opacity 0.15s ease;
+}
+.cl-browse:hover { opacity: 0.6; }
+
+/* ── Grid container ───────────────────────────────────────────── */
+.cl-grid {
+  display: flex;
+  gap: 16px;
+  padding: 4px var(--gutter, 64px) 8px;
+}
+
+/* Carousel mode */
+.cl-grid--carousel {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--gutter, 64px);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cl-grid--carousel::-webkit-scrollbar { display: none; }
+
+/* Grid mode */
+.cl-grid--grid { flex-wrap: wrap; }
+
+/* ── Card widths by column count ─────────────────────────────── */
+.cl-grid--cols-3 .cl-card { flex: 0 0 calc((100% - 2 * 16px) / 3); }
+.cl-grid--cols-4 .cl-card { flex: 0 0 calc((100% - 3 * 16px) / 4); }
+.cl-grid--cols-5 .cl-card { flex: 0 0 calc((100% - 4 * 16px) / 5); }
+.cl-grid--cols-6 .cl-card { flex: 0 0 calc((100% - 5 * 16px) / 6); }
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .cl-wrap .cl-header,
+  .cl-wrap .cl-arrows { padding-left: 40px; padding-right: 40px; }
+  .cl-grid            { padding-left: 40px; padding-right: 40px; scroll-padding-left: 40px; }
+
+  .cl-grid--cols-3 .cl-card,
+  .cl-grid--cols-4 .cl-card,
+  .cl-grid--cols-5 .cl-card,
+  .cl-grid--cols-6 .cl-card { flex: 0 0 calc((100% - 2 * 16px) / 3); }
+}
+
+@media (max-width: 640px) {
+  .cl-wrap .cl-header,
+  .cl-wrap .cl-arrows { padding-left: 24px; padding-right: 24px; }
+  .cl-wrap .cl-header { flex-direction: column; align-items: flex-start; }
+  .cl-grid            { padding-left: 24px; padding-right: 24px; scroll-padding-left: 24px; }
+
+  .cl-grid--cols-3 .cl-card,
+  .cl-grid--cols-4 .cl-card,
+  .cl-grid--cols-5 .cl-card,
+  .cl-grid--cols-6 .cl-card { flex: 0 0 calc((100% - 16px) / 2); }
+}
+
+/* ── Collection card ──────────────────────────────────────────── */
+.cl-card {
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+}
+
+/* Image wrap — portrait by default */
+.cl-card__img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #E8E4DC;
+  border-radius: 4px;
+  margin-bottom: 14px;
+}
+
+/* Circle variant */
+.cl-card__img-wrap--circle {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.cl-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.cl-card:hover .cl-card__img { transform: scale(1.05); }
+
+.cl-card__img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #E8E4DE 0%, #D0CBBD 100%);
+}
+
+/* Card info */
+.cl-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.cl-card__title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--cl-card-title-color, #1A1814);
+}
+
+.cl-card__count {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cl-card-count-color, #A87A2E);
+}
+
+/* ── Pending / skeleton state ─────────────────────────────────── */
+@keyframes cl-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.cl-card--pending { pointer-events: none; }
+
+.cl-card--pending .cl-card__img-placeholder {
+  background: linear-gradient(90deg, #e8e4de 25%, #f0ede6 50%, #e8e4de 75%);
+  background-size: 200% 100%;
+  animation: cl-shimmer 1.4s ease infinite;
+}
+
+.cl-card--pending .cl-card__title {
+  display: block;
+  height: 14px;
+  width: 70%;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e8e4de 25%, #f0ede6 50%, #e8e4de 75%);
+  background-size: 200% 100%;
+  animation: cl-shimmer 1.4s ease infinite;
+}
+
+/* ── Arrows ───────────────────────────────────────────────────── */
+.cl-arrows {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.cl-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #5E2152;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, opacity 0.18s ease;
+  flex-shrink: 0;
+}
+.cl-arrow:hover { background: #7a2d6c; }
+.cl-arrow--disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+.cl-arrow svg { pointer-events: none; display: block; }

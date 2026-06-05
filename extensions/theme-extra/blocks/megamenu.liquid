@@ -67,6 +67,9 @@
         <div class="fs-search-input-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input type="search" name="q" class="fs-search__input" placeholder="Search fabrics, prints, designs…" aria-label="Search" autocomplete="off">
+          <button type="button" class="fs-search-clear" aria-label="Clear search" hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       </form>
       <div class="fs-search-sugg" role="listbox" hidden></div>
@@ -76,6 +79,7 @@
       <a href="/pages/wishlist" class="fs-icon-btn" aria-label="Wishlist"><span class="fs-icon-badge" id="fs-wishlist-badge" style="display:none"></span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></a>
       <a href="{{ routes.cart_url }}" class="fs-icon-btn" aria-label="Cart ({{ cart.item_count }} items)">{%- if cart.item_count > 0 -%}<span class="fs-icon-badge">{{ cart.item_count }}</span>{%- endif -%}<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></a>
       {%- if is_dp -%}<span class="fs-icons-divider" aria-hidden="true"></span><a href="/pages/partner-dashboard" class="fs-dp-chip" aria-label="Partner Studio">{{- customer.first_name | slice: 0 | upcase -}}{{- customer.last_name | slice: 0 | upcase -}}</a>{%- endif -%}
+      <button class="fs-mobile-search-btn fs-icon-btn" type="button" aria-label="Search" aria-expanded="false"><svg class="fs-mob-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><svg class="fs-mob-close-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       <button class="fs-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="fs-drawer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     </div>
   </div>
