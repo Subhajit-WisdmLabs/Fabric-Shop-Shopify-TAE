@@ -21,7 +21,9 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .dr-title {
@@ -32,6 +34,7 @@
   margin: 0;
   font-family: var(--font-heading-family, serif);
   font-style: var(--font-heading-style, normal);
+  word-break: break-word;
 }
 
 .dr-link {
@@ -41,6 +44,7 @@
   text-underline-offset: 2px;
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: auto;
 }
 .dr-link:hover { color: var(--dr-ink, #1A1814); }
 
@@ -62,6 +66,7 @@
   color: inherit;
   cursor: default;
   transition: background 0.15s ease;
+  min-width: 0;
 }
 .dr-card[href]:not([href=""]) {
   cursor: pointer;
@@ -107,6 +112,9 @@
   margin-bottom: 6px;
   font-family: var(--font-heading-family, serif);
   font-style: var(--font-heading-style, normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Meta (fullName · city · N designs) ─────────────────────────── */
@@ -114,6 +122,9 @@
   font-size: 11.5px;
   line-height: 1.4;
   color: var(--dr-ink-soft, #5C564A);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Skeleton pulse (shown until API resolves) ───────────────────── */
@@ -131,19 +142,43 @@
 }
 
 /* ── Responsive ─────────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  .dr-inner { padding-left: 40px; padding-right: 40px; }
+@media (max-width: 1280px) {
+  .dr-track { gap: 12px; }
+  .dr-name  { font-size: 16px; }
 }
 
-@media (max-width: 900px) {
-  .dr-track { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1024px) {
+  .dr-inner { padding-left: 40px; padding-right: 40px; }
+  /* Force max 4 cols regardless of card count to prevent cramping */
+  .dr-track { grid-template-columns: repeat(min(var(--dr-card-count, 4), 4), 1fr); }
+}
+
+@media (max-width: 860px) {
+  .dr-track { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .dr-name  { font-size: 17px; white-space: normal; }
+  .dr-meta  { white-space: normal; }
 }
 
 @media (max-width: 768px) {
   .dr-inner { padding: 20px 24px; }
+  .dr-title { font-size: 20px; }
+}
+
+@media (max-width: 600px) {
+  .dr-track { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .dr-card  { padding: 12px; }
+  .dr-name  { font-size: 15px; }
+  .dr-meta  { font-size: 11px; }
 }
 
 @media (max-width: 480px) {
-  .dr-track { grid-template-columns: 1fr; }
+  .dr-inner { padding: 18px 16px; }
+  .dr-track { grid-template-columns: 1fr; gap: 10px; }
   .dr-title { font-size: 18px; }
+  .dr-thumbs { aspect-ratio: 4 / 1; }
+}
+
+@media (max-width: 360px) {
+  .dr-inner { padding: 16px 12px; }
+  .dr-card  { padding: 10px; }
 }
