@@ -44,12 +44,14 @@
 }
 .dr-link:hover { color: var(--dr-ink, #1A1814); }
 
-/* ── Track — 4-col grid ─────────────────────────────────────────── */
+/* ── Track — auto-fit grid (4 default, up to 6) ─────────────────── */
 .dr-track {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
+.dr-track[data-dr-cols="5"] { grid-template-columns: repeat(5, 1fr); }
+.dr-track[data-dr-cols="6"] { grid-template-columns: repeat(6, 1fr); }
 
 /* ── Card ───────────────────────────────────────────────────────── */
 .dr-card {
