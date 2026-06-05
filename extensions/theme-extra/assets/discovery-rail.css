@@ -44,10 +44,10 @@
 }
 .dr-link:hover { color: var(--dr-ink, #1A1814); }
 
-/* ── Track — 4-col grid ─────────────────────────────────────────── */
+/* ── Track — 4–6-col grid (--dr-card-count set by Liquid) ───────── */
 .dr-track {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(var(--dr-card-count, 4), 1fr);
   gap: 14px;
 }
 

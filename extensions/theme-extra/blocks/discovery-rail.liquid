@@ -1,5 +1,20 @@
 {{ 'discovery-rail.css' | asset_url | stylesheet_tag }}
 
+{%- assign _c1 = block.settings.card_1_slug | strip -%}
+{%- assign _c2 = block.settings.card_2_slug | strip -%}
+{%- assign _c3 = block.settings.card_3_slug | strip -%}
+{%- assign _c4 = block.settings.card_4_slug | strip -%}
+{%- assign _c5 = block.settings.card_5_slug | strip -%}
+{%- assign _c6 = block.settings.card_6_slug | strip -%}
+{%- assign _dr_count = 0 -%}
+{%- if _c1 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c2 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c3 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c4 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c5 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c6 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _dr_count < 4 -%}{%- assign _dr_count = 4 -%}{%- endif -%}
+
 <style>
   #dr-{{ block.id }} {
     --dr-bg:           {{ block.settings.bg_color }};
@@ -9,6 +24,7 @@
     --dr-ink-soft:     {{ block.settings.ink_soft_color }};
     --dr-ink-mute:     {{ block.settings.ink_mute_color }};
     --dr-rule:         {{ block.settings.rule_color }};
+    --dr-card-count:   {{ _dr_count }};
   }
 </style>
 
@@ -32,14 +48,18 @@
       {%- assign card_2_slug = block.settings.card_2_slug -%}
       {%- assign card_3_slug = block.settings.card_3_slug -%}
       {%- assign card_4_slug = block.settings.card_4_slug -%}
+      {%- assign card_5_slug = block.settings.card_5_slug -%}
+      {%- assign card_6_slug = block.settings.card_6_slug -%}
 
       {%- assign card_1_tag = block.settings.card_1_tag -%}
       {%- assign card_2_tag = block.settings.card_2_tag -%}
       {%- assign card_3_tag = block.settings.card_3_tag -%}
       {%- assign card_4_tag = block.settings.card_4_tag -%}
+      {%- assign card_5_tag = block.settings.card_5_tag -%}
+      {%- assign card_6_tag = block.settings.card_6_tag -%}
 
-      {%- assign card_slugs = card_1_slug | append: ',' | append: card_2_slug | append: ',' | append: card_3_slug | append: ',' | append: card_4_slug -%}
-      {%- assign card_tags  = card_1_tag  | append: '|' | append: card_2_tag  | append: '|' | append: card_3_tag  | append: '|' | append: card_4_tag -%}
+      {%- assign card_slugs = card_1_slug | append: ',' | append: card_2_slug | append: ',' | append: card_3_slug | append: ',' | append: card_4_slug | append: ',' | append: card_5_slug | append: ',' | append: card_6_slug -%}
+      {%- assign card_tags  = card_1_tag  | append: '|' | append: card_2_tag  | append: '|' | append: card_3_tag  | append: '|' | append: card_4_tag  | append: '|' | append: card_5_tag  | append: '|' | append: card_6_tag -%}
 
       {%- assign slugs_arr = card_slugs | split: ',' -%}
       {%- assign tags_arr  = card_tags  | split: '|' -%}
@@ -203,6 +223,34 @@
       "id": "card_4_tag",
       "label": "Tag label",
       "default": "Trending"
+    },
+
+    { "type": "header", "content": "Card 5 — optional" },
+    {
+      "type": "text",
+      "id": "card_5_slug",
+      "label": "Studio slug",
+      "info": "Leave blank to show 4 cards"
+    },
+    {
+      "type": "text",
+      "id": "card_5_tag",
+      "label": "Tag label",
+      "default": ""
+    },
+
+    { "type": "header", "content": "Card 6 — optional" },
+    {
+      "type": "text",
+      "id": "card_6_slug",
+      "label": "Studio slug",
+      "info": "Requires Card 5 to be filled. Leave blank to show 5 cards"
+    },
+    {
+      "type": "text",
+      "id": "card_6_tag",
+      "label": "Tag label",
+      "default": ""
     },
 
     { "type": "header", "content": "Colours" },
