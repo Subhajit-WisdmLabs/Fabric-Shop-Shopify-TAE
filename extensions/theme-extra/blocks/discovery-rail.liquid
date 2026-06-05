@@ -12,63 +12,6 @@
   }
 </style>
 
-{%- liquid
-  assign c1 = block.settings.card_1_collection
-  assign c2 = block.settings.card_2_collection
-  assign c3 = block.settings.card_3_collection
-  assign c4 = block.settings.card_4_collection
-  assign c5 = block.settings.card_5_collection
-  assign c6 = block.settings.card_6_collection
-
-  assign t1 = block.settings.card_1_tag
-  assign t2 = block.settings.card_2_tag
-  assign t3 = block.settings.card_3_tag
-  assign t4 = block.settings.card_4_tag
-  assign t5 = block.settings.card_5_tag
-  assign t6 = block.settings.card_6_tag
-
-  assign col_ids = ''
-  if c1 != blank
-    assign col_ids = col_ids | append: c1.id | append: ','
-  endif
-  if c2 != blank
-    assign col_ids = col_ids | append: c2.id | append: ','
-  endif
-  if c3 != blank
-    assign col_ids = col_ids | append: c3.id | append: ','
-  endif
-  if c4 != blank
-    assign col_ids = col_ids | append: c4.id | append: ','
-  endif
-  if c5 != blank
-    assign col_ids = col_ids | append: c5.id | append: ','
-  endif
-  if c6 != blank
-    assign col_ids = col_ids | append: c6.id | append: ','
-  endif
-  assign col_ids = col_ids | remove_last: ','
-
-  assign active_count = 0
-  if c1 != blank
-    assign active_count = active_count | plus: 1
-  endif
-  if c2 != blank
-    assign active_count = active_count | plus: 1
-  endif
-  if c3 != blank
-    assign active_count = active_count | plus: 1
-  endif
-  if c4 != blank
-    assign active_count = active_count | plus: 1
-  endif
-  if c5 != blank
-    assign active_count = active_count | plus: 1
-  endif
-  if c6 != blank
-    assign active_count = active_count | plus: 1
-  endif
--%}
-
 <div class="dr-wrap" id="dr-{{ block.id }}">
   <div class="dr-inner">
 
@@ -83,68 +26,47 @@
       {%- endif -%}
     </div>
 
-    <div class="dr-track" data-dr-cols="{{ active_count }}">
+    <div class="dr-track">
 
-      {%- if c1 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c1.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t1 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
+      {%- assign card_1_slug = block.settings.card_1_slug -%}
+      {%- assign card_2_slug = block.settings.card_2_slug -%}
+      {%- assign card_3_slug = block.settings.card_3_slug -%}
+      {%- assign card_4_slug = block.settings.card_4_slug -%}
 
-      {%- if c2 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c2.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t2 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
+      {%- assign card_1_tag = block.settings.card_1_tag -%}
+      {%- assign card_2_tag = block.settings.card_2_tag -%}
+      {%- assign card_3_tag = block.settings.card_3_tag -%}
+      {%- assign card_4_tag = block.settings.card_4_tag -%}
 
-      {%- if c3 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c3.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t3 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
+      {%- assign card_slugs = card_1_slug | append: ',' | append: card_2_slug | append: ',' | append: card_3_slug | append: ',' | append: card_4_slug -%}
+      {%- assign card_tags  = card_1_tag  | append: '|' | append: card_2_tag  | append: '|' | append: card_3_tag  | append: '|' | append: card_4_tag -%}
 
-      {%- if c4 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c4.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t4 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
+      {%- assign slugs_arr = card_slugs | split: ',' -%}
+      {%- assign tags_arr  = card_tags  | split: '|' -%}
 
-      {%- if c5 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c5.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t5 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
-
-      {%- if c6 != blank -%}
-        <div class="dr-card dr-card--loading" data-dr-card="{{ c6.id }}" aria-busy="true">
-          <div class="dr-thumbs"><div class="dr-thumb"></div><div class="dr-thumb"></div><div class="dr-thumb"></div></div>
-          <div class="dr-tag">{{ t6 | escape }}</div>
-          <div class="dr-name dr-skel dr-skel--name"></div>
-          <div class="dr-meta dr-skel dr-skel--meta"></div>
-        </div>
-      {%- endif -%}
+      {%- for slug in slugs_arr -%}
+        {%- if slug != blank -%}
+          {%- assign card_tag = tags_arr[forloop.index0] -%}
+          <div class="dr-card dr-card--loading"
+               data-dr-card="{{ slug | escape }}"
+               aria-busy="true">
+            <div class="dr-thumbs">
+              <div class="dr-thumb"></div>
+              <div class="dr-thumb"></div>
+              <div class="dr-thumb"></div>
+            </div>
+            <div class="dr-tag">{{ card_tag | escape }}</div>
+            <div class="dr-name dr-skel dr-skel--name"></div>
+            <div class="dr-meta dr-skel dr-skel--meta"></div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
 
     </div>
 
   </div>
 </div>
 
-{%- if col_ids != blank -%}
 <script>
 (function () {
   var wrap = document.getElementById('dr-{{ block.id }}');
@@ -153,11 +75,16 @@
   var cardEls = wrap.querySelectorAll('[data-dr-card]');
   if (!cardEls.length) return;
 
-  fetch('/apps/fabric-shop/api/discovery-rail?collections={{ col_ids | url_encode }}')
+  var slugs = Array.prototype.map.call(cardEls, function (el) {
+    return el.getAttribute('data-dr-card');
+  }).join(',');
+
+  fetch('/apps/fabric-shop/api/discovery-rail?slugs=' + encodeURIComponent(slugs))
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;
 
+      // Update "All N studios →" count
       var linkEl = wrap.querySelector('[data-dr-studios-link]');
       if (linkEl && data.studioCount) {
         linkEl.textContent = 'All ' + data.studioCount + ' studios →';
@@ -165,14 +92,16 @@
 
       if (!data.cards || !data.cards.length) return;
 
+      // Build slug → card data map
       var cardMap = {};
-      data.cards.forEach(function (c) { cardMap[String(c.collectionId)] = c; });
+      data.cards.forEach(function (c) { cardMap[c.slug] = c; });
 
       cardEls.forEach(function (cardEl) {
-        var colId = cardEl.getAttribute('data-dr-card');
-        var c = cardMap[colId];
+        var slug = cardEl.getAttribute('data-dr-card');
+        var c = cardMap[slug];
         if (!c) return;
 
+        // Hydrate thumbnails
         var thumbEls = cardEl.querySelectorAll('.dr-thumb');
         thumbEls.forEach(function (thumb, i) {
           if (c.thumbs[i]) {
@@ -180,12 +109,14 @@
           }
         });
 
+        // Hydrate studio name
         var nameEl = cardEl.querySelector('.dr-name');
         if (nameEl) {
           nameEl.classList.remove('dr-skel', 'dr-skel--name');
           nameEl.textContent = c.studioName;
         }
 
+        // Hydrate meta: fullName · city · N designs
         var metaEl = cardEl.querySelector('.dr-meta');
         if (metaEl) {
           metaEl.classList.remove('dr-skel', 'dr-skel--meta');
@@ -199,7 +130,6 @@
     .catch(function () { /* keep skeleton on error */ });
 })();
 </script>
-{%- endif -%}
 
 {% schema %}
 {
@@ -220,28 +150,60 @@
     },
 
     { "type": "header", "content": "Card 1" },
-    { "type": "collection", "id": "card_1_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_1_tag", "label": "Tag label", "default": "Featured studio" },
+    {
+      "type": "text",
+      "id": "card_1_slug",
+      "label": "Studio slug",
+      "info": "Partner slug e.g. meadow-and-thread"
+    },
+    {
+      "type": "text",
+      "id": "card_1_tag",
+      "label": "Tag label",
+      "default": "Featured studio"
+    },
 
     { "type": "header", "content": "Card 2" },
-    { "type": "collection", "id": "card_2_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_2_tag", "label": "Tag label", "default": "New this week" },
+    {
+      "type": "text",
+      "id": "card_2_slug",
+      "label": "Studio slug",
+      "info": "Partner slug e.g. nokomi-studio"
+    },
+    {
+      "type": "text",
+      "id": "card_2_tag",
+      "label": "Tag label",
+      "default": "New this week"
+    },
 
     { "type": "header", "content": "Card 3" },
-    { "type": "collection", "id": "card_3_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_3_tag", "label": "Tag label", "default": "Editor's pick" },
+    {
+      "type": "text",
+      "id": "card_3_slug",
+      "label": "Studio slug",
+      "info": "Partner slug e.g. forest-and-form"
+    },
+    {
+      "type": "text",
+      "id": "card_3_tag",
+      "label": "Tag label",
+      "default": "Editor's pick"
+    },
 
     { "type": "header", "content": "Card 4" },
-    { "type": "collection", "id": "card_4_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_4_tag", "label": "Tag label", "default": "Trending" },
-
-    { "type": "header", "content": "Card 5 (optional)" },
-    { "type": "collection", "id": "card_5_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_5_tag", "label": "Tag label", "default": "" },
-
-    { "type": "header", "content": "Card 6 (optional)" },
-    { "type": "collection", "id": "card_6_collection", "label": "Studio collection" },
-    { "type": "text", "id": "card_6_tag", "label": "Tag label", "default": "" },
+    {
+      "type": "text",
+      "id": "card_4_slug",
+      "label": "Studio slug",
+      "info": "Partner slug e.g. saltbush-print-co"
+    },
+    {
+      "type": "text",
+      "id": "card_4_tag",
+      "label": "Tag label",
+      "default": "Trending"
+    },
 
     { "type": "header", "content": "Colours" },
     { "type": "color", "id": "bg_color",        "label": "Background",      "default": "#FFFFFF" },
