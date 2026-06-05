@@ -245,8 +245,8 @@
 }
 
 @keyframes cl-arrow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45); }
-  55%       { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(94, 33, 82, 0.5); }
+  55%       { box-shadow: 0 0 0 12px rgba(94, 33, 82, 0); }
 }
 
 .cl-arrow {

@@ -168,11 +168,8 @@
 
   function syncPulse() {
     [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = 'none'; });
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = ''; });
-      });
-    });
+    void prevBtn.offsetWidth;
+    [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = ''; });
   }
   syncPulse();
 
