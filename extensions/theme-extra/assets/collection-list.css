@@ -244,6 +244,11 @@
   margin-top: 20px;
 }
 
+@keyframes cl-arrow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45); }
+  55%       { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+}
+
 .cl-arrow {
   width: 44px;
   height: 44px;
@@ -256,10 +261,12 @@
   align-items: center;
   justify-content: center;
   transition: background 0.18s ease, opacity 0.18s ease;
+  animation: cl-arrow-pulse 2s ease-in-out infinite;
   flex-shrink: 0;
 }
 .cl-arrow:hover { background: #7a2d6c; }
 .cl-arrow--disabled {
+  animation: none;
   opacity: 0.3;
   cursor: default;
   pointer-events: none;

@@ -74,7 +74,7 @@
     </div>
 
     {%- if is_carousel -%}
-      <div class="cl-arrows" id="cl-arrows-{{ block.id }}">
+      <div class="cl-arrows" id="cl-arrows-{{ block.id }}" hidden>
         <button type="button" class="cl-arrow cl-arrow--prev" aria-label="Previous">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"></polyline>
@@ -142,6 +142,10 @@
 
   var prevBtn = arrowsEl.querySelector('.cl-arrow--prev');
   var nextBtn = arrowsEl.querySelector('.cl-arrow--next');
+  var cols    = parseInt(grid.dataset.columns, 10) || 4;
+  var count   = grid.querySelectorAll('.cl-card[data-slug]').length;
+
+  if (count > cols) arrowsEl.removeAttribute('hidden');
 
   function cardWidth() {
     var c = grid.querySelector('.cl-card');
