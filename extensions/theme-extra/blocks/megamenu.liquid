@@ -50,6 +50,7 @@
         {{ block.settings.logo | image_url: width: 280 | image_tag: class: 'fs-logo__img', loading: 'eager', alt: shop.name }}
       {%- else -%}<h1 class="fs-logo__text">{{ shop.name }}</h1>{%- endif -%}
     </a>
+    <div class="fs-header-row2">
     <div class="fs-search-wrap">
       <button class="fs-search-scope" type="button" aria-haspopup="listbox" aria-expanded="false">
         <span class="fs-search-scope__label">All</span>
@@ -82,6 +83,7 @@
       <button class="fs-mobile-search-btn fs-icon-btn" type="button" aria-label="Search" aria-expanded="false"><svg class="fs-mob-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><svg class="fs-mob-close-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       <button class="fs-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="fs-drawer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     </div>
+  </div>
   </div>
 </div>
 

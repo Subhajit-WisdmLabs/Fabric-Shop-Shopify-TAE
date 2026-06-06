@@ -336,6 +336,9 @@
 
 .fs-sugg__section .fs-sugg__item:last-child { border-bottom: none; }
 
+/* Row 2 wrapper: transparent to desktop grid; becomes flex row on mobile */
+.fs-header-row2 { display: contents; }
+
 .fs-header-icons {
   display: flex;
   align-items: center;
@@ -1064,53 +1067,79 @@
 .fs-mob-close-icon { display: none; }
 
 @media (max-width: 768px) {
-  .fs-main-header__inner {
-    grid-template-columns: auto auto;
-    justify-content: space-between;
-    gap: 0;
-    padding: 12px 16px;
-    max-width: 100%;
-    height: auto;
-    min-height: 64px;
-    align-items: center;
-  }
   .fs-main-header { position: relative; }
+
+  /* Two-level mobile header: Level 1 = logo, Level 2 = icons */
+  .fs-main-header__inner {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: unset;
+    padding: 0 16px;
+    gap: 0;
+    align-items: stretch;
+    max-width: 100%;
+  }
+
+  /* Level 1: Logo — always single line */
+  .fs-logo {
+    display: flex;
+    justify-content: flex-start;
+    padding: 10px 0 6px;
+    width: 100%;
+  }
+
+  .fs-logo__text {
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.1;
+  }
+
+  .fs-logo__img { max-height: 34px; width: auto; }
+
+  /* Level 2: Icons row */
+  .fs-header-row2 {
+    display: flex;
+    align-items: center;
+    padding: 0 0 6px;
+  }
+
+  .fs-header-icons {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0;
+  }
+
   .fs-search-wrap { display: none; }
   .fs-nav-bar { display: none; }
   .fs-util-bar { font-size: 11px; padding: 6px 16px; }
   .fs-util-bar__inner { gap: 8px; padding-left: 0; padding-right: 0; }
   .fs-currency-select { max-width: 110px; font-size: 10px; padding: 2px 4px; }
   .fs-hamburger { display: flex; }
-  .fs-header-icons { gap: 0; }
-
-  /* Show mobile search toggle */
   .fs-mobile-search-btn { display: flex; }
 
-  /* Search open — flex row: [search bar flex:1][close button] */
-  .fs-chrome--search-open .fs-main-header__inner {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-  }
+  /* Search open: Level 1 (logo) stays; Level 2 becomes [search][close] */
+  .fs-chrome--search-open .fs-logo { display: flex; }
 
-  .fs-chrome--search-open .fs-logo { display: none; }
+  .fs-chrome--search-open .fs-header-row2 { gap: 8px; padding: 0 0 8px; }
+
+  .fs-chrome--search-open .fs-main-header .fs-search-wrap {
+    display: flex;
+    flex: 1;
+    max-width: none;
+    height: 42px;
+    border-radius: 6px;
+    animation: mobileSearchIn 0.2s ease;
+  }
 
   .fs-chrome--search-open .fs-icon-btn:not(.fs-mobile-search-btn),
   .fs-chrome--search-open .fs-hamburger,
   .fs-chrome--search-open .fs-dp-chip,
   .fs-chrome--search-open .fs-icons-divider { display: none; }
-
-  .fs-chrome--search-open .fs-main-header .fs-search-wrap {
-    display: flex;
-    position: static;
-    flex: 1;
-    max-width: none;
-    width: auto;
-    height: 46px;
-    border-radius: 6px;
-    animation: mobileSearchIn 0.2s ease;
-  }
 
   .fs-chrome--search-open .fs-mobile-search-btn {
     color: #1a1a1a;
@@ -1121,21 +1150,15 @@
   .fs-chrome--search-open .fs-mobile-search-btn .fs-mob-search-icon { display: none; }
   .fs-chrome--search-open .fs-mobile-search-btn .fs-mob-close-icon  { display: block; }
 
+  /* iPhone zoom fix: iOS zooms on focus when font-size < 16px */
+  .fs-search__input { font-size: 16px; }
+
   @keyframes mobileSearchIn {
     from { opacity: 0; transform: translateX(16px); }
     to   { opacity: 1; transform: translateX(0); }
   }
 }
 
-@media (max-width: 500px) {
-  .fs-logo__text {
-    font-size: 25px;
-    white-space: normal;
-    word-break: normal;
-    max-width: 135px;
-    line-height: 1.1;
-  }
-}
 
 /* ── Search clear button ─────────────────────────────────────────────────── */
 
