@@ -1081,10 +1081,10 @@
     max-width: 100%;
   }
 
-  /* Level 1: Logo — always single line */
+  /* Level 1: Logo — always single line, centered */
   .fs-logo {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 10px 0 6px;
     width: 100%;
   }
@@ -1110,7 +1110,7 @@
   .fs-header-icons {
     flex: 1;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 0;
   }
 
