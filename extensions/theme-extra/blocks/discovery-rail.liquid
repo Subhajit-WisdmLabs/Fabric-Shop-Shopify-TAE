@@ -1,0 +1,256 @@
+{{ 'discovery-rail.css' | asset_url | stylesheet_tag }}
+
+{%- assign _c1 = block.settings.card_1_slug | strip -%}
+{%- assign _c2 = block.settings.card_2_slug | strip -%}
+{%- assign _c3 = block.settings.card_3_slug | strip -%}
+{%- assign _c4 = block.settings.card_4_slug | strip -%}
+{%- assign _c5 = block.settings.card_5_slug | strip -%}
+{%- assign _c6 = block.settings.card_6_slug | strip -%}
+{%- assign _dr_count = 0 -%}
+{%- if _c1 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c2 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c3 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c4 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c5 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _c6 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
+{%- if _dr_count < 4 -%}{%- assign _dr_count = 4 -%}{%- endif -%}
+
+<style>
+  #dr-{{ block.id }} {
+    --dr-bg:           {{ block.settings.bg_color }};
+    --dr-card-bg:      {{ block.settings.card_bg_color }};
+    --dr-card-hover:   {{ block.settings.card_hover_color }};
+    --dr-ink:          {{ block.settings.ink_color }};
+    --dr-ink-soft:     {{ block.settings.ink_soft_color }};
+    --dr-ink-mute:     {{ block.settings.ink_mute_color }};
+    --dr-rule:         {{ block.settings.rule_color }};
+    --dr-card-count:   {{ _dr_count }};
+  }
+</style>
+
+<div class="dr-wrap" id="dr-{{ block.id }}">
+  <div class="dr-inner">
+
+    <div class="dr-head">
+      {%- if block.settings.section_title != blank -%}
+        <p class="dr-title">{{ block.settings.section_title | escape }}</p>
+      {%- endif -%}
+      {%- if block.settings.studios_url != blank -%}
+        <a class="dr-link" href="{{ block.settings.studios_url }}" data-dr-studios-link>
+          All studios →
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="dr-track">
+
+      {%- assign card_1_slug = block.settings.card_1_slug -%}
+      {%- assign card_2_slug = block.settings.card_2_slug -%}
+      {%- assign card_3_slug = block.settings.card_3_slug -%}
+      {%- assign card_4_slug = block.settings.card_4_slug -%}
+      {%- assign card_5_slug = block.settings.card_5_slug -%}
+      {%- assign card_6_slug = block.settings.card_6_slug -%}
+
+      {%- assign card_1_tag = block.settings.card_1_tag -%}
+      {%- assign card_2_tag = block.settings.card_2_tag -%}
+      {%- assign card_3_tag = block.settings.card_3_tag -%}
+      {%- assign card_4_tag = block.settings.card_4_tag -%}
+      {%- assign card_5_tag = block.settings.card_5_tag -%}
+      {%- assign card_6_tag = block.settings.card_6_tag -%}
+
+      {%- assign card_slugs = card_1_slug | append: ',' | append: card_2_slug | append: ',' | append: card_3_slug | append: ',' | append: card_4_slug | append: ',' | append: card_5_slug | append: ',' | append: card_6_slug -%}
+      {%- assign card_tags  = card_1_tag  | append: '|' | append: card_2_tag  | append: '|' | append: card_3_tag  | append: '|' | append: card_4_tag  | append: '|' | append: card_5_tag  | append: '|' | append: card_6_tag -%}
+
+      {%- assign slugs_arr = card_slugs | split: ',' -%}
+      {%- assign tags_arr  = card_tags  | split: '|' -%}
+
+      {%- for slug in slugs_arr -%}
+        {%- if slug != blank -%}
+          {%- assign card_tag = tags_arr[forloop.index0] -%}
+          <div class="dr-card dr-card--loading"
+               data-dr-card="{{ slug | escape }}"
+               aria-busy="true">
+            <div class="dr-thumbs">
+              <div class="dr-thumb"></div>
+              <div class="dr-thumb"></div>
+              <div class="dr-thumb"></div>
+            </div>
+            <div class="dr-tag">{{ card_tag | escape }}</div>
+            <div class="dr-name dr-skel dr-skel--name"></div>
+            <div class="dr-meta dr-skel dr-skel--meta"></div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var wrap = document.getElementById('dr-{{ block.id }}');
+  if (!wrap) return;
+
+  var cardEls = wrap.querySelectorAll('[data-dr-card]');
+  if (!cardEls.length) return;
+
+  var slugs = Array.prototype.map.call(cardEls, function (el) {
+    return el.getAttribute('data-dr-card');
+  }).join(',');
+
+  fetch('/apps/fabric-shop/api/discovery-rail?slugs=' + encodeURIComponent(slugs))
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data) return;
+
+      // Update "All N studios →" count
+      var linkEl = wrap.querySelector('[data-dr-studios-link]');
+      if (linkEl && data.studioCount) {
+        linkEl.textContent = 'All ' + data.studioCount + ' studios →';
+      }
+
+      if (!data.cards || !data.cards.length) return;
+
+      // Build slug → card data map
+      var cardMap = {};
+      data.cards.forEach(function (c) { cardMap[c.slug] = c; });
+
+      cardEls.forEach(function (cardEl) {
+        var slug = cardEl.getAttribute('data-dr-card');
+        var c = cardMap[slug];
+        if (!c) return;
+
+        // Hydrate thumbnails
+        var thumbEls = cardEl.querySelectorAll('.dr-thumb');
+        thumbEls.forEach(function (thumb, i) {
+          if (c.thumbs[i]) {
+            thumb.style.backgroundImage = 'url("' + c.thumbs[i] + '")';
+          }
+        });
+
+        // Hydrate studio name
+        var nameEl = cardEl.querySelector('.dr-name');
+        if (nameEl) {
+          nameEl.classList.remove('dr-skel', 'dr-skel--name');
+          nameEl.textContent = c.studioName;
+        }
+
+        // Hydrate meta: fullName · city · N designs
+        var metaEl = cardEl.querySelector('.dr-meta');
+        if (metaEl) {
+          metaEl.classList.remove('dr-skel', 'dr-skel--meta');
+          metaEl.textContent = c.fullName + ' · ' + c.city + ' · ' + c.designCount + ' designs';
+        }
+
+        cardEl.classList.remove('dr-card--loading');
+        cardEl.removeAttribute('aria-busy');
+      });
+    })
+    .catch(function () { /* keep skeleton on error */ });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Discovery Rail",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Section" },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Title",
+      "default": "Start with a studio."
+    },
+    {
+      "type": "url",
+      "id": "studios_url",
+      "label": "All studios link"
+    },
+
+    { "type": "header", "content": "Cards 1–4 (required)" },
+    {
+      "type": "text",
+      "id": "card_1_slug",
+      "label": "Card 1 slug",
+      "info": "Partner slug e.g. meadow-and-thread"
+    },
+    {
+      "type": "text",
+      "id": "card_1_tag",
+      "label": "Card 1 tag",
+      "default": "Featured studio"
+    },
+    {
+      "type": "text",
+      "id": "card_2_slug",
+      "label": "Card 2 slug",
+      "info": "Partner slug e.g. nokomi-studio"
+    },
+    {
+      "type": "text",
+      "id": "card_2_tag",
+      "label": "Card 2 tag",
+      "default": "New this week"
+    },
+    {
+      "type": "text",
+      "id": "card_3_slug",
+      "label": "Card 3 slug",
+      "info": "Partner slug e.g. forest-and-form"
+    },
+    {
+      "type": "text",
+      "id": "card_3_tag",
+      "label": "Card 3 tag",
+      "default": "Editor's pick"
+    },
+    {
+      "type": "text",
+      "id": "card_4_slug",
+      "label": "Card 4 slug",
+      "info": "Partner slug e.g. saltbush-print-co"
+    },
+    {
+      "type": "text",
+      "id": "card_4_tag",
+      "label": "Card 4 tag",
+      "default": "Trending"
+    },
+
+    { "type": "header", "content": "Cards 5–6 (optional)" },
+    {
+      "type": "text",
+      "id": "card_5_slug",
+      "label": "Card 5 slug",
+      "info": "Leave blank to show 4 cards"
+    },
+    {
+      "type": "text",
+      "id": "card_5_tag",
+      "label": "Card 5 tag"
+    },
+    {
+      "type": "text",
+      "id": "card_6_slug",
+      "label": "Card 6 slug",
+      "info": "Requires Card 5 to be filled. Leave blank to show 5 cards"
+    },
+    {
+      "type": "text",
+      "id": "card_6_tag",
+      "label": "Card 6 tag"
+    },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg_color",        "label": "Background",      "default": "#FFFFFF" },
+    { "type": "color", "id": "card_bg_color",    "label": "Card background", "default": "#FAF8F3" },
+    { "type": "color", "id": "card_hover_color", "label": "Card hover",      "default": "#F4F1EA" },
+    { "type": "color", "id": "ink_color",        "label": "Studio name",     "default": "#1A1814" },
+    { "type": "color", "id": "ink_soft_color",   "label": "Meta text",       "default": "#5C564A" },
+    { "type": "color", "id": "ink_mute_color",   "label": "Tag label",       "default": "#9A9285" },
+    { "type": "color", "id": "rule_color",       "label": "Card border",     "default": "#E8E3D8" }
+  ]
+}
+{% endschema %}
