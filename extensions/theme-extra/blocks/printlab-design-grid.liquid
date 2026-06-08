@@ -1,0 +1,257 @@
+{{ 'printlab-design-grid.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign _pdg_collection = block.settings.collection_handle | default: collection.handle | default: ''
+  assign _pdg_profile    = block.settings.profile_page_url  | default: '/pages/partners'
+-%}
+
+<style>
+  #pdg-{{ block.id }} {
+    --pdg-bg:         {{ block.settings.bg_color }};
+    --pdg-sidebar-bg: {{ block.settings.sidebar_bg }};
+    --pdg-card-bg:    {{ block.settings.card_bg }};
+    --pdg-ink:        {{ block.settings.ink_color }};
+    --pdg-ink-soft:   {{ block.settings.ink_soft_color }};
+    --pdg-ink-mute:   {{ block.settings.ink_mute_color }};
+    --pdg-accent:     {{ block.settings.accent_color }};
+    --pdg-rule:       {{ block.settings.rule_color }};
+    --pdg-ed-bg:      {{ block.settings.ed_card_bg }};
+    --pdg-chip-active:{{ block.settings.chip_active_color }};
+  }
+</style>
+
+<div class="pdg-wrap"
+     id="pdg-{{ block.id }}"
+     data-pdg-block="{{ block.id }}"
+     data-proxy-base="/apps/fabric-shop/api"
+     data-collection="{{ _pdg_collection | escape }}"
+     data-per-load="{{ block.settings.products_per_load }}"
+     data-profile-url="{{ _pdg_profile | escape }}"
+     data-editorial-interval="{{ block.settings.editorial_interval }}"
+     data-show-topic="{{ block.settings.show_topic }}"
+     data-show-theme="{{ block.settings.show_themes }}"
+     data-show-suits-use="{{ block.settings.show_suits_use }}"
+     data-show-occasion="{{ block.settings.show_occasions }}"
+     data-show-scale="{{ block.settings.show_scale }}"
+     data-show-subject="{{ block.settings.show_subject }}"
+     data-show-palette="{{ block.settings.show_palette }}"
+     data-show-studio="{{ block.settings.show_studio }}"
+     data-show-editorial="{{ block.settings.show_editorial_cards }}"
+     data-ed1-eyebrow="{{ block.settings.ed1_eyebrow | escape }}"
+     data-ed1-title="{{ block.settings.ed1_title | escape }}"
+     data-ed1-body="{{ block.settings.ed1_body | escape }}"
+     data-ed1-cta-text="{{ block.settings.ed1_cta_text | escape }}"
+     data-ed1-cta-url="{{ block.settings.ed1_cta_url }}"
+     data-ed2-eyebrow="{{ block.settings.ed2_eyebrow | escape }}"
+     data-ed2-title="{{ block.settings.ed2_title | escape }}"
+     data-ed2-body="{{ block.settings.ed2_body | escape }}"
+     data-ed2-cta-text="{{ block.settings.ed2_cta_text | escape }}"
+     data-ed2-cta-url="{{ block.settings.ed2_cta_url }}">
+
+  <!-- Sidebar backdrop (mobile) -->
+  <div class="pdg-sidebar-backdrop" id="pdg-backdrop-{{ block.id }}"></div>
+
+  <!-- ── Filter Sidebar ───────────────────────────────────── -->
+  <aside class="pdg-sidebar" id="pdg-sidebar-{{ block.id }}" aria-label="Filters">
+    <button type="button" class="pdg-sidebar-close" aria-label="Close filters">&times;</button>
+
+    <div class="pdg-sidebar-header">
+      <span class="pdg-sidebar-title">Filters</span>
+      <button type="button" class="pdg-clear-all" hidden>
+        Clear all (<span class="pdg-clear-count">0</span>)
+      </button>
+    </div>
+
+    <!-- Filter groups rendered by JS -->
+    <div class="pdg-filter-groups" id="pdg-filter-groups-{{ block.id }}">
+      {%- comment %} Skeleton groups while JS loads {%- endcomment %}
+      {%- for i in (1..4) -%}
+        <div class="pdg-filter-group" aria-hidden="true">
+          <div class="pdg-skel" style="width:60%;height:13px;margin:0 0 12px;"></div>
+          {%- for j in (1..4) -%}
+            <div class="pdg-skel pdg-skel--sm" style="margin:6px 0;"></div>
+          {%- endfor -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </aside>
+
+  <!-- ── Main content ──────────────────────────────────────── -->
+  <div class="pdg-main">
+
+    <!-- Active filter chips -->
+    <div class="pdg-active-chips" id="pdg-chips-{{ block.id }}" hidden></div>
+
+    <!-- Toolbar -->
+    <div class="pdg-toolbar">
+
+      <button type="button" class="pdg-filter-open-btn" aria-label="Open filters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        Filters
+      </button>
+
+      <span class="pdg-count" id="pdg-count-{{ block.id }}">Loading…</span>
+
+      <div class="pdg-toolbar-right">
+        <select class="pdg-sort" id="pdg-sort-{{ block.id }}" aria-label="Sort by">
+          <option value="newest">Newest</option>
+          <option value="bestselling">Bestselling</option>
+          <option value="az">A–Z</option>
+          <option value="studio-az">Studio A–Z</option>
+        </select>
+
+        {%- if block.settings.show_density_toggle -%}
+        <div class="pdg-density" role="group" aria-label="Grid density">
+          <button type="button" class="pdg-density-btn pdg-density-btn--4 pdg-density-btn--active" data-cols="4" title="4 columns">
+            <svg viewBox="0 0 16 16" fill="currentColor">
+              <rect x="0" y="0" width="3" height="3"/><rect x="4" y="0" width="3" height="3"/>
+              <rect x="8" y="0" width="3" height="3"/><rect x="12" y="0" width="3" height="3"/>
+              <rect x="0" y="4" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/>
+              <rect x="8" y="4" width="3" height="3"/><rect x="12" y="4" width="3" height="3"/>
+            </svg>
+          </button>
+          <button type="button" class="pdg-density-btn pdg-density-btn--5" data-cols="5" title="5 columns">
+            <svg viewBox="0 0 20 16" fill="currentColor">
+              <rect x="0" y="0" width="3" height="3"/><rect x="4" y="0" width="3" height="3"/>
+              <rect x="8" y="0" width="3" height="3"/><rect x="12" y="0" width="3" height="3"/>
+              <rect x="16" y="0" width="3" height="3"/>
+              <rect x="0" y="4" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/>
+              <rect x="8" y="4" width="3" height="3"/><rect x="12" y="4" width="3" height="3"/>
+              <rect x="16" y="4" width="3" height="3"/>
+            </svg>
+          </button>
+        </div>
+        {%- endif -%}
+      </div>
+
+    </div>
+
+    <!-- Product grid (skeleton while loading) -->
+    <div class="pdg-grid" id="pdg-grid-{{ block.id }}">
+      {%- for i in (1..24) -%}
+        <div class="pdg-card pdg-card--skeleton" aria-hidden="true">
+          <div class="pdg-card-img-wrap"></div>
+          <div class="pdg-card-info">
+            <div class="pdg-skel" style="margin-top:8px;"></div>
+            <div class="pdg-skel pdg-skel--sm"></div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <!-- Load more -->
+    <div class="pdg-load-more" id="pdg-load-more-{{ block.id }}" hidden>
+      <button type="button" class="pdg-load-btn" id="pdg-load-btn-{{ block.id }}">
+        {{ block.settings.load_more_label | default: 'Load more designs' }}
+      </button>
+      <p class="pdg-load-count" id="pdg-load-count-{{ block.id }}"></p>
+    </div>
+
+  </div>
+</div>
+
+<script src="{{ 'printlab-design-grid.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Design Grid",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Collection" },
+    {
+      "type": "text",
+      "id": "collection_handle",
+      "label": "Collection handle",
+      "info": "Override the page collection handle (e.g. the-yard). Leave blank to use the current collection page."
+    },
+    {
+      "type": "url",
+      "id": "profile_page_url",
+      "label": "Partner profile page URL",
+      "info": "Page hosting the Partner Profile block (e.g. /pages/partners)"
+    },
+
+    { "type": "header", "content": "Grid" },
+    {
+      "type": "range",
+      "id": "products_per_load",
+      "label": "Products per load",
+      "min": 12, "max": 48, "step": 12, "default": 24
+    },
+    {
+      "type": "text",
+      "id": "load_more_label",
+      "label": "Load more button label",
+      "default": "Load more designs"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_density_toggle",
+      "label": "Show density toggle",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badges",
+      "label": "Show New / Bestseller badges",
+      "default": true
+    },
+
+    { "type": "header", "content": "Filters" },
+    { "type": "checkbox", "id": "show_topic",    "label": "Show Topic filter",              "default": true },
+    { "type": "checkbox", "id": "show_themes",   "label": "Show Themes filter",             "default": true },
+    { "type": "checkbox", "id": "show_suits_use","label": "Show Suits use filter",          "default": true },
+    { "type": "checkbox", "id": "show_occasions","label": "Show Occasions & holidays filter","default": true },
+    { "type": "checkbox", "id": "show_scale",    "label": "Show Scale filter",              "default": true },
+    { "type": "checkbox", "id": "show_subject",  "label": "Show Subject search",            "default": true },
+    { "type": "checkbox", "id": "show_palette",  "label": "Show Palette filter",            "default": true },
+    { "type": "checkbox", "id": "show_studio",   "label": "Show Studio search",             "default": true },
+
+    { "type": "header", "content": "Editorial break cards" },
+    {
+      "type": "checkbox",
+      "id": "show_editorial_cards",
+      "label": "Show editorial break cards",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "editorial_interval",
+      "label": "Insert card every N tiles",
+      "min": 4, "max": 16, "step": 2, "default": 8
+    },
+
+    { "type": "header", "content": "Editorial card 1" },
+    { "type": "text",     "id": "ed1_eyebrow",  "label": "Eyebrow" },
+    { "type": "text",     "id": "ed1_title",    "label": "Title" },
+    { "type": "textarea", "id": "ed1_body",     "label": "Body" },
+    { "type": "text",     "id": "ed1_cta_text", "label": "CTA label" },
+    { "type": "url",      "id": "ed1_cta_url",  "label": "CTA link" },
+
+    { "type": "header", "content": "Editorial card 2" },
+    { "type": "text",     "id": "ed2_eyebrow",  "label": "Eyebrow" },
+    { "type": "text",     "id": "ed2_title",    "label": "Title" },
+    { "type": "textarea", "id": "ed2_body",     "label": "Body" },
+    { "type": "text",     "id": "ed2_cta_text", "label": "CTA label" },
+    { "type": "url",      "id": "ed2_cta_url",  "label": "CTA link" },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg_color",         "label": "Page background",    "default": "#FAF8F3" },
+    { "type": "color", "id": "sidebar_bg",        "label": "Sidebar background", "default": "#FFFFFF" },
+    { "type": "color", "id": "card_bg",           "label": "Card background",    "default": "#F5F5F5" },
+    { "type": "color", "id": "ink_color",         "label": "Primary text",       "default": "#1A1814" },
+    { "type": "color", "id": "ink_soft_color",    "label": "Secondary text",     "default": "#5C564A" },
+    { "type": "color", "id": "ink_mute_color",    "label": "Muted text",         "default": "#9A9285" },
+    { "type": "color", "id": "accent_color",      "label": "Accent (sage)",      "default": "#5C7355" },
+    { "type": "color", "id": "rule_color",        "label": "Borders / rules",    "default": "#E8E3D8" },
+    { "type": "color", "id": "ed_card_bg",        "label": "Editorial card bg",  "default": "#1A1814" },
+    { "type": "color", "id": "chip_active_color", "label": "Active chip border", "default": "#5C7355" }
+  ]
+}
+{% endschema %}
