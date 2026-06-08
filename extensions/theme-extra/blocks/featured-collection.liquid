@@ -141,96 +141,7 @@
   </div>
 </div>
 
-<script>
-(function () {
-  var wrap = document.getElementById('fc-{{ block.id }}');
-  if (!wrap) return;
-
-  var grid      = wrap.querySelector('.fc-grid');
-  var arrowsEl  = wrap.querySelector('.fc-arrows');
-  var prevBtn   = wrap.querySelector('.fc-arrow--prev');
-  var nextBtn   = wrap.querySelector('.fc-arrow--next');
-
-  var cols       = parseInt(grid.dataset.columns, 10);
-  var count      = parseInt(grid.dataset.count, 10);
-  var autoScroll = grid.dataset.autoscroll === 'true';
-  var delay      = parseInt(grid.dataset.delay, 10);
-
-  /* Only show arrows when products exceed visible columns (responsive) */
-  function visibleCols() {
-    var w = window.innerWidth;
-    if (w <= 640)  return Math.min(cols, 2);
-    if (w <= 1024) return Math.min(cols, 3);
-    return cols;
-  }
-  if (count <= visibleCols()) return;
-  arrowsEl.removeAttribute('hidden');
-
-  function syncPulse() {
-    [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = 'none'; });
-    void prevBtn.offsetWidth;
-    [prevBtn, nextBtn].forEach(function(b) { b.style.animationName = ''; });
-  }
-  syncPulse();
-
-  function cardWidth() {
-    var c = grid.querySelector('.fc-card');
-    if (!c) return 220;
-    var gap = parseFloat(window.getComputedStyle(grid).gap) || 12;
-    return c.offsetWidth + gap;
-  }
-
-  function atStart() { return grid.scrollLeft <= 4; }
-  function atEnd()   { return grid.scrollLeft >= grid.scrollWidth - grid.clientWidth - 4; }
-
-  function scrollNext() {
-    if (atEnd()) {
-      grid.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      grid.scrollBy({ left: cardWidth(), behavior: 'smooth' });
-    }
-  }
-
-  function scrollPrev() {
-    if (atStart()) {
-      grid.scrollTo({ left: grid.scrollWidth, behavior: 'smooth' });
-    } else {
-      grid.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
-    }
-  }
-
-  nextBtn.addEventListener('click', scrollNext);
-  prevBtn.addEventListener('click', scrollPrev);
-
-  function updateArrows() {
-    var prevWas = prevBtn.classList.contains('fc-arrow--disabled');
-    var nextWas = nextBtn.classList.contains('fc-arrow--disabled');
-    prevBtn.classList.toggle('fc-arrow--disabled', atStart());
-    nextBtn.classList.toggle('fc-arrow--disabled', atEnd());
-    if ((prevWas && !prevBtn.classList.contains('fc-arrow--disabled')) ||
-        (nextWas && !nextBtn.classList.contains('fc-arrow--disabled'))) {
-      syncPulse();
-    }
-  }
-  grid.addEventListener('scroll', updateArrows, { passive: true });
-  updateArrows();
-
-  /* Autoscroll */
-  if (autoScroll) {
-    var timer = null;
-
-    function start() { timer = setInterval(scrollNext, delay); }
-    function stop()  { clearInterval(timer); timer = null; }
-
-    grid.addEventListener('mouseenter', stop);
-    grid.addEventListener('mouseleave', start);
-    grid.addEventListener('touchstart', stop, { passive: true });
-    grid.addEventListener('touchend', function () { setTimeout(start, 1000); });
-
-    start();
-  }
-}());
-</script>
+<script src="{{ 'featured-collection.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
@@ -261,12 +172,12 @@
 
     { "type": "header", "content": "Browse Link" },
     { "type": "text",  "id": "browse_label", "label": "Link label",  "default": "Browse the collection" },
-    { "type": "url",   "id": "browse_url",   "label": "Link URL",    "info": "Leave blank to auto-link to the selected collection" },
+    { "type": "url",   "id": "browse_url",   "label": "Link URL" },
     { "type": "color", "id": "browse_color", "label": "Link colour", "default": "#FAF8F3" },
 
     { "type": "header", "content": "Carousel" },
     { "type": "checkbox", "id": "enable_autoscroll", "label": "Enable autoscroll",                                              "default": false },
-    { "type": "range",    "id": "scroll_interval",   "label": "Autoscroll delay", "min": 2, "max": 10, "step": 1, "unit": "s", "default": 4, "info": "Seconds between each scroll step" },
+    { "type": "range",    "id": "scroll_interval",   "label": "Autoscroll delay", "min": 2, "max": 10, "step": 1, "unit": "s", "default": 4 },
 
     { "type": "header", "content": "Cards" },
     { "type": "color", "id": "card_bg",         "label": "Card background",    "default": "#FAF8F3" },

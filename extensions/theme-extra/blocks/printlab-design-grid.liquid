@@ -65,16 +65,7 @@
     <div class="pdg-active-chips" id="pdg-chips-{{ block.id }}" hidden></div>
 
     <div class="pdg-toolbar">
-      <button type="button" class="pdg-filter-open-btn" aria-label="Open filters">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
-          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
-          <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
-          <line x1="17" y1="16" x2="23" y2="16"/>
-        </svg>
-        Filters
-      </button>
+      <button type="button" class="pdg-filter-open-btn" aria-label="Open filters">Filters</button>
       <span class="pdg-count" id="pdg-count-{{ block.id }}">Loading&hellip;</span>
       <div class="pdg-toolbar-right">
         <select class="pdg-sort" id="pdg-sort-{{ block.id }}" aria-label="Sort by">
@@ -85,24 +76,8 @@
         </select>
         {%- if block.settings.show_density_toggle -%}
         <div class="pdg-density" role="group" aria-label="Grid density">
-          <button type="button" class="pdg-density-btn pdg-density-btn--4 pdg-density-btn--active" data-cols="4" title="4 columns">
-            <svg viewBox="0 0 16 16" fill="currentColor">
-              <rect x="0" y="0" width="3" height="3"/><rect x="4" y="0" width="3" height="3"/>
-              <rect x="8" y="0" width="3" height="3"/><rect x="12" y="0" width="3" height="3"/>
-              <rect x="0" y="4" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/>
-              <rect x="8" y="4" width="3" height="3"/><rect x="12" y="4" width="3" height="3"/>
-            </svg>
-          </button>
-          <button type="button" class="pdg-density-btn pdg-density-btn--5" data-cols="5" title="5 columns">
-            <svg viewBox="0 0 20 16" fill="currentColor">
-              <rect x="0" y="0" width="3" height="3"/><rect x="4" y="0" width="3" height="3"/>
-              <rect x="8" y="0" width="3" height="3"/><rect x="12" y="0" width="3" height="3"/>
-              <rect x="16" y="0" width="3" height="3"/>
-              <rect x="0" y="4" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/>
-              <rect x="8" y="4" width="3" height="3"/><rect x="12" y="4" width="3" height="3"/>
-              <rect x="16" y="4" width="3" height="3"/>
-            </svg>
-          </button>
+          <button type="button" class="pdg-density-btn pdg-density-btn--4 pdg-density-btn--active" data-cols="4" title="4 columns">4</button>
+          <button type="button" class="pdg-density-btn pdg-density-btn--5" data-cols="5" title="5 columns">5</button>
         </div>
         {%- endif -%}
       </div>
@@ -127,8 +102,8 @@
   "target": "section",
   "settings": [
     { "type": "header", "content": "Grid" },
-    { "type": "text",     "id": "collection_handle",   "label": "Collection handle",        "info": "Leave blank to use current collection page." },
-    { "type": "url",      "id": "profile_page_url",    "label": "Partner profile page URL", "info": "Page hosting the Partner Profile block." },
+    { "type": "text",     "id": "collection_handle",   "label": "Collection handle" },
+    { "type": "url",      "id": "profile_page_url",    "label": "Partner profile page URL" },
     { "type": "range",    "id": "products_per_load",   "label": "Products per load",        "min": 12, "max": 48, "step": 12, "default": 24 },
     { "type": "text",     "id": "load_more_label",     "label": "Load more label",          "default": "Load more designs" },
     { "type": "checkbox", "id": "show_density_toggle", "label": "Show density toggle",      "default": true },
