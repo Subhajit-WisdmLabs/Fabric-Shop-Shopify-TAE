@@ -50,8 +50,6 @@
     var chipsRow        = root.querySelector('.pdg-active-chips');
     var clearAllBtn     = root.querySelector('.pdg-clear-all');
     var clearCount      = root.querySelector('.pdg-clear-count');
-    var density4        = root.querySelector('.pdg-density-btn--4');
-    var density5        = root.querySelector('.pdg-density-btn--5');
     var openBtn         = root.querySelector('.pdg-filter-open-btn');
     var closeBtn        = root.querySelector('.pdg-sidebar-close');
 
@@ -61,7 +59,6 @@
         scale: '', subject: '', palette: '', studio: ''
       },
       sort: 'newest',
-      cols: 4,
       cursor: null,
       total: 0,
       showing: 0,
@@ -94,27 +91,6 @@
         state.sort = sortEl.value;
         resetAndFetch();
       });
-    }
-
-    // ── Density ─────────────────────────────────────────────
-
-    if (density4) {
-      density4.addEventListener('click', function () {
-        setDensity(4);
-      });
-    }
-
-    if (density5) {
-      density5.addEventListener('click', function () {
-        setDensity(5);
-      });
-    }
-
-    function setDensity(cols) {
-      state.cols = cols;
-      grid.classList.toggle('pdg-grid--cols-5', cols === 5);
-      if (density4) density4.classList.toggle('pdg-density-btn--active', cols === 4);
-      if (density5) density5.classList.toggle('pdg-density-btn--active', cols === 5);
     }
 
     // ── Clear all ───────────────────────────────────────────

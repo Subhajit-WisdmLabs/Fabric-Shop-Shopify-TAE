@@ -74,12 +74,6 @@
           <option value="az">A&ndash;Z</option>
           <option value="studio-az">Studio A&ndash;Z</option>
         </select>
-        {%- if block.settings.show_density_toggle -%}
-        <div class="pdg-density" role="group" aria-label="Grid density">
-          <button type="button" class="pdg-density-btn pdg-density-btn--4 pdg-density-btn--active" data-cols="4" title="4 columns">4</button>
-          <button type="button" class="pdg-density-btn pdg-density-btn--5" data-cols="5" title="5 columns">5</button>
-        </div>
-        {%- endif -%}
       </div>
     </div>
 
@@ -106,7 +100,6 @@
     { "type": "url",      "id": "profile_page_url",    "label": "Partner profile page URL" },
     { "type": "range",    "id": "products_per_load",   "label": "Products per load",        "min": 12, "max": 48, "step": 12, "default": 24 },
     { "type": "text",     "id": "load_more_label",     "label": "Load more label",          "default": "Load more designs" },
-    { "type": "checkbox", "id": "show_density_toggle", "label": "Show density toggle",      "default": true },
     { "type": "checkbox", "id": "show_badges",         "label": "Show New / Bestseller badges", "default": true },
 
     { "type": "header", "content": "Filters" },
