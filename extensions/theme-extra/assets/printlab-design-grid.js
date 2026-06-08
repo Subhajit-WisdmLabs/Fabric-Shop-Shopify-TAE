@@ -264,19 +264,31 @@
       var favs = getFavs();
       var frag = document.createDocumentFragment();
       var positionInPage = append ? state.showing - products.length : 0;
+      var showEd = root.dataset.showEditorial !== 'false' && state.editorialSlots.length > 0;
+      var edInserted = false;
 
       products.forEach(function (product, i) {
         var position = positionInPage + i;
 
-        // Insert editorial break card before every Nth tile (not at position 0)
-        if (root.dataset.showEditorial !== 'false' && position > 0 && position % editorialEvery === 0 && state.editorialSlots.length) {
-          var slotIdx = Math.floor(position / editorialEvery - 1) % state.editorialSlots.length;
-          var edEl = buildEditorialCard(state.editorialSlots[slotIdx]);
-          if (edEl) frag.appendChild(edEl);
+        // 1st editorial after the 6th design; subsequent ones every editorialEvery tiles after that
+        if (showEd) {
+          var isFirst      = position === 6;
+          var isSubsequent = position > 6 && (position - 6) % editorialEvery === 0;
+          if (isFirst || isSubsequent) {
+            var slotIdx = Math.floor((position - 6) / editorialEvery) % state.editorialSlots.length;
+            var edEl = buildEditorialCard(state.editorialSlots[slotIdx]);
+            if (edEl) { frag.appendChild(edEl); edInserted = true; }
+          }
         }
 
         frag.appendChild(buildCard(product, favs));
       });
+
+      // Fewer than 6 designs: append 1st editorial at the end
+      if (showEd && !edInserted && !append && products.length > 0) {
+        var edEl = buildEditorialCard(state.editorialSlots[0]);
+        if (edEl) frag.appendChild(edEl);
+      }
 
       grid.appendChild(frag);
     }
