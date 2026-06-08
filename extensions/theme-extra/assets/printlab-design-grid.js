@@ -135,6 +135,41 @@
       });
     }
 
+    // ── Initial skeleton while JS fetches ───────────────────
+
+    (function renderSkeletons() {
+      var skFrag = document.createDocumentFragment();
+      for (var s = 0; s < perLoad; s++) {
+        var sk = document.createElement('div');
+        sk.className = 'pdg-card pdg-card--skeleton';
+        sk.setAttribute('aria-hidden', 'true');
+        sk.innerHTML =
+          '<div class="pdg-card-img-wrap"></div>' +
+          '<div class="pdg-card-info">' +
+            '<div class="pdg-skel" style="margin-top:8px;"></div>' +
+            '<div class="pdg-skel pdg-skel--sm"></div>' +
+          '</div>';
+        skFrag.appendChild(sk);
+      }
+      grid.appendChild(skFrag);
+
+      if (filterGroups) {
+        var fgFrag = document.createDocumentFragment();
+        for (var f = 0; f < 4; f++) {
+          var fg = document.createElement('div');
+          fg.className = 'pdg-filter-group';
+          fg.setAttribute('aria-hidden', 'true');
+          fg.innerHTML =
+            '<div class="pdg-skel" style="width:60%;height:13px;margin:0 0 12px;"></div>' +
+            '<div class="pdg-skel pdg-skel--sm" style="margin:6px 0;"></div>' +
+            '<div class="pdg-skel pdg-skel--sm" style="margin:6px 0;"></div>' +
+            '<div class="pdg-skel pdg-skel--sm" style="margin:6px 0;"></div>';
+          fgFrag.appendChild(fg);
+        }
+        filterGroups.appendChild(fgFrag);
+      }
+    }());
+
     // ── Initial parallel fetch ───────────────────────────────
 
     Promise.all([
