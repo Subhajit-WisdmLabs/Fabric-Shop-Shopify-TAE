@@ -1,0 +1,6 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "PrintLab Design Grid"
+handle = "printlab-design-grid"
+type = "theme"
