@@ -796,71 +796,68 @@
 
 /* ── Responsive ──────────────────────────────────────────────── */
 
+/* ≤1024px — sidebar goes static inline above the grid (wireframe spec) */
 @media (max-width: 1024px) {
   .pdg-wrap {
-    padding-left: 40px;
-    padding-right: 40px;
+    flex-direction: column;
+    padding: 0 40px 4rem;
   }
 
-  .pdg-grid {
-    grid-template-columns: repeat(3, 1fr);
+  /* Sidebar: leave sticky column, go static full-width above main */
+  .pdg-sidebar {
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--pdg-rule, #E8E3D8);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    top: auto;
+    align-self: auto;
   }
+
+  /* Lay filter groups out in multi-column row at tablet */
+  .pdg-filter-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0 1.5rem;
+  }
+
+  /* No drawer needed — sidebar is always visible */
+  .pdg-filter-open-btn {
+    display: none;
+  }
+
+  .pdg-sidebar-close {
+    display: none;
+  }
+
+  .pdg-grid,
   .pdg-grid--cols-5 {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/* ≤768px — 2-column grid, tighter toolbar */
 @media (max-width: 768px) {
   .pdg-wrap {
-    flex-direction: column;
-    padding: 0 16px 3rem;
+    padding: 0 24px 3rem;
   }
 
-  /* Sidebar — full-height drawer from left */
-  .pdg-sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: min(300px, 85vw);
-    height: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    z-index: 999;
-    padding: max(1.25rem, env(safe-area-inset-top)) 1.25rem 2rem;
-    background: var(--pdg-sidebar-bg, #FFFFFF);
-    border-right: 1px solid var(--pdg-rule, #E8E3D8);
-    transform: translateX(-110%);
-    transition: transform 0.25s ease;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  .pdg-filter-groups {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 
-  .pdg-sidebar--open {
-    transform: translateX(0);
-  }
-
-  .pdg-sidebar-backdrop--visible {
-    display: block;
-  }
-
-  .pdg-sidebar-close {
-    display: block;
-  }
-
-  /* Toolbar — two-row layout: [Filters] [Sort ▼] on row 1, count below */
+  /* Toolbar: count wraps below sort on narrow screens */
   .pdg-toolbar {
     flex-wrap: wrap;
     gap: 6px 8px;
     margin-bottom: 1rem;
   }
 
-  .pdg-filter-open-btn {
-    display: flex;
-    order: 1;
-  }
-
   .pdg-toolbar-right {
-    order: 2;
     margin-left: auto;
   }
 
@@ -872,10 +869,9 @@
     order: 3;
     width: 100%;
     font-size: 12px;
-    margin-top: 0;
   }
 
-  /* Active chips — tighter gap on small screens */
+  /* Active chips — tighter */
   .pdg-active-chips {
     gap: 4px;
     margin-bottom: 0.75rem;
@@ -904,6 +900,27 @@
 
   .pdg-density {
     display: none;
+  }
+}
+
+/* ≤480px — phone, single tighter layout */
+@media (max-width: 480px) {
+  .pdg-wrap {
+    padding: 0 12px 3rem;
+  }
+
+  .pdg-filter-groups {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pdg-grid,
+  .pdg-grid--cols-5 {
+    gap: 8px;
+  }
+
+  .pdg-sort {
+    font-size: 13px;
+    padding: 6px 24px 6px 8px;
   }
 }
 
