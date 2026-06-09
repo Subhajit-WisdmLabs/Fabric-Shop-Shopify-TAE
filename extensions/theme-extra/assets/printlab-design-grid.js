@@ -331,9 +331,11 @@
       el.href = slot.ctaUrl || '#';
       el.className = 'pdg-editorial';
       el.innerHTML =
-        (slot.eyebrow ? '<p class="pdg-editorial-eyebrow">' + esc(slot.eyebrow) + '</p>' : '') +
-        '<p class="pdg-editorial-title">' + esc(slot.title) + '</p>' +
-        (slot.body ? '<p class="pdg-editorial-body">' + esc(slot.body) + '</p>' : '') +
+        '<div class="pdg-editorial-body-wrap">' +
+          (slot.eyebrow ? '<p class="pdg-editorial-eyebrow">' + esc(slot.eyebrow) + '</p>' : '') +
+          '<p class="pdg-editorial-title">' + esc(slot.title) + '</p>' +
+          (slot.body ? '<p class="pdg-editorial-body">' + esc(slot.body) + '</p>' : '') +
+        '</div>' +
         (slot.ctaText ? '<span class="pdg-editorial-cta">' + esc(slot.ctaText) + ' →</span>' : '');
       return el;
     }
