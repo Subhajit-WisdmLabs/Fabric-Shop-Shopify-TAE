@@ -5,7 +5,7 @@
   gap: 2rem;
   max-width: calc(var(--page-width, 1320px) + var(--gutter, 64px) * 2);
   margin: 0 auto;
-  padding: 0 var(--gutter, 64px) 4rem;
+  padding: 2.5rem var(--gutter, 64px) 4rem;
   background: var(--pdg-bg, #FAF8F3);
   font-family: var(--font-body-family, sans-serif);
 }
@@ -800,7 +800,7 @@
 @media (max-width: 1024px) {
   .pdg-wrap {
     flex-direction: column;
-    padding: 0 40px 4rem;
+    padding: 2rem 40px 4rem;
   }
 
   /* Sidebar: leave sticky column, go static full-width above main */
@@ -843,7 +843,7 @@
 /* ≤768px — 2-column grid, tighter toolbar */
 @media (max-width: 768px) {
   .pdg-wrap {
-    padding: 0 24px 3rem;
+    padding: 1.5rem 24px 3rem;
   }
 
   .pdg-filter-groups {
@@ -906,7 +906,7 @@
 /* ≤480px — phone, single tighter layout */
 @media (max-width: 480px) {
   .pdg-wrap {
-    padding: 0 12px 3rem;
+    padding: 1.25rem 12px 3rem;
   }
 
   .pdg-filter-groups {
