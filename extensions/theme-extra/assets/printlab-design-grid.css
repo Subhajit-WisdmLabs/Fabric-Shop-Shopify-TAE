@@ -461,83 +461,69 @@
   transition: opacity 0.2s ease;
 }
 
-/* Hover overlay */
+/* Hover bar — slides up from bottom on hover */
 
-.pdg-card-img-wrap::after {
-  content: '';
+.pdg-card-hover-bar {
   position: absolute;
-  inset: 0;
-  background: rgba(26, 24, 20, 0.22);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  border-radius: 6px;
-  pointer-events: none;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(26, 24, 20, 0.84);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  transform: translateY(100%);
+  transition: transform 0.22s ease;
+  z-index: 3;
+  border-radius: 0 0 6px 6px;
 }
 
-.pdg-card:hover .pdg-card-img-wrap::after {
-  opacity: 1;
+.pdg-card:hover .pdg-card-hover-bar {
+  transform: translateY(0);
 }
 
 .pdg-card-view-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) translateY(6px);
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  padding: 8px 18px;
-  background: rgba(255, 255, 255, 0.92);
-  border: none;
-  border-radius: 20px;
   font-size: 13px;
   font-weight: 500;
-  color: #1A1814;
+  color: #FAF8F3;
   font-family: inherit;
-  pointer-events: none;
   white-space: nowrap;
-  z-index: 2;
-}
-
-.pdg-card:hover .pdg-card-view-btn {
-  opacity: 1;
-  transform: translate(-50%, -50%) translateY(0);
+  letter-spacing: 0.01em;
 }
 
 /* Fav button */
 
 .pdg-fav-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
   border: none;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(4px);
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 3;
+  padding: 0;
+  transition: transform 0.15s ease;
 }
 
-.pdg-card:hover .pdg-fav-btn {
-  opacity: 1;
+.pdg-fav-btn:hover {
+  transform: scale(1.2);
 }
 
 .pdg-fav-btn svg {
-  width: 14px;
-  height: 14px;
-  color: var(--pdg-ink-soft, #5C564A);
-  transition: color 0.15s, fill 0.15s;
+  width: 16px;
+  height: 16px;
+  color: rgba(250, 248, 243, 0.65);
+  stroke: rgba(250, 248, 243, 0.85);
+  transition: color 0.15s, fill 0.15s, stroke 0.15s;
 }
 
 .pdg-fav-btn--active svg {
-  color: #c0392b;
-  fill: #c0392b;
+  color: #e74c3c;
+  fill: #e74c3c;
+  stroke: #e74c3c;
 }
 
 /* Badges */
