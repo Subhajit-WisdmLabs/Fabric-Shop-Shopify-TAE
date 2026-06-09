@@ -2,6 +2,7 @@
   'use strict';
 
   var STORAGE_KEY = 'pdg_favs';
+  var LIKES_KEY   = 'pdg_likes';
 
   function esc(str) {
     return String(str || '')
@@ -22,6 +23,18 @@
     if (idx === -1) favs.push(handle); else favs.splice(idx, 1);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(favs)); } catch (e) {}
     return favs;
+  }
+
+  function getLikes() {
+    try { return JSON.parse(localStorage.getItem(LIKES_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function toggleLike(handle) {
+    var likes = getLikes();
+    if (likes[handle]) { delete likes[handle]; } else { likes[handle] = true; }
+    try { localStorage.setItem(LIKES_KEY, JSON.stringify(likes)); } catch (e) {}
+    return likes;
   }
 
   // ── Boot ────────────────────────────────────────────────────
@@ -237,7 +250,8 @@
         return;
       }
 
-      var favs = getFavs();
+      var favs  = getFavs();
+      var likes = getLikes();
       var frag = document.createDocumentFragment();
       var positionInPage = append ? state.showing - products.length : 0;
       var showEd = root.dataset.showEditorial !== 'false' && state.editorialSlots.length > 0;
@@ -257,7 +271,7 @@
           }
         }
 
-        frag.appendChild(buildCard(product, favs));
+        frag.appendChild(buildCard(product, favs, likes));
       });
 
       // Fewer than 6 designs: append 1st editorial at the end
@@ -269,8 +283,9 @@
       grid.appendChild(frag);
     }
 
-    function buildCard(p, favs) {
-      var isFav = favs.indexOf(p.handle) !== -1;
+    function buildCard(p, favs, likes) {
+      var isFav   = favs.indexOf(p.handle) !== -1;
+      var isLiked = !!(likes && likes[p.handle]);
       var el = document.createElement('a');
       el.href = '/products/' + esc(p.handle);
       el.className = 'pdg-card';
@@ -292,8 +307,18 @@
             ? '<img src="' + esc(p.image) + '" alt="' + esc(p.imageAlt || p.title) + '" loading="lazy">'
             : '') +
           badgesHtml +
+          '<button class="pdg-like-btn' + (isLiked ? ' pdg-like-btn--active' : '') +
+            '" data-handle="' + esc(p.handle) + '" aria-label="Like this design" type="button">' +
+            '<svg viewBox="0 0 24 24" fill="' + (isLiked ? 'currentColor' : 'none') +
+              '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"></path>' +
+              '<path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>' +
+            '</svg>' +
+            '<span class="pdg-like-count">' + (isLiked ? '1' : '0') + '</span>' +
+          '</button>' +
           '<div class="pdg-card-hover-bar">' +
             '<span class="pdg-card-view-btn">View Product</span>' +
+            '<span class="pdg-hover-bar-sep"></span>' +
             '<button class="pdg-fav-btn' + (isFav ? ' pdg-fav-btn--active' : '') +
               '" data-handle="' + esc(p.handle) + '" aria-label="Save to favourites" type="button">' +
               '<svg viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') +
@@ -308,6 +333,23 @@
           '<p class="pdg-card-vendor">by <a href="' + esc(vendorLink) + '" class="pdg-vendor-link" onclick="event.stopPropagation()"><strong>' + esc(p.vendor) + '</strong></a></p>' +
           metaHtml +
         '</div>';
+
+      // Bind like button
+      var likeBtn = el.querySelector('.pdg-like-btn');
+      if (likeBtn) {
+        likeBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var handle = likeBtn.dataset.handle;
+          var newLikes = toggleLike(handle);
+          var likedNow = !!newLikes[handle];
+          likeBtn.classList.toggle('pdg-like-btn--active', likedNow);
+          var icon = likeBtn.querySelector('svg');
+          if (icon) icon.setAttribute('fill', likedNow ? 'currentColor' : 'none');
+          var countEl = likeBtn.querySelector('.pdg-like-count');
+          if (countEl) countEl.textContent = likedNow ? '1' : '0';
+        });
+      }
 
       // Bind fav button once here so Load-more appends don't create duplicate handlers
       var favBtn = el.querySelector('.pdg-fav-btn');

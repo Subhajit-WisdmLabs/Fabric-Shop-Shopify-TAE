@@ -461,6 +461,59 @@
   transition: opacity 0.2s ease;
 }
 
+/* Like button — always visible top-right */
+
+.pdg-like-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  z-index: 3;
+  transition: transform 0.15s ease;
+  padding: 0;
+}
+
+.pdg-like-btn:hover {
+  transform: scale(1.1);
+}
+
+.pdg-like-btn svg {
+  width: 15px;
+  height: 15px;
+  color: #5C564A;
+  stroke: #5C564A;
+  transition: color 0.15s, fill 0.15s, stroke 0.15s;
+}
+
+.pdg-like-btn--active svg {
+  color: #4a6fa5;
+  fill: #4a6fa5;
+  stroke: #4a6fa5;
+}
+
+.pdg-like-count {
+  font-size: 10px;
+  font-weight: 600;
+  color: #5C564A;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.pdg-like-btn--active .pdg-like-count {
+  color: #4a6fa5;
+}
+
 /* Hover bar — slides up from bottom on hover */
 
 .pdg-card-hover-bar {
@@ -471,7 +524,6 @@
   background: rgba(26, 24, 20, 0.84);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 10px 12px;
   transform: translateY(100%);
   transition: transform 0.22s ease;
@@ -484,12 +536,24 @@
 }
 
 .pdg-card-view-btn {
+  flex: 1;
+  text-align: center;
   font-size: 13px;
   font-weight: 500;
   color: #FAF8F3;
   font-family: inherit;
   white-space: nowrap;
   letter-spacing: 0.01em;
+}
+
+/* Separator between view text and fav icon */
+
+.pdg-hover-bar-sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(250, 248, 243, 0.25);
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
 /* Fav button */
