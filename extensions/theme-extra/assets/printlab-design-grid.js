@@ -174,6 +174,9 @@
 
     // ── Initial parallel fetch ───────────────────────────────
 
+    // Render any chips pre-set from URL params before first fetch
+    updateChips();
+
     Promise.all([
       fetchFilterMeta(),
       fetchProducts(false),
