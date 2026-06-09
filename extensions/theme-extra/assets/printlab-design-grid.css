@@ -256,8 +256,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-height: 160px;
-  overflow-y: auto;
 }
 
 /* Mobile sidebar toggle */
