@@ -55,8 +55,11 @@
     var collection      = root.dataset.collection || '';
     var perLoad         = parseInt(root.dataset.perLoad || '24', 10);
     var profileUrl      = root.dataset.profileUrl || '/pages/partners';
-    var editorialEvery  = parseInt(root.dataset.editorialInterval || '8', 10);
     var blockId         = root.dataset.pdgBlock;
+
+    function getEditorialEvery() {
+      return parseInt(root.dataset.editorialInterval || '8', 10);
+    }
 
     var sidebar         = root.querySelector('.pdg-sidebar');
     var backdrop        = root.querySelector('.pdg-sidebar-backdrop');
@@ -270,12 +273,13 @@
       products.forEach(function (product, i) {
         var position = positionInPage + i;
 
-        // 1st editorial after the 6th design; subsequent ones every editorialEvery tiles after that
+        // 1st editorial after the 6th design; subsequent ones every N tiles after that
         if (showEd) {
+          var edEvery = getEditorialEvery();
           var isFirst      = position === 6;
-          var isSubsequent = position > 6 && (position - 6) % editorialEvery === 0;
+          var isSubsequent = position > 6 && (position - 6) % edEvery === 0;
           if (isFirst || isSubsequent) {
-            var slotIdx = Math.floor((position - 6) / editorialEvery) % state.editorialSlots.length;
+            var slotIdx = Math.floor((position - 6) / edEvery) % state.editorialSlots.length;
             var edEl = buildEditorialCard(state.editorialSlots[slotIdx]);
             if (edEl) { frag.appendChild(edEl); edInserted = true; }
           }
@@ -882,4 +886,12 @@
     if (ed1.title) state.editorialSlots.push(ed1);
     if (ed2.title) state.editorialSlots.push(ed2);
   }
+
+  // Re-init blocks when Shopify theme editor reloads a section (setting change live preview)
+  document.addEventListener('shopify:section:load', function (e) {
+    var section = e.target;
+    section.querySelectorAll('[data-pdg-block]').forEach(function (root) {
+      initBlock(root);
+    });
+  });
 }());
