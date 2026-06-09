@@ -73,9 +73,12 @@
     var openBtn         = root.querySelector('.pdg-filter-open-btn');
     var closeBtn        = root.querySelector('.pdg-sidebar-close');
 
+    // Read topic from URL on load
+    var _urlParams = new URLSearchParams(window.location.search);
+
     var state = {
       filters: {
-        topic: '', themes: [], suits_use: [], occasions: [],
+        topic: _urlParams.get('topic') || '', themes: [], suits_use: [], occasions: [],
         scale: '', subject: '', palette: '', studio: ''
       },
       sort: 'newest',
@@ -469,11 +472,9 @@
         filterGroups.appendChild(buildPaletteGroup(palette));
       }
 
-      // Studio list (pre-loaded) or search fallback
+      // Studio: pre-loaded list with inline search
       if (root.dataset.showStudio !== 'false') {
-        filterGroups.appendChild(
-          studios && studios.length ? buildStudioList(studios) : buildStudioGroup()
-        );
+        filterGroups.appendChild(buildStudioGroup(studios || []));
       }
     }
 
@@ -690,19 +691,25 @@
       return shell.wrap;
     }
 
-    function buildStudioList(studios) {
+    function buildStudioGroup(allStudios) {
       var shell = buildGroupShell('Studio');
       var SHOW_INITIAL = 6;
-      var showAll = false;
+      var query = '';
 
-      function render() {
-        shell.body.innerHTML = '';
-        var visible = showAll ? studios : studios.slice(0, SHOW_INITIAL);
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'pdg-studio-search';
+      input.placeholder = 'Search studios…';
 
+      var listEl = document.createElement('div');
+      listEl.className = 'pdg-studio-results';
+
+      function renderList(studios) {
+        listEl.innerHTML = '';
+        var visible = studios.slice(0, SHOW_INITIAL);
         visible.forEach(function (s) {
           var label = document.createElement('label');
           label.className = 'pdg-filter-option';
-
           var cb = document.createElement('input');
           cb.type = 'checkbox';
           cb.name = 'pdg-filter-studio-' + blockId;
@@ -710,78 +717,50 @@
           cb.checked = state.filters.studio === s.slug;
           cb.addEventListener('change', function () {
             state.filters.studio = cb.checked ? s.slug : '';
-            render();
             updateChips();
             resetAndFetch();
           });
-
           label.appendChild(cb);
           label.appendChild(document.createTextNode(' ' + s.studioName));
-          shell.body.appendChild(label);
+          listEl.appendChild(label);
         });
-
         if (studios.length > SHOW_INITIAL) {
-          var moreBtn = document.createElement('button');
-          moreBtn.type = 'button';
-          moreBtn.className = 'pdg-show-more';
-          moreBtn.textContent = showAll ? 'Show fewer' : 'Show ' + (studios.length - SHOW_INITIAL) + ' more';
-          moreBtn.addEventListener('click', function () {
-            showAll = !showAll;
-            render();
-          });
-          shell.body.appendChild(moreBtn);
+          var note = document.createElement('p');
+          note.className = 'pdg-show-more';
+          note.style.cssText = 'pointer-events:none;opacity:0.55;';
+          note.textContent = (studios.length - SHOW_INITIAL) + ' more — type to search';
+          listEl.appendChild(note);
         }
       }
 
-      render();
-      return shell.wrap;
-    }
-
-    function buildStudioGroup() {
-      var shell = buildGroupShell('Studio');
-      var proxyBase_ = proxyBase;
-
-      var input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'pdg-studio-search';
-      input.placeholder = 'Search studios…';
-
-      var results = document.createElement('div');
-      results.className = 'pdg-studio-results';
+      // Show initial 6 from pre-loaded list
+      renderList(allStudios);
 
       var timer;
       input.addEventListener('input', function () {
         clearTimeout(timer);
-        var q = input.value.trim();
-        if (q.length < 2) { results.innerHTML = ''; return; }
+        query = input.value.trim();
+        if (!query) { renderList(allStudios); return; }
+        // Filter pre-loaded list first (instant)
+        var local = allStudios.filter(function (s) {
+          return s.studioName.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+        });
+        if (local.length) { renderList(local); return; }
+        // Fallback to API if nothing matches locally
+        if (query.length < 2) return;
         timer = setTimeout(function () {
-          fetch(proxyBase_ + '/partner-search?q=' + encodeURIComponent(q))
+          fetch(proxyBase + '/partner-search?q=' + encodeURIComponent(query))
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (data) {
-              results.innerHTML = '';
-              var items = data && data.results ? data.results : [];
-              items.slice(0, 6).forEach(function (s) {
-                var label = document.createElement('label');
-                label.className = 'pdg-filter-option';
-                var cb = document.createElement('input');
-                cb.type = 'checkbox';
-                cb.checked = state.filters.studio === s.slug;
-                cb.addEventListener('change', function () {
-                  state.filters.studio = cb.checked ? s.slug : '';
-                  updateChips();
-                  resetAndFetch();
-                });
-                label.appendChild(cb);
-                label.appendChild(document.createTextNode(' ' + s.studioName));
-                results.appendChild(label);
-              });
+              var items = (data && data.results) ? data.results : [];
+              renderList(items);
             })
             .catch(function () {});
         }, 350);
       });
 
       shell.body.appendChild(input);
-      shell.body.appendChild(results);
+      shell.body.appendChild(listEl);
       return shell.wrap;
     }
 
@@ -809,8 +788,9 @@
         chipsRow.appendChild(chip);
       }
 
+      syncTopicUrl();
       if (state.filters.topic) {
-        addChip(state.filters.topic, function () { state.filters.topic = ''; syncFilterUI(); });
+        addChip(state.filters.topic, function () { state.filters.topic = ''; syncTopicUrl(); syncFilterUI(); });
       }
       state.filters.themes.forEach(function (t) {
         addChip(t, function () {
@@ -850,6 +830,16 @@
       chipsRow.hidden = count === 0;
       if (clearAllBtn) clearAllBtn.hidden = count === 0;
       if (clearCount)  clearCount.textContent = String(count);
+    }
+
+    function syncTopicUrl() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (state.filters.topic) { p.set('topic', state.filters.topic); }
+        else { p.delete('topic'); }
+        var newSearch = p.toString() ? '?' + p.toString() : window.location.pathname;
+        history.replaceState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
+      } catch (e) {}
     }
 
     // Re-render sidebar inputs to reflect cleared state
