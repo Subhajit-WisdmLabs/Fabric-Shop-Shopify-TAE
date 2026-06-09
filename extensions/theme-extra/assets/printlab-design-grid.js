@@ -181,7 +181,7 @@
         .then(function (data) {
           if (!data) return;
           state.subjectSuggestions = data.subjectSuggestions || [];
-          renderFilterSidebar(data.groups || [], data.subjectSuggestions || [], data.palette || []);
+          renderFilterSidebar(data.groups || [], data.subjectSuggestions || [], data.palette || [], data.studios || []);
         })
         .catch(function () {});
     }
@@ -444,7 +444,7 @@
 
     // ── Filter sidebar rendering ─────────────────────────────
 
-    function renderFilterSidebar(groups, suggestions, palette) {
+    function renderFilterSidebar(groups, suggestions, palette, studios) {
       if (!filterGroups) return;
       filterGroups.innerHTML = '';
 
@@ -469,9 +469,11 @@
         filterGroups.appendChild(buildPaletteGroup(palette));
       }
 
-      // Studio search
+      // Studio list (pre-loaded) or search fallback
       if (root.dataset.showStudio !== 'false') {
-        filterGroups.appendChild(buildStudioGroup());
+        filterGroups.appendChild(
+          studios && studios.length ? buildStudioList(studios) : buildStudioGroup()
+        );
       }
     }
 
@@ -685,6 +687,53 @@
       });
 
       shell.body.appendChild(grid);
+      return shell.wrap;
+    }
+
+    function buildStudioList(studios) {
+      var shell = buildGroupShell('Studio');
+      var SHOW_INITIAL = 6;
+      var showAll = false;
+
+      function render() {
+        shell.body.innerHTML = '';
+        var visible = showAll ? studios : studios.slice(0, SHOW_INITIAL);
+
+        visible.forEach(function (s) {
+          var label = document.createElement('label');
+          label.className = 'pdg-filter-option';
+
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.name = 'pdg-filter-studio-' + blockId;
+          cb.value = s.slug;
+          cb.checked = state.filters.studio === s.slug;
+          cb.addEventListener('change', function () {
+            state.filters.studio = cb.checked ? s.slug : '';
+            render();
+            updateChips();
+            resetAndFetch();
+          });
+
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(' ' + s.studioName));
+          shell.body.appendChild(label);
+        });
+
+        if (studios.length > SHOW_INITIAL) {
+          var moreBtn = document.createElement('button');
+          moreBtn.type = 'button';
+          moreBtn.className = 'pdg-show-more';
+          moreBtn.textContent = showAll ? 'Show fewer' : 'Show ' + (studios.length - SHOW_INITIAL) + ' more';
+          moreBtn.addEventListener('click', function () {
+            showAll = !showAll;
+            render();
+          });
+          shell.body.appendChild(moreBtn);
+        }
+      }
+
+      render();
       return shell.wrap;
     }
 
