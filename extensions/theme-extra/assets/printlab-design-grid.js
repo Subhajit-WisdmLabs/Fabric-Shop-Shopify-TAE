@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'pdg_favs';
-  var LIKES_KEY   = 'pdg_likes';
+  var STORAGE_KEY = 'fp_wishlist';
+  var LIKES_KEY   = 'fp_likes';
 
   function esc(str) {
     return String(str || '')
@@ -17,24 +17,27 @@
     catch (e) { return []; }
   }
 
-  function toggleFav(handle) {
-    var favs = getFavs();
-    var idx = favs.indexOf(handle);
-    if (idx === -1) favs.push(handle); else favs.splice(idx, 1);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(favs)); } catch (e) {}
-    return favs;
-  }
-
   function getLikes() {
     try { return JSON.parse(localStorage.getItem(LIKES_KEY) || '{}'); }
     catch (e) { return {}; }
   }
 
-  function toggleLike(handle) {
-    var likes = getLikes();
-    if (likes[handle]) { delete likes[handle]; } else { likes[handle] = true; }
-    try { localStorage.setItem(LIKES_KEY, JSON.stringify(likes)); } catch (e) {}
-    return likes;
+  function parseProductId(gid) {
+    if (!gid) return '';
+    var s = String(gid);
+    var idx = s.lastIndexOf('/');
+    return idx >= 0 ? s.slice(idx + 1) : s;
+  }
+
+  function updateWishlistBadge(count) {
+    var badge = document.getElementById('fp-wl-badge');
+    if (badge) {
+      badge.textContent = String(count);
+      badge.style.display = count > 0 ? '' : 'none';
+    }
+    if (typeof window.fsUpdateWishlistCount === 'function') {
+      window.fsUpdateWishlistCount(count);
+    }
   }
 
   // ── Boot ────────────────────────────────────────────────────
@@ -44,6 +47,10 @@
   });
 
   function initBlock(root) {
+    var lwData      = document.getElementById('fp-lw-data');
+    var isLoggedIn  = !!(lwData && lwData.dataset.customerId);
+    var loginUrl    = (lwData && lwData.dataset.loginUrl) || '/account/login';
+
     var proxyBase       = root.dataset.proxyBase || '/apps/fabric-shop/api';
     var collection      = root.dataset.collection || '';
     var perLoad         = parseInt(root.dataset.perLoad || '24', 10);
@@ -284,8 +291,11 @@
     }
 
     function buildCard(p, favs, likes) {
-      var isFav   = favs.indexOf(p.handle) !== -1;
-      var isLiked = !!(likes && likes[p.handle]);
+      var productId = parseProductId(p.id);
+      var isFav     = favs.indexOf(productId) !== -1;
+      var likeData  = likes[productId];
+      var isLiked   = likeData ? !!likeData.liked : false;
+      var likeCount = likeData ? (likeData.count || 0) : 0;
       var el = document.createElement('a');
       el.href = '/products/' + esc(p.handle);
       el.className = 'pdg-card';
@@ -314,7 +324,7 @@
               '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"></path>' +
               '<path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>' +
             '</svg>' +
-            '<span class="pdg-like-count">' + (isLiked ? '1' : '0') + '</span>' +
+            '<span class="pdg-like-count">' + likeCount + '</span>' +
           '</button>' +
           '<div class="pdg-card-hover-bar">' +
             '<span class="pdg-card-view-btn">View Product</span>' +
@@ -340,29 +350,77 @@
         likeBtn.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          var handle = likeBtn.dataset.handle;
-          var newLikes = toggleLike(handle);
-          var likedNow = !!newLikes[handle];
-          likeBtn.classList.toggle('pdg-like-btn--active', likedNow);
+          if (!isLoggedIn) {
+            window.location.href = loginUrl + '?return_url=' + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+          }
+          var wasLiked = likeBtn.classList.contains('pdg-like-btn--active');
           var icon = likeBtn.querySelector('svg');
-          if (icon) icon.setAttribute('fill', likedNow ? 'currentColor' : 'none');
-          var countEl = likeBtn.querySelector('.pdg-like-count');
-          if (countEl) countEl.textContent = likedNow ? '1' : '0';
+          var cntEl = likeBtn.querySelector('.pdg-like-count');
+          var prevCount = parseInt((cntEl && cntEl.textContent) || '0', 10);
+          var newCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
+          // Optimistic update + save to localStorage immediately
+          likeBtn.classList.toggle('pdg-like-btn--active', !wasLiked);
+          if (icon) icon.setAttribute('fill', !wasLiked ? 'currentColor' : 'none');
+          if (cntEl) cntEl.textContent = String(newCount);
+          var lCache = getLikes();
+          lCache[productId] = { count: newCount, liked: !wasLiked, ts: Date.now() };
+          try { localStorage.setItem(LIKES_KEY, JSON.stringify(lCache)); } catch (e) {}
+          // Send to API
+          fetch(proxyBase + '/like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: productId })
+          }).then(function (r) { return r.json(); }).then(function (result) {
+            if (result.liked !== undefined) {
+              likeBtn.classList.toggle('pdg-like-btn--active', result.liked);
+              if (icon) icon.setAttribute('fill', result.liked ? 'currentColor' : 'none');
+              if (cntEl) cntEl.textContent = String(result.count || 0);
+              var lCache2 = getLikes();
+              lCache2[productId] = { count: result.count, liked: result.liked, ts: Date.now() };
+              try { localStorage.setItem(LIKES_KEY, JSON.stringify(lCache2)); } catch (e) {}
+            }
+          }).catch(function () { /* keep localStorage state */ });
         });
       }
 
-      // Bind fav button once here so Load-more appends don't create duplicate handlers
+      // Bind fav button
       var favBtn = el.querySelector('.pdg-fav-btn');
       if (favBtn) {
         favBtn.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          var handle = favBtn.dataset.handle;
-          var newFavs = toggleFav(handle);
-          var favNow = newFavs.indexOf(handle) !== -1;
-          favBtn.classList.toggle('pdg-fav-btn--active', favNow);
+          if (!isLoggedIn) {
+            window.location.href = loginUrl + '?return_url=' + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+          }
+          var wasAdded = favBtn.classList.contains('pdg-fav-btn--active');
+          var action = wasAdded ? 'remove' : 'add';
           var icon = favBtn.querySelector('svg');
-          if (icon) icon.setAttribute('fill', favNow ? 'currentColor' : 'none');
+          // Optimistic update
+          favBtn.classList.toggle('pdg-fav-btn--active', !wasAdded);
+          if (icon) icon.setAttribute('fill', !wasAdded ? 'currentColor' : 'none');
+          // API call
+          fetch(proxyBase + '/wishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action, productId: productId })
+          }).then(function (r) { return r.json(); }).then(function (result) {
+            if (result.error) {
+              favBtn.classList.toggle('pdg-fav-btn--active', wasAdded);
+              if (icon) icon.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+              return;
+            }
+            updateWishlistBadge(result.count);
+            var wlCache = getFavs();
+            if (action === 'add' && wlCache.indexOf(productId) === -1) wlCache.push(productId);
+            if (action === 'remove') wlCache = wlCache.filter(function (id) { return id !== productId; });
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(wlCache)); } catch (e) {}
+          }).catch(function () {
+            // Revert on network error
+            favBtn.classList.toggle('pdg-fav-btn--active', wasAdded);
+            if (icon) icon.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+          });
         });
       }
 
@@ -519,6 +577,14 @@
       return shell.wrap;
     }
 
+  var SCALE_LABELS = {
+    Ditsy: 'Ditsy < 8 cm',
+    Small: 'Small < 15 cm',
+    Medium: 'Medium < 30 cm',
+    Large: 'Large < 60 cm',
+    Oversized: 'Oversized ≥ 60 cm'
+  };
+
     function buildChipsGroup(group) {
       var shell = buildGroupShell(group.label);
       var opts = group.options || [];
@@ -527,11 +593,12 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'pdg-chip' + (state.filters.scale === opt ? ' pdg-chip--active' : '');
-        btn.textContent = opt;
+        btn.setAttribute('data-value', opt);
+        btn.textContent = SCALE_LABELS[opt] || opt;
         btn.addEventListener('click', function () {
           state.filters.scale = state.filters.scale === opt ? '' : opt;
           shell.body.querySelectorAll('.pdg-chip').forEach(function (c) {
-            c.classList.toggle('pdg-chip--active', c.textContent === state.filters.scale);
+            c.classList.toggle('pdg-chip--active', c.dataset.value === state.filters.scale);
           });
           updateChips();
           resetAndFetch();
@@ -715,7 +782,7 @@
         });
       });
       if (state.filters.scale) {
-        addChip(state.filters.scale, function () { state.filters.scale = ''; syncFilterUI(); });
+        addChip(SCALE_LABELS[state.filters.scale] || state.filters.scale, function () { state.filters.scale = ''; syncFilterUI(); });
       }
       if (state.filters.subject) {
         addChip(state.filters.subject, function () {
@@ -746,7 +813,7 @@
         inp.checked = vals.indexOf(inp.value) !== -1;
       });
       filterGroups.querySelectorAll('.pdg-chip').forEach(function (chip) {
-        chip.classList.toggle('pdg-chip--active', chip.textContent === state.filters.scale);
+        chip.classList.toggle('pdg-chip--active', chip.dataset.value === state.filters.scale);
       });
       filterGroups.querySelectorAll('.pdg-swatch').forEach(function (swatch) {
         swatch.classList.toggle('pdg-swatch--active', swatch.dataset.slug === state.filters.palette);
