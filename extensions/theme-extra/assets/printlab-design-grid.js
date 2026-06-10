@@ -353,7 +353,7 @@
           '</div>' +
         '</div>' +
         '<div class="pdg-card-info">' +
-          '<p class="pdg-card-title">' + esc(p.title) + '</p>' +
+          '<h2 class="pdg-card-title">' + esc(p.title) + '</h2>' +
           '<p class="pdg-card-vendor">by <a href="' + esc(vendorLink) + '" class="pdg-vendor-link" onclick="event.stopPropagation()"><strong>' + esc(p.vendor) + '</strong></a></p>' +
           metaHtml +
         '</div>';
