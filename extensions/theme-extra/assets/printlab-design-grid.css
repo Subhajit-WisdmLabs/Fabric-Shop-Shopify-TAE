@@ -624,13 +624,13 @@
 .pdg-card-title {
   margin: 0;
   font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--pdg-ink, #1A1814);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.4;
 }
 
 .pdg-card-vendor {
