@@ -838,6 +838,10 @@
   .pdg-grid--cols-5 {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .pdg-card-title {
+    font-size: 18px;
+  }
 }
 
 /* ≤768px — 2-column grid, tighter toolbar */
@@ -901,6 +905,10 @@
   .pdg-density {
     display: none;
   }
+
+  .pdg-card-title {
+    font-size: 16px;
+  }
 }
 
 /* ≤480px — phone, single tighter layout */
@@ -921,6 +929,10 @@
   .pdg-sort {
     font-size: 13px;
     padding: 6px 24px 6px 8px;
+  }
+
+  .pdg-card-title {
+    font-size: 14px;
   }
 }
 
