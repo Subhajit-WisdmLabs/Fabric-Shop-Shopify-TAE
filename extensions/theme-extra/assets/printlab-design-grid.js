@@ -129,6 +129,7 @@
         syncTopicUrl();
         syncThemeUrl();
         syncFilterUI();
+        updateChips();
         resetAndFetch();
       });
     }
