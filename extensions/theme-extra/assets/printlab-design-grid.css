@@ -623,6 +623,7 @@
 
 .pdg-card-title {
   margin: 0;
+  font-family: inherit;
   font-size: 15px;
   font-weight: 600;
   color: var(--pdg-ink, #1A1814);
