@@ -286,6 +286,40 @@
 .pdg-main {
   flex: 1;
   min-width: 0;
+  position: relative;
+}
+
+/* Loading overlay — applied on filter changes, not on "load more" */
+
+.pdg-main--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(250, 248, 243, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 10;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.pdg-main--loading::before {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: calc(50% - 18px);
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--pdg-rule, #E8E3D8);
+  border-top-color: var(--pdg-accent, #5C7355);
+  border-radius: 50%;
+  animation: pdg-spin 0.75s linear infinite;
+  z-index: 11;
+  pointer-events: none;
+}
+
+@keyframes pdg-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Active chips row */

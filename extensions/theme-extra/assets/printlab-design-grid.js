@@ -75,6 +75,7 @@
     var clearCount      = root.querySelector('.pdg-clear-count');
     var openBtn         = root.querySelector('.pdg-filter-open-btn');
     var closeBtn        = root.querySelector('.pdg-sidebar-close');
+    var mainEl          = root.querySelector('.pdg-main');
 
     // Read topic and theme from URL on load
     var _urlParams = new URLSearchParams(window.location.search);
@@ -228,6 +229,7 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           state.loading = false;
+          if (!append && mainEl) mainEl.classList.remove('pdg-main--loading');
           if (!data) return;
 
           state.cursor   = data.pageInfo && data.pageInfo.endCursor;
@@ -251,6 +253,7 @@
         })
         .catch(function () {
           state.loading = false;
+          if (!append && mainEl) mainEl.classList.remove('pdg-main--loading');
           if (loadBtn) loadBtn.disabled = false;
         });
     }
@@ -258,6 +261,7 @@
     function resetAndFetch() {
       state.cursor  = null;
       state.showing = 0;
+      if (mainEl) mainEl.classList.add('pdg-main--loading');
       fetchProducts(false);
     }
 
