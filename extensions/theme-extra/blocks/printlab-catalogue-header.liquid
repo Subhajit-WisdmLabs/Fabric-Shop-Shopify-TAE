@@ -28,37 +28,46 @@
     {%- assign plch_shown = 0 -%}
     <div class="plch-stats">
 
-      {%- if block.settings.show_stat1 -%}
+      {%- if block.settings.show_designs -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="designs">{{ block.settings.stat1_number | escape }}</strong>
-          <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
+          <strong class="plch-stat__num" data-plch-stat="designs">{{ block.settings.designs_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.designs_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
-      {%- if block.settings.show_stat2 -%}
+      {%- if block.settings.show_studios -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="studios">{{ block.settings.stat2_number | escape }}</strong>
-          <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
+          <strong class="plch-stat__num" data-plch-stat="studios">{{ block.settings.studios_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.studios_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
-      {%- if block.settings.show_stat3 -%}
+      {%- if block.settings.show_countries -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="newThisMonth">{{ block.settings.stat3_number | escape }}</strong>
-          <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
+          <strong class="plch-stat__num" data-plch-stat="countries">{{ block.settings.countries_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.countries_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
-      {%- if block.settings.show_stat4 -%}
+      {%- if block.settings.show_collections -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="collections">{{ block.settings.stat4_number | escape }}</strong>
-          <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
+          <strong class="plch-stat__num" data-plch-stat="collections">{{ block.settings.collections_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.collections_label | escape }}</span>
+        </div>
+        {%- assign plch_shown = plch_shown | plus: 1 -%}
+      {%- endif -%}
+
+      {%- if block.settings.show_new_this_month -%}
+        {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        <div class="plch-stat">
+          <strong class="plch-stat__num" data-plch-stat="newThisMonth">{{ block.settings.new_this_month_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.new_this_month_label | escape }}</span>
         </div>
       {%- endif -%}
 
@@ -76,7 +85,7 @@
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;
-      ['designs', 'studios', 'newThisMonth', 'collections'].forEach(function (key) {
+      ['designs', 'studios', 'countries', 'collections', 'newThisMonth'].forEach(function (key) {
         var el = wrap.querySelector('[data-plch-stat="' + key + '"]');
         if (el && data[key] != null) el.textContent = data[key];
       });
@@ -110,79 +119,27 @@
       "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
     },
 
-    { "type": "header", "content": "Stats", "info": "Fallback values shown before the live API responds. Use the toggles to choose which stats appear." },
-    {
-      "type": "checkbox",
-      "id": "show_stat1",
-      "label": "Show stat 1",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "stat1_number",
-      "label": "Stat 1 — number (fallback)",
-      "default": "847"
-    },
-    {
-      "type": "text",
-      "id": "stat1_label",
-      "label": "Stat 1 — label",
-      "default": "Original designs"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_stat2",
-      "label": "Show stat 2",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "stat2_number",
-      "label": "Stat 2 — number (fallback)",
-      "default": "62"
-    },
-    {
-      "type": "text",
-      "id": "stat2_label",
-      "label": "Stat 2 — label",
-      "default": "Independent studios"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_stat3",
-      "label": "Show stat 3",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "stat3_number",
-      "label": "Stat 3 — number (fallback)",
-      "default": "34"
-    },
-    {
-      "type": "text",
-      "id": "stat3_label",
-      "label": "Stat 3 — label",
-      "default": "New this month"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_stat4",
-      "label": "Show stat 4",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "stat4_number",
-      "label": "Stat 4 — number (fallback)",
-      "default": "12"
-    },
-    {
-      "type": "text",
-      "id": "stat4_label",
-      "label": "Stat 4 — label",
-      "default": "Curated collections"
-    },
+    { "type": "header", "content": "Stats", "info": "Toggle each stat on or off. Fallback numbers show before the live API responds." },
+
+    { "type": "checkbox", "id": "show_designs", "label": "Show Designs", "default": true },
+    { "type": "text", "id": "designs_number", "label": "Designs — fallback number", "default": "847" },
+    { "type": "text", "id": "designs_label", "label": "Designs — label", "default": "Original designs" },
+
+    { "type": "checkbox", "id": "show_studios", "label": "Show Studios", "default": true },
+    { "type": "text", "id": "studios_number", "label": "Studios — fallback number", "default": "24" },
+    { "type": "text", "id": "studios_label", "label": "Studios — label", "default": "Independent studios" },
+
+    { "type": "checkbox", "id": "show_countries", "label": "Show Countries", "default": false },
+    { "type": "text", "id": "countries_number", "label": "Countries — fallback number", "default": "10" },
+    { "type": "text", "id": "countries_label", "label": "Countries — label", "default": "Countries" },
+
+    { "type": "checkbox", "id": "show_collections", "label": "Show Collections", "default": true },
+    { "type": "text", "id": "collections_number", "label": "Collections — fallback number", "default": "96" },
+    { "type": "text", "id": "collections_label", "label": "Collections — label", "default": "Curated collections" },
+
+    { "type": "checkbox", "id": "show_new_this_month", "label": "Show New This Month", "default": true },
+    { "type": "text", "id": "new_this_month_number", "label": "New This Month — fallback number", "default": "34" },
+    { "type": "text", "id": "new_this_month_label", "label": "New This Month — label", "default": "New this month" },
 
     { "type": "header", "content": "Colours" },
     { "type": "color", "id": "bg_color",       "label": "Background",        "default": "#FAF8F3" },
