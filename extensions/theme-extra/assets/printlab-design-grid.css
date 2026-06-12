@@ -599,6 +599,7 @@
   color: var(--pdg-ink-mute, #9A9285);
   font-variant-numeric: tabular-nums;
 }
+.pdg-card-meta-sep { opacity: 0.5; }
 
 /* Skeleton card */
 

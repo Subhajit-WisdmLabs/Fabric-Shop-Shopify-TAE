@@ -284,7 +284,13 @@
       if (p.isBestseller) badgesHtml += '<span class="pdg-badge pdg-badge--bestseller">Bestseller</span>';
 
       var metaHtml = '';
-      if (p.scale) metaHtml = '<p class="pdg-card-meta">' + esc(p.scale) + '</p>';
+      if (p.scale || p.repeatSize) {
+        metaHtml = '<p class="pdg-card-meta">';
+        if (p.scale)                    metaHtml += esc(p.scale);
+        if (p.scale && p.repeatSize)    metaHtml += '<span class="pdg-card-meta-sep"> · </span>';
+        if (p.repeatSize)               metaHtml += esc(p.repeatSize);
+        metaHtml += '</p>';
+      }
 
       el.innerHTML =
         '<div class="pdg-card-img-wrap">' +
