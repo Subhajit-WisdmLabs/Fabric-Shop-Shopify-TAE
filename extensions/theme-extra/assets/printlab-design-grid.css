@@ -682,6 +682,16 @@
   color: var(--pdg-ink-soft, #5C564A);
 }
 
+.pdg-vendor-link {
+  text-decoration: none;
+  color: inherit;
+}
+.pdg-vendor-link:hover strong {
+  color: #2563EB;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .pdg-card-meta {
   margin: 2px 0 0;
   font-size: 12px;

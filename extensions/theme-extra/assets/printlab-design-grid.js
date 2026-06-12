@@ -553,7 +553,7 @@
 
     function buildGroupShell(label) {
       var wrap = document.createElement('div');
-      wrap.className = 'pdg-filter-group';
+      wrap.className = 'pdg-filter-group pdg-filter-group--collapsed';
 
       var toggle = document.createElement('button');
       toggle.type = 'button';

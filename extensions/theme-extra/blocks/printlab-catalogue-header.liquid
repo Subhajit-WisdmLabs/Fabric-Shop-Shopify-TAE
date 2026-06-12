@@ -18,7 +18,7 @@
     {%- endif -%}
 
     {%- if block.settings.heading != blank -%}
-      <h1 class="plch-title">{{ block.settings.heading | escape }}</h1>
+      <h1 class="plch-title">{{ block.settings.heading | remove: '<p>' | remove: '</p>' }}</h1>
     {%- endif -%}
 
     {%- if block.settings.subtitle != blank -%}
@@ -30,7 +30,7 @@
 
       {%- if block.settings.show_designs -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="designs">{{ block.settings.designs_number | escape }}</strong>
+          <strong class="plch-stat__num" data-plch-stat="designs"><span class="plch-skel"></span></strong>
           <span class="plch-stat__label">{{ block.settings.designs_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
@@ -39,7 +39,7 @@
       {%- if block.settings.show_studios -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="studios">{{ block.settings.studios_number | escape }}</strong>
+          <strong class="plch-stat__num" data-plch-stat="studios"><span class="plch-skel"></span></strong>
           <span class="plch-stat__label">{{ block.settings.studios_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
@@ -48,7 +48,7 @@
       {%- if block.settings.show_countries -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="countries">{{ block.settings.countries_number | escape }}</strong>
+          <strong class="plch-stat__num" data-plch-stat="countries"><span class="plch-skel"></span></strong>
           <span class="plch-stat__label">{{ block.settings.countries_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
@@ -57,7 +57,7 @@
       {%- if block.settings.show_collections -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="collections">{{ block.settings.collections_number | escape }}</strong>
+          <strong class="plch-stat__num" data-plch-stat="collections"><span class="plch-skel"></span></strong>
           <span class="plch-stat__label">{{ block.settings.collections_label | escape }}</span>
         </div>
         {%- assign plch_shown = plch_shown | plus: 1 -%}
@@ -66,7 +66,7 @@
       {%- if block.settings.show_new_this_month -%}
         {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
-          <strong class="plch-stat__num" data-plch-stat="newThisMonth">{{ block.settings.new_this_month_number | escape }}</strong>
+          <strong class="plch-stat__num" data-plch-stat="newThisMonth"><span class="plch-skel"></span></strong>
           <span class="plch-stat__label">{{ block.settings.new_this_month_label | escape }}</span>
         </div>
       {%- endif -%}
@@ -90,7 +90,9 @@
         if (el && data[key] != null) el.textContent = data[key];
       });
     })
-    .catch(function () { /* keep static fallback values */ });
+    .catch(function () {
+      wrap.querySelectorAll('.plch-skel').forEach(function (s) { s.remove(); });
+    });
 })();
 </script>
 
@@ -107,10 +109,10 @@
       "default": "PrintLab · the catalogue"
     },
     {
-      "type": "text",
+      "type": "richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "Original prints, from independent studios."
+      "default": "<p>Original prints, from <em>independent studios</em>.</p>"
     },
     {
       "type": "textarea",
@@ -119,26 +121,21 @@
       "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
     },
 
-    { "type": "header", "content": "Stats", "info": "Toggle each stat on or off. Fallback numbers show before the live API responds." },
+    { "type": "header", "content": "Stats", "info": "Toggle each stat on or off. Numbers load live from the API." },
 
     { "type": "checkbox", "id": "show_designs", "label": "Show Designs", "default": true },
-    { "type": "text", "id": "designs_number", "label": "Designs — fallback number", "default": "847" },
     { "type": "text", "id": "designs_label", "label": "Designs — label", "default": "Original designs" },
 
     { "type": "checkbox", "id": "show_studios", "label": "Show Studios", "default": true },
-    { "type": "text", "id": "studios_number", "label": "Studios — fallback number", "default": "24" },
     { "type": "text", "id": "studios_label", "label": "Studios — label", "default": "Independent studios" },
 
     { "type": "checkbox", "id": "show_countries", "label": "Show Countries", "default": false },
-    { "type": "text", "id": "countries_number", "label": "Countries — fallback number", "default": "10" },
     { "type": "text", "id": "countries_label", "label": "Countries — label", "default": "Countries" },
 
     { "type": "checkbox", "id": "show_collections", "label": "Show Collections", "default": true },
-    { "type": "text", "id": "collections_number", "label": "Collections — fallback number", "default": "96" },
     { "type": "text", "id": "collections_label", "label": "Collections — label", "default": "Curated collections" },
 
     { "type": "checkbox", "id": "show_new_this_month", "label": "Show New This Month", "default": true },
-    { "type": "text", "id": "new_this_month_number", "label": "New This Month — fallback number", "default": "34" },
     { "type": "text", "id": "new_this_month_label", "label": "New This Month — label", "default": "New this month" },
 
     { "type": "header", "content": "Colours" },

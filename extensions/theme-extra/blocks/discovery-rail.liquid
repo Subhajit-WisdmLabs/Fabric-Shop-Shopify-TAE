@@ -70,19 +70,29 @@
           <li class="dr-card dr-card--loading"
               data-dr-card="{{ slug | escape }}"
               aria-busy="true">
-            <div class="dr-thumbs">
-              <div class="dr-thumb"></div>
-              <div class="dr-thumb"></div>
-              <div class="dr-thumb"></div>
-            </div>
-            <p class="dr-tag">{{ card_tag | escape }}</p>
-            <p class="dr-name dr-skel dr-skel--name"></p>
-            <p class="dr-meta dr-skel dr-skel--meta"></p>
+            <a class="dr-card__link" href="{{ block.settings.studio_base_url | escape }}{{ slug | escape }}">
+              <div class="dr-thumbs">
+                <div class="dr-thumb"></div>
+                <div class="dr-thumb"></div>
+                <div class="dr-thumb"></div>
+              </div>
+              <p class="dr-tag">{{ card_tag | escape }}</p>
+              <p class="dr-name dr-skel dr-skel--name"></p>
+              <p class="dr-meta dr-skel dr-skel--meta"></p>
+            </a>
           </li>
         {%- endif -%}
       {%- endfor -%}
 
     </ul>
+
+    <div class="dr-dots" aria-hidden="true">
+      {%- for slug in slugs_arr -%}
+        {%- if slug != blank -%}
+          <button class="dr-dot{% if forloop.first %} dr-dot--active{% endif %}" data-dr-dot="{{ forloop.index0 }}"></button>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
 
   </div>
 </section>
@@ -148,6 +158,37 @@
       });
     })
     .catch(function () { /* keep skeleton on error */ });
+
+  // Carousel dot tracking (active on mobile scroll)
+  var track    = wrap.querySelector('.dr-track');
+  var dotsWrap = wrap.querySelector('.dr-dots');
+  if (track && dotsWrap) {
+    var dots = dotsWrap.querySelectorAll('.dr-dot');
+
+    function updateActiveDot() {
+      var cards = track.querySelectorAll('.dr-card');
+      if (!cards.length || !dots.length) return;
+      var trackLeft = track.getBoundingClientRect().left;
+      var activeIdx = 0;
+      var minDist = Infinity;
+      Array.prototype.forEach.call(cards, function (card, i) {
+        var dist = Math.abs(card.getBoundingClientRect().left - trackLeft);
+        if (dist < minDist) { minDist = dist; activeIdx = i; }
+      });
+      Array.prototype.forEach.call(dots, function (dot, i) {
+        dot.classList.toggle('dr-dot--active', i === activeIdx);
+      });
+    }
+
+    track.addEventListener('scroll', updateActiveDot, { passive: true });
+
+    Array.prototype.forEach.call(dots, function (dot, i) {
+      dot.addEventListener('click', function () {
+        var cards = track.querySelectorAll('.dr-card');
+        if (cards[i]) track.scrollTo({ left: cards[i].offsetLeft, behavior: 'smooth' });
+      });
+    });
+  }
 })();
 </script>
 
@@ -167,6 +208,13 @@
       "type": "url",
       "id": "studios_url",
       "label": "All studios link"
+    },
+    {
+      "type": "text",
+      "id": "studio_base_url",
+      "label": "Studio page URL prefix",
+      "info": "Each card URL = this prefix + the card's slug. e.g. /pages/studio-",
+      "default": "/pages/studio-"
     },
 
     { "type": "header", "content": "Cards 1–4 (required)" },

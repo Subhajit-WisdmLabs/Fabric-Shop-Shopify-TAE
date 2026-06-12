@@ -61,18 +61,19 @@
   display: block;
   border: 1px solid var(--dr-rule, #E8E3D8);
   border-radius: 4px;
-  padding: 14px;
   background: var(--dr-card-bg, #FAF8F3);
-  text-decoration: none;
-  color: inherit;
-  cursor: default;
-  transition: background 0.15s ease;
+  overflow: hidden;
   min-width: 0;
 }
-.dr-card[href]:not([href=""]) {
-  cursor: pointer;
+
+.dr-card__link {
+  display: block;
+  padding: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
 }
-.dr-card[href]:not([href=""]):hover {
+.dr-card__link:hover {
   background: var(--dr-card-hover, #F4F1EA);
 }
 
@@ -129,6 +130,32 @@
   white-space: nowrap;
 }
 
+/* ── Carousel dots (mobile only, shown via media query) ─────────── */
+.dr-dots {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  padding-top: 14px;
+}
+
+.dr-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dr-rule, #E8E3D8);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.dr-dot--active {
+  background: var(--dr-ink, #1A1814);
+  transform: scale(1.4);
+}
+
 /* ── Skeleton pulse (shown until API resolves) ───────────────────── */
 .dr-skel {
   background: var(--dr-rule, #E8E3D8);
@@ -167,20 +194,34 @@
 }
 
 @media (max-width: 600px) {
-  .dr-track { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .dr-card  { padding: 12px; }
-  .dr-name  { font-size: 15px; }
-  .dr-meta  { font-size: 11px; }
+  .dr-dots  { display: flex; }
+  .dr-track {
+    display: flex !important;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 10px;
+  }
+  .dr-track::-webkit-scrollbar { display: none; }
+  .dr-card       { flex: 0 0 75vw; scroll-snap-align: start; }
+  .dr-card__link { padding: 12px; }
+  .dr-name       { font-size: 15px; white-space: normal; }
+  .dr-meta       { font-size: 11px; white-space: normal; }
 }
 
 @media (max-width: 480px) {
-  .dr-inner { padding: 18px 16px; }
-  .dr-track { grid-template-columns: 1fr; gap: 10px; }
-  .dr-title { font-size: 18px; }
+  .dr-inner  { padding: 18px 16px; }
+  .dr-title  { font-size: 18px; }
   .dr-thumbs { aspect-ratio: 4 / 1; }
+  .dr-card   { flex: 0 0 82vw; }
+}
+
+@media (max-width: 380px) {
+  .dr-card { flex: 0 0 88vw; }
 }
 
 @media (max-width: 360px) {
-  .dr-inner { padding: 16px 12px; }
-  .dr-card  { padding: 10px; }
+  .dr-inner      { padding: 16px 12px; }
+  .dr-card__link { padding: 10px; }
 }

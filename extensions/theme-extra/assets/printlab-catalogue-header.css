@@ -83,6 +83,28 @@
   align-self: center;
 }
 
+/* ── Heading italic accent ───────────────────────────────────── */
+.plch-title em {
+  font-style: italic;
+  color: var(--plch-sage, #5C7355);
+}
+
+/* ── Stat skeleton shimmer ───────────────────────────────────── */
+.plch-skel {
+  display: inline-block;
+  width: 2.8ch;
+  height: 0.85em;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--plch-rule, #E8E3D8) 25%, #F0EDE5 50%, var(--plch-rule, #E8E3D8) 75%);
+  background-size: 200% 100%;
+  animation: plch-shimmer 1.2s ease-in-out infinite;
+  vertical-align: middle;
+}
+@keyframes plch-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1280px) {
   .plch-title { font-size: 48px; }
