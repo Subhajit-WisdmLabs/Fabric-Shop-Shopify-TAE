@@ -40,6 +40,30 @@
     }
   }
 
+  // ── Response cache (30-min TTL, keyed by request params) ───
+
+  var CACHE_TTL    = 30 * 60 * 1000;
+  var CACHE_PREFIX = 'pdg_c_';
+
+  function cacheGet(key) {
+    try {
+      var raw = localStorage.getItem(CACHE_PREFIX + key);
+      if (!raw) return null;
+      var entry = JSON.parse(raw);
+      if (Date.now() - entry.ts > CACHE_TTL) {
+        localStorage.removeItem(CACHE_PREFIX + key);
+        return null;
+      }
+      return entry.data;
+    } catch (e) { return null; }
+  }
+
+  function cacheSet(key, data) {
+    try {
+      localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) {}
+  }
+
   // ── Boot ────────────────────────────────────────────────────
 
   document.querySelectorAll('[data-pdg-block]').forEach(function (root) {
@@ -191,10 +215,18 @@
     // ── Filter metadata ──────────────────────────────────────
 
     function fetchFilterMeta() {
+      var metaKey = 'meta_' + proxyBase;
+      var cached = cacheGet(metaKey);
+      if (cached) {
+        state.subjectSuggestions = cached.subjectSuggestions || [];
+        renderFilterSidebar(cached.groups || [], cached.subjectSuggestions || [], cached.palette || [], cached.studios || []);
+        return Promise.resolve();
+      }
       return fetch(proxyBase + '/tag-subjects-public')
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           if (!data) return;
+          cacheSet(metaKey, data);
           state.subjectSuggestions = data.subjectSuggestions || [];
           renderFilterSidebar(data.groups || [], data.subjectSuggestions || [], data.palette || [], data.studios || []);
         })
@@ -225,8 +257,15 @@
       state.loading = true;
       if (loadBtn) loadBtn.disabled = true;
 
-      return fetch(proxyBase + '/catalogue-products?' + buildParams(append))
-        .then(function (r) { return r.ok ? r.json() : null; })
+      var params  = buildParams(append);
+      var cached  = cacheGet('prod_' + params);
+      var request = cached
+        ? Promise.resolve(cached)
+        : fetch(proxyBase + '/catalogue-products?' + params)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) { if (data) cacheSet('prod_' + params, data); return data; });
+
+      return request
         .then(function (data) {
           state.loading = false;
           if (!append && mainEl) mainEl.classList.remove('pdg-main--loading');
