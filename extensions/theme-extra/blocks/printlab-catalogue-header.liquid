@@ -10,7 +10,8 @@
   }
 </style>
 
-<div class="plch-wrap" id="plch-{{ block.id }}">
+<div class="plch-wrap" id="plch-{{ block.id }}"
+  data-plch-endpoint="{{ block.settings.api_endpoint | escape }}">
   <div class="plch-inner">
 
     {%- if block.settings.eyebrow != blank -%}
@@ -25,26 +26,43 @@
       <p class="plch-sub">{{ block.settings.subtitle | escape }}</p>
     {%- endif -%}
 
+    {%- assign _stats_shown = 0 -%}
     <div class="plch-stats">
-      <div class="plch-stat">
-        <strong class="plch-stat__num" data-plch-stat="designs">{{ block.settings.stat1_number | escape }}</strong>
-        <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
-      </div>
-      <div class="plch-divide" aria-hidden="true"></div>
-      <div class="plch-stat">
-        <strong class="plch-stat__num" data-plch-stat="studios">{{ block.settings.stat2_number | escape }}</strong>
-        <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
-      </div>
-      <div class="plch-divide" aria-hidden="true"></div>
-      <div class="plch-stat">
-        <strong class="plch-stat__num" data-plch-stat="newThisMonth">{{ block.settings.stat3_number | escape }}</strong>
-        <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
-      </div>
-      <div class="plch-divide" aria-hidden="true"></div>
-      <div class="plch-stat">
-        <strong class="plch-stat__num" data-plch-stat="collections">{{ block.settings.stat4_number | escape }}</strong>
-        <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
-      </div>
+
+      {%- if block.settings.show_stat1 -%}
+        <div class="plch-stat">
+          <strong class="plch-stat__num" data-plch-stat="designs" data-plch-api-key="{{ block.settings.stat1_api_key | escape }}">{{ block.settings.stat1_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
+        </div>
+        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+      {%- endif -%}
+
+      {%- if block.settings.show_stat2 -%}
+        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        <div class="plch-stat">
+          <strong class="plch-stat__num" data-plch-stat="studios" data-plch-api-key="{{ block.settings.stat2_api_key | escape }}">{{ block.settings.stat2_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
+        </div>
+        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+      {%- endif -%}
+
+      {%- if block.settings.show_stat3 -%}
+        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        <div class="plch-stat">
+          <strong class="plch-stat__num" data-plch-stat="newThisMonth" data-plch-api-key="{{ block.settings.stat3_api_key | escape }}">{{ block.settings.stat3_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
+        </div>
+        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+      {%- endif -%}
+
+      {%- if block.settings.show_stat4 -%}
+        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        <div class="plch-stat">
+          <strong class="plch-stat__num" data-plch-stat="collections" data-plch-api-key="{{ block.settings.stat4_api_key | escape }}">{{ block.settings.stat4_number | escape }}</strong>
+          <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
+        </div>
+      {%- endif -%}
+
     </div>
 
   </div>
@@ -55,13 +73,15 @@
   var wrap = document.getElementById('plch-{{ block.id }}');
   if (!wrap) return;
 
-  fetch('/apps/fabric-shop/api/printlab-stats')
+  var endpoint = (wrap.dataset.plchEndpoint || '').trim() || '/apps/fabric-shop/api/printlab-stats';
+
+  fetch(endpoint)
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;
-      ['designs', 'studios', 'newThisMonth', 'collections'].forEach(function (key) {
-        var el = wrap.querySelector('[data-plch-stat="' + key + '"]');
-        if (el && data[key] != null) el.textContent = data[key];
+      wrap.querySelectorAll('[data-plch-api-key]').forEach(function (el) {
+        var key = el.dataset.plchApiKey;
+        if (key && data[key] != null) el.textContent = data[key];
       });
     })
     .catch(function () { /* keep static fallback values */ });
@@ -93,54 +113,125 @@
       "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
     },
 
-    { "type": "header", "content": "Stats", "info": "These are fallback values shown before the live API responds." },
+    {
+      "type": "header",
+      "content": "Stats",
+      "info": "Fallback values shown before the live API responds. Toggle each stat on or off independently."
+    },
+    {
+      "type": "text",
+      "id": "api_endpoint",
+      "label": "Stats API endpoint",
+      "default": "/apps/fabric-shop/api/printlab-stats",
+      "info": "JSON endpoint that returns live stat values. Change per page — e.g. /apps/fabric-shop/api/partner-stats for Studios."
+    },
+
+    { "type": "header", "content": "Stat 1" },
+    {
+      "type": "checkbox",
+      "id": "show_stat1",
+      "label": "Show stat 1",
+      "default": true
+    },
     {
       "type": "text",
       "id": "stat1_number",
-      "label": "Stat 1 — number (fallback)",
+      "label": "Number (fallback)",
       "default": "847"
     },
     {
       "type": "text",
       "id": "stat1_label",
-      "label": "Stat 1 — label",
+      "label": "Label",
       "default": "Original designs"
     },
     {
       "type": "text",
+      "id": "stat1_api_key",
+      "label": "API key",
+      "default": "designs",
+      "info": "Key in the API JSON response mapped to this stat."
+    },
+
+    { "type": "header", "content": "Stat 2" },
+    {
+      "type": "checkbox",
+      "id": "show_stat2",
+      "label": "Show stat 2",
+      "default": true
+    },
+    {
+      "type": "text",
       "id": "stat2_number",
-      "label": "Stat 2 — number (fallback)",
+      "label": "Number (fallback)",
       "default": "62"
     },
     {
       "type": "text",
       "id": "stat2_label",
-      "label": "Stat 2 — label",
+      "label": "Label",
       "default": "Independent studios"
     },
     {
       "type": "text",
+      "id": "stat2_api_key",
+      "label": "API key",
+      "default": "studios",
+      "info": "Key in the API JSON response mapped to this stat."
+    },
+
+    { "type": "header", "content": "Stat 3" },
+    {
+      "type": "checkbox",
+      "id": "show_stat3",
+      "label": "Show stat 3",
+      "default": true
+    },
+    {
+      "type": "text",
       "id": "stat3_number",
-      "label": "Stat 3 — number (fallback)",
+      "label": "Number (fallback)",
       "default": "34"
     },
     {
       "type": "text",
       "id": "stat3_label",
-      "label": "Stat 3 — label",
+      "label": "Label",
       "default": "New this month"
     },
     {
       "type": "text",
+      "id": "stat3_api_key",
+      "label": "API key",
+      "default": "newThisMonth",
+      "info": "Key in the API JSON response mapped to this stat."
+    },
+
+    { "type": "header", "content": "Stat 4" },
+    {
+      "type": "checkbox",
+      "id": "show_stat4",
+      "label": "Show stat 4",
+      "default": true
+    },
+    {
+      "type": "text",
       "id": "stat4_number",
-      "label": "Stat 4 — number (fallback)",
+      "label": "Number (fallback)",
       "default": "12"
     },
     {
       "type": "text",
       "id": "stat4_label",
-      "label": "Stat 4 — label",
+      "label": "Label",
       "default": "Curated collections"
+    },
+    {
+      "type": "text",
+      "id": "stat4_api_key",
+      "label": "API key",
+      "default": "collections",
+      "info": "Key in the API JSON response mapped to this stat."
     },
 
     { "type": "header", "content": "Colours" },
