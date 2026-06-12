@@ -130,13 +130,19 @@
   white-space: nowrap;
 }
 
-/* ── Carousel dots (mobile only, shown via media query) ─────────── */
-.dr-dots {
+/* ── Carousel controls — arrows + dots (mobile only) ────────────── */
+.dr-controls {
   display: none;
+  align-items: center;
   justify-content: center;
+  gap: 12px;
+  padding-top: 14px;
+}
+
+.dr-dots {
+  display: flex;
   align-items: center;
   gap: 7px;
-  padding-top: 14px;
 }
 
 .dr-dot {
@@ -155,6 +161,23 @@
   background: var(--dr-ink, #1A1814);
   transform: scale(1.4);
 }
+
+.dr-arrow {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--dr-rule, #E8E3D8);
+  color: var(--dr-ink, #1A1814);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, opacity 0.15s;
+}
+.dr-arrow:hover:not([disabled]) { background: var(--dr-card-hover, #F4F1EA); }
+.dr-arrow[disabled] { opacity: 0.25; cursor: default; }
 
 /* ── Skeleton pulse (shown until API resolves) ───────────────────── */
 .dr-skel {
@@ -194,7 +217,7 @@
 }
 
 @media (max-width: 600px) {
-  .dr-dots  { display: flex; }
+  .dr-controls { display: flex; }
   .dr-track {
     display: flex !important;
     overflow-x: scroll;

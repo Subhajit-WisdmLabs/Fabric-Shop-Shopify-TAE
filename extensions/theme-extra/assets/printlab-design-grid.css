@@ -684,10 +684,11 @@
 
 .pdg-vendor-link {
   text-decoration: none;
-  color: inherit;
+}
+.pdg-vendor-link strong {
+  color: #2563EB;
 }
 .pdg-vendor-link:hover strong {
-  color: #2563EB;
   text-decoration: underline;
   text-underline-offset: 2px;
 }

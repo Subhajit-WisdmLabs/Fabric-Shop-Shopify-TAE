@@ -86,12 +86,20 @@
 
     </ul>
 
-    <div class="dr-dots" aria-hidden="true">
-      {%- for slug in slugs_arr -%}
-        {%- if slug != blank -%}
-          <button class="dr-dot{% if forloop.first %} dr-dot--active{% endif %}" data-dr-dot="{{ forloop.index0 }}"></button>
-        {%- endif -%}
-      {%- endfor -%}
+    <div class="dr-controls">
+      <button class="dr-arrow dr-arrow--prev" aria-label="Previous" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="dr-dots" aria-hidden="true">
+        {%- for slug in slugs_arr -%}
+          {%- if slug != blank -%}
+            <button class="dr-dot{% if forloop.first %} dr-dot--active{% endif %}" data-dr-dot="{{ forloop.index0 }}"></button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <button class="dr-arrow dr-arrow--next" aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     </div>
 
   </div>
@@ -159,15 +167,18 @@
     })
     .catch(function () { /* keep skeleton on error */ });
 
-  // Carousel dot tracking (active on mobile scroll)
+  // Carousel controls — dots + arrows
   var track    = wrap.querySelector('.dr-track');
   var dotsWrap = wrap.querySelector('.dr-dots');
+  var prevBtn  = wrap.querySelector('.dr-arrow--prev');
+  var nextBtn  = wrap.querySelector('.dr-arrow--next');
+
   if (track && dotsWrap) {
     var dots = dotsWrap.querySelectorAll('.dr-dot');
 
-    function updateActiveDot() {
+    function getActiveIdx() {
       var cards = track.querySelectorAll('.dr-card');
-      if (!cards.length || !dots.length) return;
+      if (!cards.length) return 0;
       var trackLeft = track.getBoundingClientRect().left;
       var activeIdx = 0;
       var minDist = Infinity;
@@ -175,12 +186,20 @@
         var dist = Math.abs(card.getBoundingClientRect().left - trackLeft);
         if (dist < minDist) { minDist = dist; activeIdx = i; }
       });
-      Array.prototype.forEach.call(dots, function (dot, i) {
-        dot.classList.toggle('dr-dot--active', i === activeIdx);
-      });
+      return activeIdx;
     }
 
-    track.addEventListener('scroll', updateActiveDot, { passive: true });
+    function updateControls() {
+      var cards = track.querySelectorAll('.dr-card');
+      var idx = getActiveIdx();
+      Array.prototype.forEach.call(dots, function (dot, i) {
+        dot.classList.toggle('dr-dot--active', i === idx);
+      });
+      if (prevBtn) prevBtn.disabled = (idx === 0);
+      if (nextBtn) nextBtn.disabled = (idx >= cards.length - 1);
+    }
+
+    track.addEventListener('scroll', updateControls, { passive: true });
 
     Array.prototype.forEach.call(dots, function (dot, i) {
       dot.addEventListener('click', function () {
@@ -188,6 +207,24 @@
         if (cards[i]) track.scrollTo({ left: cards[i].offsetLeft, behavior: 'smooth' });
       });
     });
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        var cards = track.querySelectorAll('.dr-card');
+        var idx = getActiveIdx();
+        if (idx > 0) track.scrollTo({ left: cards[idx - 1].offsetLeft, behavior: 'smooth' });
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        var cards = track.querySelectorAll('.dr-card');
+        var idx = getActiveIdx();
+        if (idx < cards.length - 1) track.scrollTo({ left: cards[idx + 1].offsetLeft, behavior: 'smooth' });
+      });
+    }
+
+    updateControls();
   }
 })();
 </script>
