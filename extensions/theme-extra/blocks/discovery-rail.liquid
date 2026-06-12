@@ -1,19 +1,19 @@
 {{ 'discovery-rail.css' | asset_url | stylesheet_tag }}
 
-{%- assign _c1 = block.settings.card_1_slug | strip -%}
-{%- assign _c2 = block.settings.card_2_slug | strip -%}
-{%- assign _c3 = block.settings.card_3_slug | strip -%}
-{%- assign _c4 = block.settings.card_4_slug | strip -%}
-{%- assign _c5 = block.settings.card_5_slug | strip -%}
-{%- assign _c6 = block.settings.card_6_slug | strip -%}
-{%- assign _dr_count = 0 -%}
-{%- if _c1 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _c2 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _c3 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _c4 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _c5 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _c6 != blank -%}{%- assign _dr_count = _dr_count | plus: 1 -%}{%- endif -%}
-{%- if _dr_count < 4 -%}{%- assign _dr_count = 4 -%}{%- endif -%}
+{%- assign dr_c1 = block.settings.card_1_slug | strip -%}
+{%- assign dr_c2 = block.settings.card_2_slug | strip -%}
+{%- assign dr_c3 = block.settings.card_3_slug | strip -%}
+{%- assign dr_c4 = block.settings.card_4_slug | strip -%}
+{%- assign dr_c5 = block.settings.card_5_slug | strip -%}
+{%- assign dr_c6 = block.settings.card_6_slug | strip -%}
+{%- assign dr_count = 0 -%}
+{%- if dr_c1 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_c2 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_c3 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_c4 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_c5 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_c6 != blank -%}{%- assign dr_count = dr_count | plus: 1 -%}{%- endif -%}
+{%- if dr_count < 4 -%}{%- assign dr_count = 4 -%}{%- endif -%}
 
 <style>
   #dr-{{ block.id }} {
@@ -24,7 +24,7 @@
     --dr-ink-soft:     {{ block.settings.ink_soft_color }};
     --dr-ink-mute:     {{ block.settings.ink_mute_color }};
     --dr-rule:         {{ block.settings.rule_color }};
-    --dr-card-count:   {{ _dr_count }};
+    --dr-card-count:   {{ dr_count }};
   }
 </style>
 

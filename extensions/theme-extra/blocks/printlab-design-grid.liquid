@@ -1,8 +1,8 @@
 {{ 'printlab-design-grid.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
-  assign _pdg_collection = block.settings.collection_handle | default: collection.handle | default: ''
-  assign _pdg_profile    = block.settings.profile_page_url  | default: '/pages/partners'
+  assign pdg_collection = block.settings.collection_handle | default: collection.handle | default: ''
+  assign pdg_profile    = block.settings.profile_page_url  | default: '/pages/partners'
 -%}
 
 <style>
@@ -24,9 +24,9 @@
      id="pdg-{{ block.id }}"
      data-pdg-block="{{ block.id }}"
      data-proxy-base="/apps/fabric-shop/api"
-     data-collection="{{ _pdg_collection | escape }}"
+     data-collection="{{ pdg_collection | escape }}"
      data-per-load="{{ block.settings.products_per_load }}"
-     data-profile-url="{{ _pdg_profile | escape }}"
+     data-profile-url="{{ pdg_profile | escape }}"
      data-editorial-interval="{{ block.settings.editorial_interval }}"
      data-show-topic="{{ block.settings.show_topic }}"
      data-show-theme="{{ block.settings.show_themes }}"
