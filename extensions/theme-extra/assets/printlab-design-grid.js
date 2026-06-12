@@ -1,7 +1,8 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'pdg_favs';
+  var STORAGE_KEY = 'fp_wishlist';
+  var LIKES_KEY   = 'fp_likes';
 
   function esc(str) {
     return String(str || '')
@@ -16,12 +17,27 @@
     catch (e) { return []; }
   }
 
-  function toggleFav(handle) {
-    var favs = getFavs();
-    var idx = favs.indexOf(handle);
-    if (idx === -1) favs.push(handle); else favs.splice(idx, 1);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(favs)); } catch (e) {}
-    return favs;
+  function getLikes() {
+    try { return JSON.parse(localStorage.getItem(LIKES_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function parseProductId(gid) {
+    if (!gid) return '';
+    var s = String(gid);
+    var idx = s.lastIndexOf('/');
+    return idx >= 0 ? s.slice(idx + 1) : s;
+  }
+
+  function updateWishlistBadge(count) {
+    var badge = document.getElementById('fp-wl-badge');
+    if (badge) {
+      badge.textContent = String(count);
+      badge.style.display = count > 0 ? '' : 'none';
+    }
+    if (typeof window.fsUpdateWishlistCount === 'function') {
+      window.fsUpdateWishlistCount(count);
+    }
   }
 
   // ── Boot ────────────────────────────────────────────────────
@@ -31,12 +47,19 @@
   });
 
   function initBlock(root) {
+    var lwData      = document.getElementById('fp-lw-data');
+    var isLoggedIn  = !!(lwData && lwData.dataset.customerId);
+    var loginUrl    = (lwData && lwData.dataset.loginUrl) || '/account/login';
+
     var proxyBase       = root.dataset.proxyBase || '/apps/fabric-shop/api';
     var collection      = root.dataset.collection || '';
     var perLoad         = parseInt(root.dataset.perLoad || '24', 10);
     var profileUrl      = root.dataset.profileUrl || '/pages/partners';
-    var editorialEvery  = parseInt(root.dataset.editorialInterval || '8', 10);
     var blockId         = root.dataset.pdgBlock;
+
+    function getEditorialEvery() {
+      return parseInt(root.dataset.editorialInterval || '8', 10);
+    }
 
     var sidebar         = root.querySelector('.pdg-sidebar');
     var backdrop        = root.querySelector('.pdg-sidebar-backdrop');
@@ -52,10 +75,16 @@
     var clearCount      = root.querySelector('.pdg-clear-count');
     var openBtn         = root.querySelector('.pdg-filter-open-btn');
     var closeBtn        = root.querySelector('.pdg-sidebar-close');
+    var mainEl          = root.querySelector('.pdg-main');
+
+    // Read topic and theme from URL on load
+    var _urlParams = new URLSearchParams(window.location.search);
 
     var state = {
       filters: {
-        topic: '', themes: [], suits_use: [], occasions: [],
+        topic: _urlParams.get('topic') || '',
+        themes: (_urlParams.get('theme') || '').split(',').filter(Boolean),
+        suits_use: [], occasions: [],
         scale: '', subject: '', palette: '', studio: ''
       },
       sort: 'newest',
@@ -98,7 +127,10 @@
     if (clearAllBtn) {
       clearAllBtn.addEventListener('click', function () {
         state.filters = { topic: '', themes: [], suits_use: [], occasions: [], scale: '', subject: '', palette: '', studio: '' };
+        syncTopicUrl();
+        syncThemeUrl();
         syncFilterUI();
+        updateChips();
         resetAndFetch();
       });
     }
@@ -148,6 +180,9 @@
 
     // ── Initial parallel fetch ───────────────────────────────
 
+    // Render any chips pre-set from URL params before first fetch
+    updateChips();
+
     Promise.all([
       fetchFilterMeta(),
       fetchProducts(false),
@@ -161,7 +196,7 @@
         .then(function (data) {
           if (!data) return;
           state.subjectSuggestions = data.subjectSuggestions || [];
-          renderFilterSidebar(data.groups || [], data.subjectSuggestions || [], data.palette || []);
+          renderFilterSidebar(data.groups || [], data.subjectSuggestions || [], data.palette || [], data.studios || []);
         })
         .catch(function () {});
     }
@@ -194,6 +229,7 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           state.loading = false;
+          if (!append && mainEl) mainEl.classList.remove('pdg-main--loading');
           if (!data) return;
 
           state.cursor   = data.pageInfo && data.pageInfo.endCursor;
@@ -217,6 +253,7 @@
         })
         .catch(function () {
           state.loading = false;
+          if (!append && mainEl) mainEl.classList.remove('pdg-main--loading');
           if (loadBtn) loadBtn.disabled = false;
         });
     }
@@ -224,6 +261,7 @@
     function resetAndFetch() {
       state.cursor  = null;
       state.showing = 0;
+      if (mainEl) mainEl.classList.add('pdg-main--loading');
       fetchProducts(false);
     }
 
@@ -237,7 +275,8 @@
         return;
       }
 
-      var favs = getFavs();
+      var favs  = getFavs();
+      var likes = getLikes();
       var frag = document.createDocumentFragment();
       var positionInPage = append ? state.showing - products.length : 0;
       var showEd = root.dataset.showEditorial !== 'false' && state.editorialSlots.length > 0;
@@ -246,18 +285,19 @@
       products.forEach(function (product, i) {
         var position = positionInPage + i;
 
-        // 1st editorial after the 6th design; subsequent ones every editorialEvery tiles after that
+        // 1st editorial after the 6th design; subsequent ones every N tiles after that
         if (showEd) {
+          var edEvery = getEditorialEvery();
           var isFirst      = position === 6;
-          var isSubsequent = position > 6 && (position - 6) % editorialEvery === 0;
+          var isSubsequent = position > 6 && (position - 6) % edEvery === 0;
           if (isFirst || isSubsequent) {
-            var slotIdx = Math.floor((position - 6) / editorialEvery) % state.editorialSlots.length;
+            var slotIdx = Math.floor((position - 6) / edEvery) % state.editorialSlots.length;
             var edEl = buildEditorialCard(state.editorialSlots[slotIdx]);
             if (edEl) { frag.appendChild(edEl); edInserted = true; }
           }
         }
 
-        frag.appendChild(buildCard(product, favs));
+        frag.appendChild(buildCard(product, favs, likes));
       });
 
       // Fewer than 6 designs: append 1st editorial at the end
@@ -269,8 +309,12 @@
       grid.appendChild(frag);
     }
 
-    function buildCard(p, favs) {
-      var isFav = favs.indexOf(p.handle) !== -1;
+    function buildCard(p, favs, likes) {
+      var productId = parseProductId(p.id);
+      var isFav     = favs.indexOf(productId) !== -1;
+      var likeData  = likes[productId];
+      var isLiked   = likeData ? !!likeData.liked : false;
+      var likeCount = likeData ? (likeData.count || 0) : 0;
       var el = document.createElement('a');
       el.href = '/products/' + esc(p.handle);
       el.className = 'pdg-card';
@@ -298,33 +342,110 @@
             ? '<img src="' + esc(p.image) + '" alt="' + esc(p.imageAlt || p.title) + '" loading="lazy">'
             : '') +
           badgesHtml +
-          '<span class="pdg-card-view-btn">View Product</span>' +
-          '<button class="pdg-fav-btn' + (isFav ? ' pdg-fav-btn--active' : '') +
-            '" data-handle="' + esc(p.handle) + '" aria-label="Save to favourites" type="button">' +
-            '<svg viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') +
+          '<button class="pdg-like-btn' + (isLiked ? ' pdg-like-btn--active' : '') +
+            '" data-handle="' + esc(p.handle) + '" aria-label="Like this design" type="button">' +
+            '<svg viewBox="0 0 24 24" fill="' + (isLiked ? 'currentColor' : 'none') +
               '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-              '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>' +
+              '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"></path>' +
+              '<path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>' +
             '</svg>' +
+            '<span class="pdg-like-count">' + likeCount + '</span>' +
           '</button>' +
+          '<div class="pdg-card-hover-bar">' +
+            '<span class="pdg-card-view-btn">View Product</span>' +
+            '<span class="pdg-hover-bar-sep"></span>' +
+            '<button class="pdg-fav-btn' + (isFav ? ' pdg-fav-btn--active' : '') +
+              '" data-handle="' + esc(p.handle) + '" aria-label="Save to favourites" type="button">' +
+              '<svg viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') +
+                '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>' +
+              '</svg>' +
+            '</button>' +
+          '</div>' +
         '</div>' +
         '<div class="pdg-card-info">' +
-          '<p class="pdg-card-title">' + esc(p.title) + '</p>' +
+          '<h2 class="pdg-card-title">' + esc(p.title) + '</h2>' +
           '<p class="pdg-card-vendor">by <a href="' + esc(vendorLink) + '" class="pdg-vendor-link" onclick="event.stopPropagation()"><strong>' + esc(p.vendor) + '</strong></a></p>' +
           metaHtml +
         '</div>';
 
-      // Bind fav button once here so Load-more appends don't create duplicate handlers
+      // Bind like button
+      var likeBtn = el.querySelector('.pdg-like-btn');
+      if (likeBtn) {
+        likeBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!isLoggedIn) {
+            window.location.href = loginUrl + '?return_url=' + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+          }
+          var wasLiked = likeBtn.classList.contains('pdg-like-btn--active');
+          var icon = likeBtn.querySelector('svg');
+          var cntEl = likeBtn.querySelector('.pdg-like-count');
+          var prevCount = parseInt((cntEl && cntEl.textContent) || '0', 10);
+          var newCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
+          // Optimistic update + save to localStorage immediately
+          likeBtn.classList.toggle('pdg-like-btn--active', !wasLiked);
+          if (icon) icon.setAttribute('fill', !wasLiked ? 'currentColor' : 'none');
+          if (cntEl) cntEl.textContent = String(newCount);
+          var lCache = getLikes();
+          lCache[productId] = { count: newCount, liked: !wasLiked, ts: Date.now() };
+          try { localStorage.setItem(LIKES_KEY, JSON.stringify(lCache)); } catch (e) {}
+          // Send to API
+          fetch(proxyBase + '/like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: productId })
+          }).then(function (r) { return r.json(); }).then(function (result) {
+            if (result.liked !== undefined) {
+              likeBtn.classList.toggle('pdg-like-btn--active', result.liked);
+              if (icon) icon.setAttribute('fill', result.liked ? 'currentColor' : 'none');
+              if (cntEl) cntEl.textContent = String(result.count || 0);
+              var lCache2 = getLikes();
+              lCache2[productId] = { count: result.count, liked: result.liked, ts: Date.now() };
+              try { localStorage.setItem(LIKES_KEY, JSON.stringify(lCache2)); } catch (e) {}
+            }
+          }).catch(function () { /* keep localStorage state */ });
+        });
+      }
+
+      // Bind fav button
       var favBtn = el.querySelector('.pdg-fav-btn');
       if (favBtn) {
         favBtn.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          var handle = favBtn.dataset.handle;
-          var newFavs = toggleFav(handle);
-          var favNow = newFavs.indexOf(handle) !== -1;
-          favBtn.classList.toggle('pdg-fav-btn--active', favNow);
+          if (!isLoggedIn) {
+            window.location.href = loginUrl + '?return_url=' + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+          }
+          var wasAdded = favBtn.classList.contains('pdg-fav-btn--active');
+          var action = wasAdded ? 'remove' : 'add';
           var icon = favBtn.querySelector('svg');
-          if (icon) icon.setAttribute('fill', favNow ? 'currentColor' : 'none');
+          // Optimistic update
+          favBtn.classList.toggle('pdg-fav-btn--active', !wasAdded);
+          if (icon) icon.setAttribute('fill', !wasAdded ? 'currentColor' : 'none');
+          // API call
+          fetch(proxyBase + '/wishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action, productId: productId })
+          }).then(function (r) { return r.json(); }).then(function (result) {
+            if (result.error) {
+              favBtn.classList.toggle('pdg-fav-btn--active', wasAdded);
+              if (icon) icon.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+              return;
+            }
+            updateWishlistBadge(result.count);
+            var wlCache = getFavs();
+            if (action === 'add' && wlCache.indexOf(productId) === -1) wlCache.push(productId);
+            if (action === 'remove') wlCache = wlCache.filter(function (id) { return id !== productId; });
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(wlCache)); } catch (e) {}
+          }).catch(function () {
+            // Revert on network error
+            favBtn.classList.toggle('pdg-fav-btn--active', wasAdded);
+            if (icon) icon.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+          });
         });
       }
 
@@ -337,16 +458,18 @@
       el.href = slot.ctaUrl || '#';
       el.className = 'pdg-editorial';
       el.innerHTML =
-        (slot.eyebrow ? '<p class="pdg-editorial-eyebrow">' + esc(slot.eyebrow) + '</p>' : '') +
-        '<p class="pdg-editorial-title">' + esc(slot.title) + '</p>' +
-        (slot.body ? '<p class="pdg-editorial-body">' + esc(slot.body) + '</p>' : '') +
+        '<div class="pdg-editorial-body-wrap">' +
+          (slot.eyebrow ? '<p class="pdg-editorial-eyebrow">' + esc(slot.eyebrow) + '</p>' : '') +
+          '<p class="pdg-editorial-title">' + esc(slot.title) + '</p>' +
+          (slot.body ? '<p class="pdg-editorial-body">' + esc(slot.body) + '</p>' : '') +
+        '</div>' +
         (slot.ctaText ? '<span class="pdg-editorial-cta">' + esc(slot.ctaText) + ' →</span>' : '');
       return el;
     }
 
     // ── Filter sidebar rendering ─────────────────────────────
 
-    function renderFilterSidebar(groups, suggestions, palette) {
+    function renderFilterSidebar(groups, suggestions, palette, studios) {
       if (!filterGroups) return;
       filterGroups.innerHTML = '';
 
@@ -371,9 +494,9 @@
         filterGroups.appendChild(buildPaletteGroup(palette));
       }
 
-      // Studio search
+      // Studio: pre-loaded list with inline search
       if (root.dataset.showStudio !== 'false') {
-        filterGroups.appendChild(buildStudioGroup());
+        filterGroups.appendChild(buildStudioGroup(studios || []));
       }
     }
 
@@ -412,7 +535,7 @@
       var isMulti = group.type === 'checkbox';
       var limit = group.limit || 99;
 
-      var opts = group.options || [];
+      var opts = (group.options || []).slice().sort(function (a, b) { return a.localeCompare(b); });
       var showAll = false;
       var SHOW_INITIAL = 6;
 
@@ -479,6 +602,14 @@
       return shell.wrap;
     }
 
+  var SCALE_LABELS = {
+    Ditsy: 'Ditsy < 8 cm',
+    Small: 'Small < 15 cm',
+    Medium: 'Medium < 30 cm',
+    Large: 'Large < 60 cm',
+    Oversized: 'Oversized ≥ 60 cm'
+  };
+
     function buildChipsGroup(group) {
       var shell = buildGroupShell(group.label);
       var opts = group.options || [];
@@ -487,11 +618,12 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'pdg-chip' + (state.filters.scale === opt ? ' pdg-chip--active' : '');
-        btn.textContent = opt;
+        btn.setAttribute('data-value', opt);
+        btn.textContent = SCALE_LABELS[opt] || opt;
         btn.addEventListener('click', function () {
           state.filters.scale = state.filters.scale === opt ? '' : opt;
           shell.body.querySelectorAll('.pdg-chip').forEach(function (c) {
-            c.classList.toggle('pdg-chip--active', c.textContent === state.filters.scale);
+            c.classList.toggle('pdg-chip--active', c.dataset.value === state.filters.scale);
           });
           updateChips();
           resetAndFetch();
@@ -581,51 +713,77 @@
       return shell.wrap;
     }
 
-    function buildStudioGroup() {
+    function buildStudioGroup(allStudios) {
       var shell = buildGroupShell('Studio');
-      var proxyBase_ = proxyBase;
+      allStudios = allStudios.slice().sort(function (a, b) { return a.studioName.localeCompare(b.studioName); });
+      var SHOW_INITIAL = 6;
+      var query = '';
 
       var input = document.createElement('input');
       input.type = 'text';
       input.className = 'pdg-studio-search';
       input.placeholder = 'Search studios…';
 
-      var results = document.createElement('div');
-      results.className = 'pdg-studio-results';
+      var listEl = document.createElement('div');
+      listEl.className = 'pdg-studio-results';
+
+      function renderList(studios) {
+        listEl.innerHTML = '';
+        var visible = studios.slice(0, SHOW_INITIAL);
+        visible.forEach(function (s) {
+          var label = document.createElement('label');
+          label.className = 'pdg-filter-option';
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.name = 'pdg-filter-studio-' + blockId;
+          cb.value = s.slug;
+          cb.checked = state.filters.studio === s.slug;
+          cb.addEventListener('change', function () {
+            state.filters.studio = cb.checked ? s.slug : '';
+            updateChips();
+            resetAndFetch();
+          });
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(' ' + s.studioName));
+          listEl.appendChild(label);
+        });
+        if (studios.length > SHOW_INITIAL) {
+          var note = document.createElement('p');
+          note.className = 'pdg-show-more';
+          note.style.cssText = 'pointer-events:none;opacity:0.55;';
+          note.textContent = (studios.length - SHOW_INITIAL) + ' more — type to search';
+          listEl.appendChild(note);
+        }
+      }
+
+      // Show initial 6 from pre-loaded list
+      renderList(allStudios);
 
       var timer;
       input.addEventListener('input', function () {
         clearTimeout(timer);
-        var q = input.value.trim();
-        if (q.length < 2) { results.innerHTML = ''; return; }
+        query = input.value.trim();
+        if (!query) { renderList(allStudios); return; }
+        // Filter pre-loaded list first (instant)
+        var local = allStudios.filter(function (s) {
+          return s.studioName.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+        });
+        if (local.length) { renderList(local); return; }
+        // Fallback to API if nothing matches locally
+        if (query.length < 2) return;
         timer = setTimeout(function () {
-          fetch(proxyBase_ + '/partner-search?q=' + encodeURIComponent(q))
+          fetch(proxyBase + '/partner-search?q=' + encodeURIComponent(query))
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (data) {
-              results.innerHTML = '';
-              var items = data && data.results ? data.results : [];
-              items.slice(0, 6).forEach(function (s) {
-                var label = document.createElement('label');
-                label.className = 'pdg-filter-option';
-                var cb = document.createElement('input');
-                cb.type = 'checkbox';
-                cb.checked = state.filters.studio === s.slug;
-                cb.addEventListener('change', function () {
-                  state.filters.studio = cb.checked ? s.slug : '';
-                  updateChips();
-                  resetAndFetch();
-                });
-                label.appendChild(cb);
-                label.appendChild(document.createTextNode(' ' + s.studioName));
-                results.appendChild(label);
-              });
+              var items = (data && data.results) ? data.results : [];
+              renderList(items);
             })
             .catch(function () {});
         }, 350);
       });
 
       shell.body.appendChild(input);
-      shell.body.appendChild(results);
+      shell.body.appendChild(listEl);
       return shell.wrap;
     }
 
@@ -653,12 +811,15 @@
         chipsRow.appendChild(chip);
       }
 
+      syncTopicUrl();
+      syncThemeUrl();
       if (state.filters.topic) {
-        addChip(state.filters.topic, function () { state.filters.topic = ''; syncFilterUI(); });
+        addChip(state.filters.topic, function () { state.filters.topic = ''; syncTopicUrl(); syncFilterUI(); });
       }
       state.filters.themes.forEach(function (t) {
         addChip(t, function () {
           state.filters.themes = state.filters.themes.filter(function (v) { return v !== t; });
+          syncThemeUrl();
           syncFilterUI();
         });
       });
@@ -675,7 +836,7 @@
         });
       });
       if (state.filters.scale) {
-        addChip(state.filters.scale, function () { state.filters.scale = ''; syncFilterUI(); });
+        addChip(SCALE_LABELS[state.filters.scale] || state.filters.scale, function () { state.filters.scale = ''; syncFilterUI(); });
       }
       if (state.filters.subject) {
         addChip(state.filters.subject, function () {
@@ -696,6 +857,24 @@
       if (clearCount)  clearCount.textContent = String(count);
     }
 
+    function syncTopicUrl() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (state.filters.topic) { p.set('topic', state.filters.topic); }
+        else { p.delete('topic'); }
+        history.replaceState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
+      } catch (e) {}
+    }
+
+    function syncThemeUrl() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (state.filters.themes.length) { p.set('theme', state.filters.themes.join(',')); }
+        else { p.delete('theme'); }
+        history.replaceState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
+      } catch (e) {}
+    }
+
     // Re-render sidebar inputs to reflect cleared state
     function syncFilterUI() {
       if (!filterGroups) return;
@@ -706,7 +885,7 @@
         inp.checked = vals.indexOf(inp.value) !== -1;
       });
       filterGroups.querySelectorAll('.pdg-chip').forEach(function (chip) {
-        chip.classList.toggle('pdg-chip--active', chip.textContent === state.filters.scale);
+        chip.classList.toggle('pdg-chip--active', chip.dataset.value === state.filters.scale);
       });
       filterGroups.querySelectorAll('.pdg-swatch').forEach(function (swatch) {
         swatch.classList.toggle('pdg-swatch--active', swatch.dataset.slug === state.filters.palette);
@@ -736,4 +915,12 @@
     if (ed1.title) state.editorialSlots.push(ed1);
     if (ed2.title) state.editorialSlots.push(ed2);
   }
+
+  // Re-init blocks when Shopify theme editor reloads a section (setting change live preview)
+  document.addEventListener('shopify:section:load', function (e) {
+    var section = e.target;
+    section.querySelectorAll('[data-pdg-block]').forEach(function (root) {
+      initBlock(root);
+    });
+  });
 }());

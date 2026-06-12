@@ -53,7 +53,7 @@
   <aside class="pdg-sidebar" id="pdg-sidebar-{{ block.id }}" aria-label="Filters">
     <button type="button" class="pdg-sidebar-close" aria-label="Close filters">&times;</button>
     <div class="pdg-sidebar-header">
-      <span class="pdg-sidebar-title">Filters</span>
+      <span class="pdg-sidebar-title">Refine</span>
       <button type="button" class="pdg-clear-all" hidden>
         Clear all (<span class="pdg-clear-count">0</span>)
       </button>
@@ -65,9 +65,10 @@
     <div class="pdg-active-chips" id="pdg-chips-{{ block.id }}" hidden></div>
 
     <div class="pdg-toolbar">
-      <button type="button" class="pdg-filter-open-btn" aria-label="Open filters">Filters</button>
+      <button type="button" class="pdg-filter-open-btn" aria-label="Refine">Refine</button>
       <span class="pdg-count" id="pdg-count-{{ block.id }}">Loading&hellip;</span>
       <div class="pdg-toolbar-right">
+        <span class="pdg-sort-label">Sort:</span>
         <select class="pdg-sort" id="pdg-sort-{{ block.id }}" aria-label="Sort by">
           <option value="newest">Newest</option>
           <option value="bestselling">Bestselling</option>

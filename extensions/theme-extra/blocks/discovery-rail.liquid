@@ -28,21 +28,21 @@
   }
 </style>
 
-<div class="dr-wrap" id="dr-{{ block.id }}">
+<section class="dr-wrap" id="dr-{{ block.id }}">
   <div class="dr-inner">
 
-    <div class="dr-head">
+    <header class="dr-head">
       {%- if block.settings.section_title != blank -%}
-        <p class="dr-title">{{ block.settings.section_title | escape }}</p>
+        <h2 class="dr-title">{{ block.settings.section_title | escape }}</h2>
       {%- endif -%}
       {%- if block.settings.studios_url != blank -%}
         <a class="dr-link" href="{{ block.settings.studios_url }}" data-dr-studios-link>
           All studios →
         </a>
       {%- endif -%}
-    </div>
+    </header>
 
-    <div class="dr-track">
+    <ul class="dr-track">
 
       {%- assign card_1_slug = block.settings.card_1_slug -%}
       {%- assign card_2_slug = block.settings.card_2_slug -%}
@@ -67,25 +67,25 @@
       {%- for slug in slugs_arr -%}
         {%- if slug != blank -%}
           {%- assign card_tag = tags_arr[forloop.index0] -%}
-          <div class="dr-card dr-card--loading"
-               data-dr-card="{{ slug | escape }}"
-               aria-busy="true">
+          <li class="dr-card dr-card--loading"
+              data-dr-card="{{ slug | escape }}"
+              aria-busy="true">
             <div class="dr-thumbs">
               <div class="dr-thumb"></div>
               <div class="dr-thumb"></div>
               <div class="dr-thumb"></div>
             </div>
-            <div class="dr-tag">{{ card_tag | escape }}</div>
-            <div class="dr-name dr-skel dr-skel--name"></div>
-            <div class="dr-meta dr-skel dr-skel--meta"></div>
-          </div>
+            <p class="dr-tag">{{ card_tag | escape }}</p>
+            <p class="dr-name dr-skel dr-skel--name"></p>
+            <p class="dr-meta dr-skel dr-skel--meta"></p>
+          </li>
         {%- endif -%}
       {%- endfor -%}
 
-    </div>
+    </ul>
 
   </div>
-</div>
+</section>
 
 <script>
 (function () {
