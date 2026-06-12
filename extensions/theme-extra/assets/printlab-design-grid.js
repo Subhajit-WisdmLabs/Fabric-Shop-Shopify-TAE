@@ -64,6 +64,14 @@
     } catch (e) {}
   }
 
+  var SCALE_LABELS = {
+    Ditsy:     'Ditsy < 8 cm',
+    Small:     'Small < 15 cm',
+    Medium:    'Medium < 30 cm',
+    Large:     'Large < 60 cm',
+    Oversized: 'Oversized ≥ 60 cm',
+  };
+
   // ── Boot ────────────────────────────────────────────────────
 
   document.querySelectorAll('[data-pdg-block]').forEach(function (root) {
@@ -640,14 +648,6 @@
       render();
       return shell.wrap;
     }
-
-  var SCALE_LABELS = {
-    Ditsy: 'Ditsy < 8 cm',
-    Small: 'Small < 15 cm',
-    Medium: 'Medium < 30 cm',
-    Large: 'Large < 60 cm',
-    Oversized: 'Oversized ≥ 60 cm'
-  };
 
     function buildChipsGroup(group) {
       var shell = buildGroupShell(group.label);
