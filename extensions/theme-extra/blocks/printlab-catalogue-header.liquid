@@ -26,7 +26,7 @@
       <p class="plch-sub">{{ block.settings.subtitle | escape }}</p>
     {%- endif -%}
 
-    {%- assign _stats_shown = 0 -%}
+    {%- assign plch_shown = 0 -%}
     <div class="plch-stats">
 
       {%- if block.settings.show_stat1 -%}
@@ -34,29 +34,29 @@
           <strong class="plch-stat__num" data-plch-stat="designs" data-plch-api-key="{{ block.settings.stat1_api_key | escape }}">{{ block.settings.stat1_number | escape }}</strong>
           <span class="plch-stat__label">{{ block.settings.stat1_label | escape }}</span>
         </div>
-        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+        {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
       {%- if block.settings.show_stat2 -%}
-        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
           <strong class="plch-stat__num" data-plch-stat="studios" data-plch-api-key="{{ block.settings.stat2_api_key | escape }}">{{ block.settings.stat2_number | escape }}</strong>
           <span class="plch-stat__label">{{ block.settings.stat2_label | escape }}</span>
         </div>
-        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+        {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
       {%- if block.settings.show_stat3 -%}
-        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
           <strong class="plch-stat__num" data-plch-stat="newThisMonth" data-plch-api-key="{{ block.settings.stat3_api_key | escape }}">{{ block.settings.stat3_number | escape }}</strong>
           <span class="plch-stat__label">{{ block.settings.stat3_label | escape }}</span>
         </div>
-        {%- assign _stats_shown = _stats_shown | plus: 1 -%}
+        {%- assign plch_shown = plch_shown | plus: 1 -%}
       {%- endif -%}
 
       {%- if block.settings.show_stat4 -%}
-        {%- if _stats_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
+        {%- if plch_shown > 0 -%}<div class="plch-divide" aria-hidden="true"></div>{%- endif -%}
         <div class="plch-stat">
           <strong class="plch-stat__num" data-plch-stat="collections" data-plch-api-key="{{ block.settings.stat4_api_key | escape }}">{{ block.settings.stat4_number | escape }}</strong>
           <span class="plch-stat__label">{{ block.settings.stat4_label | escape }}</span>
@@ -112,21 +112,15 @@
       "label": "Subtitle",
       "default": "Hundreds of original designs from independent studios — printed on demand, on the base fabric of your choice. Filter by mood, scale, palette. Browse by studio."
     },
-
-    {
-      "type": "header",
-      "content": "Stats",
-      "info": "Fallback values shown before the live API responds. Toggle each stat on or off independently."
-    },
     {
       "type": "text",
       "id": "api_endpoint",
       "label": "Stats API endpoint",
       "default": "/apps/fabric-shop/api/printlab-stats",
-      "info": "JSON endpoint that returns live stat values. Change per page — e.g. /apps/fabric-shop/api/partner-stats for Studios."
+      "info": "JSON endpoint returning live stat values. Change per page — e.g. /apps/fabric-shop/api/partner-stats for the Studios hub."
     },
 
-    { "type": "header", "content": "Stat 1" },
+    { "type": "header", "content": "Stats", "info": "Fallback values shown before the live API responds. Toggle each stat on or off independently." },
     {
       "type": "checkbox",
       "id": "show_stat1",
