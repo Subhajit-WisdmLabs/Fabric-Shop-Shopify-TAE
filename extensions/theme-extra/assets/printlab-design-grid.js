@@ -361,7 +361,13 @@
       var isFav     = favs.indexOf(productId) !== -1;
       var likeData  = likes[productId];
       var isLiked   = likeData ? !!likeData.liked : false;
-      var likeCount = likeData ? (likeData.count || 0) : 0;
+      // Base count is the authoritative server total for this page; localStorage
+      // only carries THIS user's liked-state + any optimistic value newer than the
+      // server snapshot (covers the cached-response window).
+      var serverCount = (typeof p.likeCount === 'number') ? p.likeCount : 0;
+      var likeCount = (likeData && typeof likeData.count === 'number')
+        ? Math.max(serverCount, likeData.count)
+        : serverCount;
       var el = document.createElement('a');
       el.href = '/products/' + esc(p.handle);
       el.className = 'pdg-card';
