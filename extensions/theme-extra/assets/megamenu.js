@@ -100,13 +100,25 @@
 
   /* ── Wishlist badge ──────────────────────────────────────────────────────── */
   const wishlistBadge = document.getElementById('fs-wishlist-badge');
+  const wishlistBadgeDrawer = document.getElementById('fs-drawer-wishlist-badge');
 
   function setWishlistBadge(n) {
-    if (!wishlistBadge) return;
     n = parseInt(n, 10) || 0;
-    wishlistBadge.textContent = n > 0 ? n : '';
-    wishlistBadge.style.display = n > 0 ? '' : 'none';
+    if (wishlistBadge) {
+      wishlistBadge.textContent = n > 0 ? n : '';
+      wishlistBadge.style.display = n > 0 ? '' : 'none';
+    }
+    if (wishlistBadgeDrawer) {
+      wishlistBadgeDrawer.textContent = n > 0 ? n : '0';
+      wishlistBadgeDrawer.style.display = n > 0 ? '' : 'none';
+    }
   }
+
+  /* ── Burger activity dot (DP "new activity") ─────────────────────────────── */
+  const burgerDot = document.getElementById('fs-burger-dot');
+  window.fsSetBurgerActivity = function (on) {
+    if (burgerDot) burgerDot.style.display = on ? '' : 'none';
+  };
 
   function readLocalWishlist() {
     try {
