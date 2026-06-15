@@ -120,6 +120,72 @@
     if (burgerDot) burgerDot.style.display = on ? '' : 'none';
   };
 
+  /* ── Drawer search: predictive product results ───────────────────────────── */
+  (function () {
+    const dForm = document.querySelector('.fs-drawer__search');
+    const dInput = dForm && dForm.querySelector('input[type="search"]');
+    if (!dForm || !dInput) return;
+
+    const sugg = document.createElement('div');
+    sugg.className = 'fs-drawer__sugg';
+    sugg.hidden = true;
+    dForm.insertAdjacentElement('afterend', sugg);
+
+    let timer = null;
+    let abort = null;
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function hide() {
+      sugg.hidden = true;
+      sugg.innerHTML = '';
+      if (abort) { abort.abort(); abort = null; }
+    }
+
+    async function load(q) {
+      if (q.length < 2) { hide(); return; }
+      if (abort) abort.abort();
+      abort = new AbortController();
+      try {
+        const url = `/search/suggest.json?q=${encodeURIComponent(q + ' -tag:_fp-base-fabric')}`
+          + `&resources[type]=product&resources[limit]=6`
+          + `&resources[options][unavailable_products]=hide`;
+        const r = await fetch(url, { signal: abort.signal });
+        if (!r.ok) return;
+        const data = await r.json();
+        const items = (data.resources && data.resources.results && data.resources.results.products) || [];
+        if (!items.length) {
+          sugg.innerHTML = '<div class="fs-drawer__sugg-empty">No matches found</div>';
+          sugg.hidden = false;
+          return;
+        }
+        sugg.innerHTML = items.map(p => {
+          const img = (p.featured_image && p.featured_image.url) || p.image;
+          const thumb = img
+            ? `<img src="${esc(img)}&width=80" alt="" loading="lazy">`
+            : '<span class="fs-drawer__sugg-thumb--empty"></span>';
+          return `<a class="fs-drawer__sugg-item" href="${esc(p.url)}">${thumb}`
+            + `<span class="fs-drawer__sugg-text">`
+            + `<span class="fs-drawer__sugg-title">${esc(p.title)}</span>`
+            + `<span class="fs-drawer__sugg-sub">${esc(p.vendor || '')}</span>`
+            + `</span></a>`;
+        }).join('');
+        sugg.hidden = false;
+      } catch (e) { /* aborted or network */ }
+    }
+
+    dInput.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = dInput.value.trim();
+      if (!q) { hide(); return; }
+      timer = setTimeout(() => load(q), 150);
+    });
+    dInput.addEventListener('blur', () => setTimeout(hide, 200));
+  })();
+
   function readLocalWishlist() {
     try {
       const ids = JSON.parse(localStorage.getItem('fp_wishlist') || '[]');
