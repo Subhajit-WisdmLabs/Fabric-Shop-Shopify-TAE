@@ -2,3 +2,5 @@
 .env.local
 node_modules/
 the-yard-design.html
+# Git Bash / Cygwin crash dumps
+*.stackdump
