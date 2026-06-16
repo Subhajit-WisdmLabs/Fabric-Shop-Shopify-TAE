@@ -222,6 +222,17 @@
       fetchProducts(false),
     ]);
 
+    // Arrived via search (?q=…)? The grid sits below the fold — scroll it
+    // into view so the user sees their results actually loaded.
+    if (state.filters.q) {
+      requestAnimationFrame(function () {
+        var chrome  = document.querySelector('.fs-chrome');
+        var offset  = (chrome ? chrome.getBoundingClientRect().height : 0) + 12;
+        var top     = root.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      });
+    }
+
     // ── Filter metadata ──────────────────────────────────────
 
     function fetchFilterMeta() {
