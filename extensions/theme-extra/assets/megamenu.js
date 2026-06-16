@@ -283,10 +283,13 @@
     dInput.addEventListener('blur', () => setTimeout(hide, 200));
 
     // Enter → see full design results on the printlab catalogue page
-    dForm.addEventListener('submit', e => {
-      e.preventDefault();
+    function goToResults() {
       const q = dInput.value.trim();
       if (q) window.location.href = '/pages/printlab?q=' + encodeURIComponent(q);
+    }
+    dForm.addEventListener('submit', e => { e.preventDefault(); goToResults(); });
+    dInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); goToResults(); }
     });
   })();
 
@@ -647,10 +650,23 @@
       });
 
       qInput.addEventListener('keydown', e => {
+        // Enter handled explicitly (don't depend on implicit form submission):
+        if (e.key === 'Enter') {
+          if (suggEl && !suggEl.hidden && focusIdx >= 0) {
+            e.preventDefault();
+            suggItems[focusIdx]?.click();
+            return;
+          }
+          const query = qInput.value.trim();
+          if (activeScope === 'designs' && query) {
+            e.preventDefault();
+            window.location.href = '/pages/printlab?q=' + encodeURIComponent(query);
+          }
+          return;
+        }
         if (!suggEl || suggEl.hidden) return;
         if (e.key === 'ArrowDown')       { e.preventDefault(); moveFocus(1); }
         else if (e.key === 'ArrowUp')    { e.preventDefault(); moveFocus(-1); }
-        else if (e.key === 'Enter' && focusIdx >= 0) { e.preventDefault(); suggItems[focusIdx]?.click(); }
         else if (e.key === 'Escape')     { hideSugg(); }
       });
 
