@@ -19,6 +19,10 @@
     assign has_about_sub = true
   endif
 -%}
+{%- capture ic_listchev -%}<svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>{%- endcapture -%}
+{%- capture ic_navchev -%}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>{%- endcapture -%}
+{%- capture ic_ctaarrow -%}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg>{%- endcapture -%}
+{%- capture ic_drawchev -%}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>{%- endcapture -%}
 
 <div class="fs-chrome" id="fs-chrome-{{ block.id }}">
 
@@ -93,7 +97,7 @@
 
 {%- if block.settings.nav_1_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_1_label | escape -}}{{ ic_navchev }}</button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -103,11 +107,11 @@
           {%- for link in nav1_menu.links -%}
             {%- if link.links.size > 0 -%}
             <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
               <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
-            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
             {%- endif -%}
           {%- endfor -%}
         </ul>
@@ -151,7 +155,7 @@
           {%- if block.settings.nav_1_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_1_cta_headline }}</div>{%- endif -%}
           {%- if block.settings.nav_1_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_1_cta_body | escape -}}</p>{%- endif -%}
         </div>
-        {%- if block.settings.nav_1_cta_btn_label != blank -%}<a href="{{ block.settings.nav_1_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_1_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
+        {%- if block.settings.nav_1_cta_btn_label != blank -%}<a href="{{ block.settings.nav_1_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_1_cta_btn_label | escape -}}</span>{{ ic_ctaarrow }}</a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -160,7 +164,7 @@
 
 {%- if block.settings.nav_2_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_2_label | escape -}}{{ ic_navchev }}</button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -170,11 +174,11 @@
           {%- for link in nav2_menu.links -%}
             {%- if link.links.size > 0 -%}
             <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
               <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
-            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
             {%- endif -%}
           {%- endfor -%}
         </ul>
@@ -212,7 +216,7 @@
           {%- if block.settings.nav_2_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_2_cta_headline }}</div>{%- endif -%}
           {%- if block.settings.nav_2_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_2_cta_body | escape -}}</p>{%- endif -%}
         </div>
-        {%- if block.settings.nav_2_cta_btn_label != blank -%}<a href="{{ block.settings.nav_2_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_2_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
+        {%- if block.settings.nav_2_cta_btn_label != blank -%}<a href="{{ block.settings.nav_2_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_2_cta_btn_label | escape -}}</span>{{ ic_ctaarrow }}</a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -221,7 +225,7 @@
 
 {%- if block.settings.nav_3_label != blank -%}
 <li class="fs-nav__item fs-nav__item--mega">
-  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg></button>
+  <button type="button" class="fs-nav__link" aria-haspopup="true" aria-expanded="false">{{- block.settings.nav_3_label | escape -}}{{ ic_navchev }}</button>
   <div class="fs-mega-panel" role="region">
     <div class="fs-mega-panel__inner"><div class="fs-mega-grid">
       <div class="fs-mega-col fs-mega-col--browse">
@@ -231,11 +235,11 @@
           {%- for link in nav3_menu.links -%}
             {%- if link.links.size > 0 -%}
             <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
               <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
-            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>
+            <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
             {%- endif -%}
           {%- endfor -%}
         </ul>
@@ -293,7 +297,7 @@
           {%- if block.settings.nav_3_cta_headline != blank -%}<div class="fs-mega-cta__headline">{{ block.settings.nav_3_cta_headline }}</div>{%- endif -%}
           {%- if block.settings.nav_3_cta_body != blank -%}<p class="fs-mega-cta__body">{{- block.settings.nav_3_cta_body | escape -}}</p>{%- endif -%}
         </div>
-        {%- if block.settings.nav_3_cta_btn_label != blank -%}<a href="{{ block.settings.nav_3_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_3_cta_btn_label | escape -}}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7"/></svg></a>{%- endif -%}
+        {%- if block.settings.nav_3_cta_btn_label != blank -%}<a href="{{ block.settings.nav_3_cta_btn_url | default: '#' }}" class="fs-mega-cta__btn"><span>{{- block.settings.nav_3_cta_btn_label | escape -}}</span>{{ ic_ctaarrow }}</a>{%- endif -%}
       </div>
     </div></div>
   </div>
@@ -302,11 +306,11 @@
 
 {%- if block.settings.nav_about_label != blank -%}
 <li class="fs-nav__item{% if has_about_sub %} fs-nav__item--mini{% endif %}">
-  <button type="button" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}{% if has_about_sub %}<svg class="fs-nav__chevron" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>{% endif %}</button>
+  <button type="button" class="fs-nav__link"{% if has_about_sub %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{- block.settings.nav_about_label | escape -}}{% if has_about_sub %}{{ ic_navchev }}{% endif %}</button>
   {%- if has_about_sub -%}
   <div class="fs-mini-panel" role="region">
     <ul class="fs-mega-list" role="list">
-      {%- for link in about_menu.links -%}<li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span><svg class="fs-mega-list__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></li>{%- endfor -%}
+      {%- for link in about_menu.links -%}<li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>{%- endfor -%}
     </ul>
   </div>
   {%- endif -%}
@@ -344,21 +348,21 @@
 
       {%- if block.settings.nav_1_label != blank -%}
       <div class="fs-drawer__item">
-        <button class="fs-drawer__trigger">{{- block.settings.nav_1_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <button class="fs-drawer__trigger">{{- block.settings.nav_1_label | escape -}}{{ ic_drawchev }}</button>
         <div class="fs-drawer__sub">{%- for link in nav1_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
       {%- if block.settings.nav_2_label != blank -%}
       <div class="fs-drawer__item">
-        <button class="fs-drawer__trigger">{{- block.settings.nav_2_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <button class="fs-drawer__trigger">{{- block.settings.nav_2_label | escape -}}{{ ic_drawchev }}</button>
         <div class="fs-drawer__sub">{%- for link in nav2_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
       {%- if block.settings.nav_3_label != blank -%}
       <div class="fs-drawer__item">
-        <button class="fs-drawer__trigger">{{- block.settings.nav_3_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <button class="fs-drawer__trigger">{{- block.settings.nav_3_label | escape -}}{{ ic_drawchev }}</button>
         <div class="fs-drawer__sub">
           {%- for link in nav3_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
         </div>
@@ -368,7 +372,7 @@
       {%- if block.settings.nav_about_label != blank -%}
         {%- if has_about_sub -%}
         <div class="fs-drawer__item">
-          <button class="fs-drawer__trigger">{{- block.settings.nav_about_label | escape -}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <button class="fs-drawer__trigger">{{- block.settings.nav_about_label | escape -}}{{ ic_drawchev }}</button>
           <div class="fs-drawer__sub">
             {%- for link in about_menu.links -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endfor -%}
           </div>
@@ -413,76 +417,5 @@
 <script src="{{ 'megamenu.js' | asset_url }}" defer></script>
 
 {% schema %}
-{
-  "name": "Fabric Shop Megamenu",
-  "target": "body",
-  "settings": [
-    { "type": "header", "content": "Branding & Theme" },
-    { "type": "checkbox", "id": "hide_native_header", "label": "Hide native theme header", "default": true },
-    { "type": "image_picker", "id": "logo", "label": "Logo" },
-    { "type": "header", "content": "Utility Bar" },
-    { "type": "text", "id": "utility_text", "label": "Utility bar text", "default": "Made on order · shipped worldwide" },
-    { "type": "header", "content": "PrintLab Menu" },
-    { "type": "text", "id": "nav_1_label", "label": "Label", "default": "PrintLab" },
-    { "type": "url", "id": "nav_1_url", "label": "URL" },
-    { "type": "text", "id": "nav_1_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
-    { "type": "select", "id": "nav_1_feat_type", "label": "Featured section type", "options": [{ "value": "products", "label": "Designs" }, { "value": "collections", "label": "Collections" }], "default": "products" },
-    { "type": "product_list", "id": "nav_1_feat_products", "label": "Featured designs", "limit": 3 },
-    { "type": "collection_list", "id": "nav_1_feat_collections", "label": "Featured collections", "limit": 3 },
-    { "type": "text", "id": "nav_1_cta_eyebrow", "label": "CTA eyebrow" },
-    { "type": "richtext", "id": "nav_1_cta_headline", "label": "CTA headline (italics = sage)" },
-    { "type": "textarea", "id": "nav_1_cta_body", "label": "CTA body" },
-    { "type": "text", "id": "nav_1_cta_btn_label", "label": "CTA button" },
-    { "type": "url", "id": "nav_1_cta_btn_url", "label": "CTA button URL" },
-    { "type": "color", "id": "nav_1_cta_btn_bg", "label": "Button bg" },
-    { "type": "color", "id": "nav_1_cta_btn_color", "label": "Button text" },
-    { "type": "color", "id": "nav_1_cta_btn_bg_hover", "label": "Button bg (hover)" },
-    { "type": "color", "id": "nav_1_cta_btn_color_hover", "label": "Button text (hover)" },
-    { "type": "select", "id": "nav_1_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "linen" },
-    { "type": "color", "id": "nav_1_cta_bg", "label": "CTA background colour (overrides surface)" },
-    { "type": "header", "content": "The Yard Menu" },
-    { "type": "text", "id": "nav_2_label", "label": "Label", "default": "The Yard" },
-    { "type": "url", "id": "nav_2_url", "label": "URL" },
-    { "type": "text", "id": "nav_2_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
-    { "type": "product_list", "id": "nav_2_feat_products", "label": "Featured products", "limit": 3 },
-    { "type": "text", "id": "nav_2_cta_eyebrow", "label": "CTA eyebrow" },
-    { "type": "richtext", "id": "nav_2_cta_headline", "label": "CTA headline (italics = sage)" },
-    { "type": "textarea", "id": "nav_2_cta_body", "label": "CTA body" },
-    { "type": "text", "id": "nav_2_cta_btn_label", "label": "CTA button" },
-    { "type": "url", "id": "nav_2_cta_btn_url", "label": "CTA button URL" },
-    { "type": "color", "id": "nav_2_cta_btn_bg", "label": "Button bg" },
-    { "type": "color", "id": "nav_2_cta_btn_color", "label": "Button text" },
-    { "type": "color", "id": "nav_2_cta_btn_bg_hover", "label": "Button bg (hover)" },
-    { "type": "color", "id": "nav_2_cta_btn_color_hover", "label": "Button text (hover)" },
-    { "type": "select", "id": "nav_2_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "sage" },
-    { "type": "color", "id": "nav_2_cta_bg", "label": "CTA background colour (overrides surface)" },
-    { "type": "header", "content": "Studios Menu" },
-    { "type": "text", "id": "nav_3_label", "label": "Label", "default": "Studios" },
-    { "type": "url", "id": "nav_3_url", "label": "URL" },
-    { "type": "text", "id": "nav_3_browse_menu", "label": "Browse menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
-    { "type": "select", "id": "nav_3_feat_mode", "label": "Featured section type", "options": [{ "value": "collections", "label": "Collections" }, { "value": "partners", "label": "Partners" }], "default": "collections" },
-    { "type": "collection_list", "id": "nav_3_feat_collections", "label": "Featured collections", "limit": 3 },
-    { "type": "text", "id": "nav_3_feat_partner_1", "label": "Featured partner 1 (slug)", "info": "Partner handle, e.g. jane-studio" },
-    { "type": "text", "id": "nav_3_feat_partner_2", "label": "Featured partner 2 (slug)" },
-    { "type": "text", "id": "nav_3_feat_partner_3", "label": "Featured partner 3 (slug)" },
-    { "type": "text", "id": "nav_3_cta_eyebrow", "label": "CTA eyebrow" },
-    { "type": "richtext", "id": "nav_3_cta_headline", "label": "CTA headline (italics = sage)" },
-    { "type": "textarea", "id": "nav_3_cta_body", "label": "CTA body" },
-    { "type": "text", "id": "nav_3_cta_btn_label", "label": "CTA button" },
-    { "type": "url", "id": "nav_3_cta_btn_url", "label": "CTA button URL" },
-    { "type": "color", "id": "nav_3_cta_btn_bg", "label": "Button bg" },
-    { "type": "color", "id": "nav_3_cta_btn_color", "label": "Button text" },
-    { "type": "color", "id": "nav_3_cta_btn_bg_hover", "label": "Button bg (hover)" },
-    { "type": "color", "id": "nav_3_cta_btn_color_hover", "label": "Button text (hover)" },
-    { "type": "select", "id": "nav_3_cta_surface", "label": "CTA surface", "options": [{ "value": "linen", "label": "Linen" }, { "value": "sage", "label": "Sage" }, { "value": "ink", "label": "Ink" }], "default": "ink" },
-    { "type": "color", "id": "nav_3_cta_bg", "label": "CTA background colour (overrides surface)" },
-    { "type": "header", "content": "About & Contact" },
-    { "type": "text", "id": "nav_about_label", "label": "About label", "default": "About" },
-    { "type": "url", "id": "nav_about_url", "label": "About URL" },
-    { "type": "text", "id": "nav_about_menu", "label": "About menu handle", "info": "Paste the menu handle from Online Store → Navigation" },
-    { "type": "text", "id": "nav_contact_label", "label": "Contact label", "default": "Contact Us" },
-    { "type": "text", "id": "nav_contact_email", "label": "Contact email (mailto)", "info": "If set, the Contact link opens your email client. Overrides Contact URL." },
-    { "type": "url", "id": "nav_contact_url", "label": "Contact URL", "info": "Used only if Contact email is blank." }
-  ]
-}
+{"name":"Fabric Shop Megamenu","target":"body","settings":[{"type":"header","content":"Branding & Theme"},{"type":"checkbox","id":"hide_native_header","label":"Hide native theme header","default":true},{"type":"image_picker","id":"logo","label":"Logo"},{"type":"header","content":"Utility Bar"},{"type":"text","id":"utility_text","label":"Utility bar text","default":"Made on order · shipped worldwide"},{"type":"header","content":"PrintLab Menu"},{"type":"text","id":"nav_1_label","label":"Label","default":"PrintLab"},{"type":"url","id":"nav_1_url","label":"URL"},{"type":"text","id":"nav_1_browse_menu","label":"Browse menu handle","info":"Paste the menu handle from Online Store → Navigation"},{"type":"select","id":"nav_1_feat_type","label":"Featured section type","options":[{"value":"products","label":"Designs"},{"value":"collections","label":"Collections"}],"default":"products"},{"type":"product_list","id":"nav_1_feat_products","label":"Featured designs","limit":3},{"type":"collection_list","id":"nav_1_feat_collections","label":"Featured collections","limit":3},{"type":"text","id":"nav_1_cta_eyebrow","label":"CTA eyebrow"},{"type":"richtext","id":"nav_1_cta_headline","label":"CTA headline (italics = sage)"},{"type":"textarea","id":"nav_1_cta_body","label":"CTA body"},{"type":"text","id":"nav_1_cta_btn_label","label":"CTA button"},{"type":"url","id":"nav_1_cta_btn_url","label":"CTA button URL"},{"type":"color","id":"nav_1_cta_btn_bg","label":"Button bg"},{"type":"color","id":"nav_1_cta_btn_color","label":"Button text"},{"type":"color","id":"nav_1_cta_btn_bg_hover","label":"Button bg (hover)"},{"type":"color","id":"nav_1_cta_btn_color_hover","label":"Button text (hover)"},{"type":"select","id":"nav_1_cta_surface","label":"CTA surface","options":[{"value":"linen","label":"Linen"},{"value":"sage","label":"Sage"},{"value":"ink","label":"Ink"}],"default":"linen"},{"type":"color","id":"nav_1_cta_bg","label":"CTA background colour (overrides surface)"},{"type":"header","content":"The Yard Menu"},{"type":"text","id":"nav_2_label","label":"Label","default":"The Yard"},{"type":"url","id":"nav_2_url","label":"URL"},{"type":"text","id":"nav_2_browse_menu","label":"Browse menu handle","info":"Paste the menu handle from Online Store → Navigation"},{"type":"product_list","id":"nav_2_feat_products","label":"Featured products","limit":3},{"type":"text","id":"nav_2_cta_eyebrow","label":"CTA eyebrow"},{"type":"richtext","id":"nav_2_cta_headline","label":"CTA headline (italics = sage)"},{"type":"textarea","id":"nav_2_cta_body","label":"CTA body"},{"type":"text","id":"nav_2_cta_btn_label","label":"CTA button"},{"type":"url","id":"nav_2_cta_btn_url","label":"CTA button URL"},{"type":"color","id":"nav_2_cta_btn_bg","label":"Button bg"},{"type":"color","id":"nav_2_cta_btn_color","label":"Button text"},{"type":"color","id":"nav_2_cta_btn_bg_hover","label":"Button bg (hover)"},{"type":"color","id":"nav_2_cta_btn_color_hover","label":"Button text (hover)"},{"type":"select","id":"nav_2_cta_surface","label":"CTA surface","options":[{"value":"linen","label":"Linen"},{"value":"sage","label":"Sage"},{"value":"ink","label":"Ink"}],"default":"sage"},{"type":"color","id":"nav_2_cta_bg","label":"CTA background colour (overrides surface)"},{"type":"header","content":"Studios Menu"},{"type":"text","id":"nav_3_label","label":"Label","default":"Studios"},{"type":"url","id":"nav_3_url","label":"URL"},{"type":"text","id":"nav_3_browse_menu","label":"Browse menu handle","info":"Paste the menu handle from Online Store → Navigation"},{"type":"select","id":"nav_3_feat_mode","label":"Featured section type","options":[{"value":"collections","label":"Collections"},{"value":"partners","label":"Partners"}],"default":"collections"},{"type":"collection_list","id":"nav_3_feat_collections","label":"Featured collections","limit":3},{"type":"text","id":"nav_3_feat_partner_1","label":"Featured partner 1 (slug)","info":"Partner handle, e.g. jane-studio"},{"type":"text","id":"nav_3_feat_partner_2","label":"Featured partner 2 (slug)"},{"type":"text","id":"nav_3_feat_partner_3","label":"Featured partner 3 (slug)"},{"type":"text","id":"nav_3_cta_eyebrow","label":"CTA eyebrow"},{"type":"richtext","id":"nav_3_cta_headline","label":"CTA headline (italics = sage)"},{"type":"textarea","id":"nav_3_cta_body","label":"CTA body"},{"type":"text","id":"nav_3_cta_btn_label","label":"CTA button"},{"type":"url","id":"nav_3_cta_btn_url","label":"CTA button URL"},{"type":"color","id":"nav_3_cta_btn_bg","label":"Button bg"},{"type":"color","id":"nav_3_cta_btn_color","label":"Button text"},{"type":"color","id":"nav_3_cta_btn_bg_hover","label":"Button bg (hover)"},{"type":"color","id":"nav_3_cta_btn_color_hover","label":"Button text (hover)"},{"type":"select","id":"nav_3_cta_surface","label":"CTA surface","options":[{"value":"linen","label":"Linen"},{"value":"sage","label":"Sage"},{"value":"ink","label":"Ink"}],"default":"ink"},{"type":"color","id":"nav_3_cta_bg","label":"CTA background colour (overrides surface)"},{"type":"header","content":"About & Contact"},{"type":"text","id":"nav_about_label","label":"About label","default":"About"},{"type":"url","id":"nav_about_url","label":"About URL"},{"type":"text","id":"nav_about_menu","label":"About menu handle","info":"Paste the menu handle from Online Store → Navigation"},{"type":"text","id":"nav_contact_label","label":"Contact label","default":"Contact Us"},{"type":"text","id":"nav_contact_email","label":"Contact email (mailto)","info":"If set, the Contact link opens your email client. Overrides Contact URL."},{"type":"url","id":"nav_contact_url","label":"Contact URL","info":"Used only if Contact email is blank."}]}
 {% endschema %}

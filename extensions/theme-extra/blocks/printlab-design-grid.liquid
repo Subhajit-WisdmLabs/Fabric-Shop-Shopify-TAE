@@ -92,56 +92,5 @@
 <script src="{{ 'printlab-design-grid.js' | asset_url }}" defer></script>
 
 {% schema %}
-{
-  "name": "Design Grid",
-  "target": "section",
-  "settings": [
-    { "type": "header", "content": "Grid" },
-    { "type": "text",     "id": "collection_handle",   "label": "Collection handle" },
-    { "type": "url",      "id": "profile_page_url",    "label": "Partner profile page URL" },
-    { "type": "range",    "id": "products_per_load",   "label": "Products per load",        "min": 12, "max": 48, "step": 12, "default": 24 },
-    { "type": "text",     "id": "load_more_label",     "label": "Load more label",          "default": "Load more designs" },
-    { "type": "checkbox", "id": "show_badges",         "label": "Show New / Bestseller badges", "default": true },
-
-    { "type": "header", "content": "Filters" },
-    { "type": "checkbox", "id": "show_topic",    "label": "Show Topic",              "default": true },
-    { "type": "checkbox", "id": "show_themes",   "label": "Show Themes",             "default": true },
-    { "type": "checkbox", "id": "show_suits_use","label": "Show Suits use",          "default": true },
-    { "type": "checkbox", "id": "show_occasions","label": "Show Occasions",          "default": true },
-    { "type": "checkbox", "id": "show_scale",    "label": "Show Scale",              "default": true },
-    { "type": "checkbox", "id": "show_subject",  "label": "Show Subject search",     "default": true },
-    { "type": "checkbox", "id": "show_palette",  "label": "Show Palette",            "default": true },
-    { "type": "checkbox", "id": "show_studio",   "label": "Show Studio search",      "default": true },
-
-    { "type": "header", "content": "Editorial cards" },
-    { "type": "checkbox", "id": "show_editorial_cards", "label": "Show editorial break cards", "default": true },
-    { "type": "range",    "id": "editorial_interval",   "label": "Insert card every N tiles",  "min": 4, "max": 16, "step": 2, "default": 8 },
-
-    { "type": "header", "content": "Editorial card 1" },
-    { "type": "text",     "id": "ed1_eyebrow",  "label": "Eyebrow" },
-    { "type": "text",     "id": "ed1_title",    "label": "Title" },
-    { "type": "textarea", "id": "ed1_body",     "label": "Body" },
-    { "type": "text",     "id": "ed1_cta_text", "label": "CTA label" },
-    { "type": "url",      "id": "ed1_cta_url",  "label": "CTA link" },
-
-    { "type": "header", "content": "Editorial card 2" },
-    { "type": "text",     "id": "ed2_eyebrow",  "label": "Eyebrow" },
-    { "type": "text",     "id": "ed2_title",    "label": "Title" },
-    { "type": "textarea", "id": "ed2_body",     "label": "Body" },
-    { "type": "text",     "id": "ed2_cta_text", "label": "CTA label" },
-    { "type": "url",      "id": "ed2_cta_url",  "label": "CTA link" },
-
-    { "type": "header", "content": "Colours" },
-    { "type": "color", "id": "bg_color",         "label": "Page background",    "default": "#FAF8F3" },
-    { "type": "color", "id": "sidebar_bg",        "label": "Sidebar background", "default": "#FFFFFF" },
-    { "type": "color", "id": "card_bg",           "label": "Card background",    "default": "#F5F5F5" },
-    { "type": "color", "id": "ink_color",         "label": "Primary text",       "default": "#1A1814" },
-    { "type": "color", "id": "ink_soft_color",    "label": "Secondary text",     "default": "#5C564A" },
-    { "type": "color", "id": "ink_mute_color",    "label": "Muted text",         "default": "#9A9285" },
-    { "type": "color", "id": "accent_color",      "label": "Accent (sage)",      "default": "#5C7355" },
-    { "type": "color", "id": "rule_color",        "label": "Borders",            "default": "#E8E3D8" },
-    { "type": "color", "id": "ed_card_bg",        "label": "Editorial card bg",  "default": "#1A1814" },
-    { "type": "color", "id": "chip_active_color", "label": "Active chip border", "default": "#5C7355" }
-  ]
-}
+{"name":"Design Grid","target":"section","settings":[{"type":"header","content":"Grid"},{"type":"text","id":"collection_handle","label":"Collection handle"},{"type":"url","id":"profile_page_url","label":"Partner profile page URL"},{"type":"range","id":"products_per_load","label":"Products per load","min":12,"max":48,"step":12,"default":24},{"type":"text","id":"load_more_label","label":"Load more label","default":"Load more designs"},{"type":"checkbox","id":"show_badges","label":"Show New / Bestseller badges","default":true},{"type":"header","content":"Filters"},{"type":"checkbox","id":"show_topic","label":"Show Topic","default":true},{"type":"checkbox","id":"show_themes","label":"Show Themes","default":true},{"type":"checkbox","id":"show_suits_use","label":"Show Suits use","default":true},{"type":"checkbox","id":"show_occasions","label":"Show Occasions","default":true},{"type":"checkbox","id":"show_scale","label":"Show Scale","default":true},{"type":"checkbox","id":"show_subject","label":"Show Subject search","default":true},{"type":"checkbox","id":"show_palette","label":"Show Palette","default":true},{"type":"checkbox","id":"show_studio","label":"Show Studio search","default":true},{"type":"header","content":"Editorial cards"},{"type":"checkbox","id":"show_editorial_cards","label":"Show editorial break cards","default":true},{"type":"range","id":"editorial_interval","label":"Insert card every N tiles","min":4,"max":16,"step":2,"default":8},{"type":"header","content":"Editorial card 1"},{"type":"text","id":"ed1_eyebrow","label":"Eyebrow"},{"type":"text","id":"ed1_title","label":"Title"},{"type":"textarea","id":"ed1_body","label":"Body"},{"type":"text","id":"ed1_cta_text","label":"CTA label"},{"type":"url","id":"ed1_cta_url","label":"CTA link"},{"type":"header","content":"Editorial card 2"},{"type":"text","id":"ed2_eyebrow","label":"Eyebrow"},{"type":"text","id":"ed2_title","label":"Title"},{"type":"textarea","id":"ed2_body","label":"Body"},{"type":"text","id":"ed2_cta_text","label":"CTA label"},{"type":"url","id":"ed2_cta_url","label":"CTA link"},{"type":"header","content":"Colours"},{"type":"color","id":"bg_color","label":"Page background","default":"#FAF8F3"},{"type":"color","id":"sidebar_bg","label":"Sidebar background","default":"#FFFFFF"},{"type":"color","id":"card_bg","label":"Card background","default":"#F5F5F5"},{"type":"color","id":"ink_color","label":"Primary text","default":"#1A1814"},{"type":"color","id":"ink_soft_color","label":"Secondary text","default":"#5C564A"},{"type":"color","id":"ink_mute_color","label":"Muted text","default":"#9A9285"},{"type":"color","id":"accent_color","label":"Accent (sage)","default":"#5C7355"},{"type":"color","id":"rule_color","label":"Borders","default":"#E8E3D8"},{"type":"color","id":"ed_card_bg","label":"Editorial card bg","default":"#1A1814"},{"type":"color","id":"chip_active_color","label":"Active chip border","default":"#5C7355"}]}
 {% endschema %}

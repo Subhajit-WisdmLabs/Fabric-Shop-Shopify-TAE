@@ -201,28 +201,5 @@
 </script>
 
 {% schema %}
-{
-  "name": "Collection of the Month",
-  "target": "section",
-  "settings": [
-    { "type": "header", "content": "Collection" },
-    { "type": "collection", "id": "collection", "label": "Collection" },
-
-    { "type": "header", "content": "Labels" },
-    {
-      "type": "text",
-      "id": "eyebrow",
-      "label": "Eyebrow text",
-      "info": "Leave blank to auto-generate from the current month, e.g. \"Featured Collection · May\""
-    },
-    { "type": "text", "id": "viewall_label", "label": "All-collections link label", "default": "All collections" },
-    { "type": "url",  "id": "viewall_url",   "label": "All-collections link URL", "info": "Leave blank to link to /collections" },
-
-    { "type": "header", "content": "Colors" },
-    { "type": "color", "id": "bg_color",     "label": "Background",           "default": "#f5f0e6" },
-    { "type": "color", "id": "ink_color",    "label": "Headings / ink",        "default": "#1c1a17" },
-    { "type": "color", "id": "accent_color", "label": "Accent (italic / eyebrow)", "default": "#7d8a5c" },
-    { "type": "color", "id": "button_color", "label": "Button / avatar",       "default": "#4a2742" }
-  ]
-}
+{"name":"Collection of the Month","target":"section","settings":[{"type":"header","content":"Collection"},{"type":"collection","id":"collection","label":"Collection"},{"type":"header","content":"Labels"},{"type":"text","id":"eyebrow","label":"Eyebrow text","info":"Leave blank to auto-generate from the current month, e.g. \"Featured Collection · May\""},{"type":"text","id":"viewall_label","label":"All-collections link label","default":"All collections"},{"type":"url","id":"viewall_url","label":"All-collections link URL","info":"Leave blank to link to /collections"},{"type":"header","content":"Colors"},{"type":"color","id":"bg_color","label":"Background","default":"#f5f0e6"},{"type":"color","id":"ink_color","label":"Headings / ink","default":"#1c1a17"},{"type":"color","id":"accent_color","label":"Accent (italic / eyebrow)","default":"#7d8a5c"},{"type":"color","id":"button_color","label":"Button / avatar","default":"#4a2742"}]}
 {% endschema %}
