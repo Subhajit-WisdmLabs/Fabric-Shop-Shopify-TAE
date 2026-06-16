@@ -887,8 +887,7 @@
   flex-direction: column;
   transform: translateX(-100%);
   transition: transform 0.28s ease;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
 }
 
 .fs-drawer.is-open .fs-drawer__panel { transform: translateX(0); }
@@ -933,7 +932,16 @@
 
 .fs-drawer__close:hover { background: rgba(26, 24, 20, 0.06); color: #1A1814; }
 
-.fs-drawer__nav { flex: 1; padding: 8px 0; }
+.fs-drawer__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fs-drawer__nav { flex: 1 0 auto; padding: 8px 0; }
 
 .fs-drawer__item { border-bottom: 1px solid rgba(26, 24, 20, 0.08); }
 
