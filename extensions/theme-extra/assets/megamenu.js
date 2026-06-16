@@ -101,7 +101,6 @@
   /* ── Wishlist badge ──────────────────────────────────────────────────────── */
   const wishlistBadge = document.getElementById('fs-wishlist-badge');
   const wishlistBadgeDrawer = document.getElementById('fs-drawer-wishlist-badge');
-  const wishlistBadgeHead = document.getElementById('fs-drawer-head-wishlist-badge');
 
   function setWishlistBadge(n) {
     n = parseInt(n, 10) || 0;
@@ -113,10 +112,6 @@
       wishlistBadgeDrawer.textContent = n > 0 ? n : '0';
       wishlistBadgeDrawer.style.display = n > 0 ? '' : 'none';
     }
-    if (wishlistBadgeHead) {
-      wishlistBadgeHead.textContent = n > 0 ? n : '';
-      wishlistBadgeHead.style.display = n > 0 ? '' : 'none';
-    }
   }
 
   /* ── Burger activity dot (DP "new activity") ─────────────────────────────── */
@@ -125,7 +120,7 @@
     if (burgerDot) burgerDot.style.display = on ? '' : 'none';
   };
 
-  /* ── Drawer search: predictive product results ───────────────────────────── */
+  /* ── Drawer search: tabbed predictive results (Designs · Collections · Studios) ── */
   (function () {
     const dForm = document.querySelector('.fs-drawer__search');
     const dInput = dForm && dForm.querySelector('input[type="search"]');
@@ -138,6 +133,9 @@
 
     let timer = null;
     let abort = null;
+    let activeTab = 'designs';
+
+    const TAB_LABELS = { designs: 'Designs', collections: 'Collections', studios: 'Studios' };
 
     function esc(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -147,97 +145,133 @@
     function hide() {
       sugg.hidden = true;
       sugg.innerHTML = '';
+      activeTab = 'designs';
       if (abort) { abort.abort(); abort = null; }
     }
 
-    function productGroup(items) {
-      if (!items.length) return '';
-      const rows = items.map(p => {
-        const img = (p.featured_image && p.featured_image.url) || p.image;
-        const thumb = img
-          ? `<img src="${esc(img)}&width=80" alt="" loading="lazy">`
-          : '<span class="fs-drawer__sugg-thumb--empty"></span>';
-        return `<a class="fs-drawer__sugg-item" href="${esc(p.url)}">${thumb}`
-          + `<span class="fs-drawer__sugg-text">`
-          + `<span class="fs-drawer__sugg-title">${esc(p.title)}</span>`
-          + `<span class="fs-drawer__sugg-sub">${esc(p.vendor || '')}</span>`
-          + `</span></a>`;
-      }).join('');
-      return `<div class="fs-drawer__sugg-group-label">Designs</div>${rows}`;
+    function skelHtml(n) {
+      let h = '';
+      for (let i = 0; i < n; i++) {
+        h += '<div class="fs-sugg-skel"><div class="fs-sugg-skel__thumb"></div><div class="fs-sugg-skel__body"><div class="fs-sugg-skel__line fs-sugg-skel__line--title"></div><div class="fs-sugg-skel__line fs-sugg-skel__line--sub"></div></div></div>';
+      }
+      return h;
     }
 
-    function collectionGroup(items) {
-      if (!items.length) return '';
-      const rows = items.map(c => {
-        const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug || '')}`
-          + `&tab=collection&slug=${encodeURIComponent(c.handle || '')}`;
+    /* ── tab shell ── */
+    function initTabShell() {
+      let html = '<div class="fs-sugg-tabs" role="tablist">';
+      ['designs', 'collections', 'studios'].forEach((t, i) => {
+        html += `<button class="fs-sugg-tab${i === 0 ? ' is-active' : ''}" role="tab" data-tab="${t}" aria-selected="${i === 0}" type="button">${TAB_LABELS[t]}</button>`;
+      });
+      html += '</div>';
+      html += `<div class="fs-sugg-panel is-active" data-panel="designs">${skelHtml(4)}</div>`;
+      html += `<div class="fs-sugg-panel" data-panel="collections">${skelHtml(3)}</div>`;
+      html += `<div class="fs-sugg-panel" data-panel="studios">${skelHtml(3)}</div>`;
+      sugg.innerHTML = html;
+      sugg.hidden = false;
+      activeTab = 'designs';
+
+      sugg.querySelectorAll('.fs-sugg-tab').forEach(btn => {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.tab;
+          sugg.querySelectorAll('.fs-sugg-tab').forEach(b => {
+            const on = b === btn;
+            b.classList.toggle('is-active', on);
+            b.setAttribute('aria-selected', String(on));
+          });
+          sugg.querySelectorAll('.fs-sugg-panel').forEach(p => {
+            p.classList.toggle('is-active', p.dataset.panel === activeTab);
+          });
+        });
+      });
+    }
+
+    /* ── item renderers (shared classes with desktop search) ── */
+    function productItems(products) {
+      return products.map(p => {
+        const imgUrl = (p.featured_image && p.featured_image.url) || p.image;
+        const thumb = imgUrl
+          ? `<img class="fs-sugg__thumb" src="${esc(imgUrl)}&width=96" alt="" loading="lazy">`
+          : '<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>';
+        return `<a class="fs-sugg__item" href="${esc(p.url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${esc(p.title)}</span><span class="fs-sugg__sub">${esc(p.vendor || '')}</span></div></a>`;
+      }).join('');
+    }
+
+    function collectionItems(collections) {
+      return collections.map(c => {
+        const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug || '')}&tab=collection&slug=${encodeURIComponent(c.handle || '')}`;
         const thumb = c.image
-          ? `<img src="${esc(c.image)}" alt="" loading="lazy">`
-          : '<span class="fs-drawer__sugg-thumb--empty"></span>';
-        return `<a class="fs-drawer__sugg-item" href="${esc(url)}">${thumb}`
-          + `<span class="fs-drawer__sugg-text">`
-          + `<span class="fs-drawer__sugg-title">${esc(c.title || '')}</span>`
-          + `<span class="fs-drawer__sugg-sub">${esc(c.partnerName || '')}</span>`
-          + `</span></a>`;
+          ? `<img class="fs-sugg__thumb" src="${esc(c.image)}" alt="" loading="lazy">`
+          : '<div class="fs-sugg__thumb fs-sugg__thumb--empty"></div>';
+        return `<a class="fs-sugg__item" href="${esc(url)}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${esc(c.title || '')}</span><span class="fs-sugg__sub">${esc(c.partnerName || '')}</span></div></a>`;
       }).join('');
-      return `<div class="fs-drawer__sugg-group-label">Collections</div>${rows}`;
     }
 
-    function studioGroup(items) {
-      if (!items.length) return '';
-      const rows = items.map(p => {
+    function partnerItems(partners) {
+      return partners.map(p => {
         const studio = p.studioName || p.displayName || '';
         const person = p.fullName || p.designerName || p.ownerName || '';
         const initLetter = (studio || person || '?')[0].toUpperCase();
         const thumb = p.profileImageUrl
-          ? `<img src="${esc(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
-          : `<span class="fs-drawer__sugg-thumb--empty" style="border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5C7355">${esc(initLetter)}</span>`;
-        const sub = person && studio ? person : '';
-        return `<a class="fs-drawer__sugg-item" href="/pages/partners?handle=${encodeURIComponent(p.slug || '')}">${thumb}`
-          + `<span class="fs-drawer__sugg-text">`
-          + `<span class="fs-drawer__sugg-title">${esc(studio || person)}</span>`
-          + (sub ? `<span class="fs-drawer__sugg-sub">${esc(sub)}</span>` : '')
-          + `</span></a>`;
+          ? `<img class="fs-sugg__thumb" src="${esc(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
+          : `<div class="fs-sugg__avatar">${esc(initLetter)}</div>`;
+        const subText = person || studio;
+        return `<a class="fs-sugg__item" href="/pages/partners?handle=${encodeURIComponent(p.slug || '')}" role="option">${thumb}<div class="fs-sugg__body"><span class="fs-sugg__title">${esc(studio || person)}</span>${subText ? `<span class="fs-sugg__sub">${esc(subText)}</span>` : ''}</div></a>`;
       }).join('');
-      return `<div class="fs-drawer__sugg-group-label">Studios</div>${rows}`;
     }
 
-    async function load(q) {
+    function updatePanel(panelName, items, type) {
+      if (sugg.hidden) return;
+      const panel = sugg.querySelector(`.fs-sugg-panel[data-panel="${panelName}"]`);
+      if (!panel) return;
+      if (!items.length) {
+        panel.innerHTML = `<div class="fs-sugg-empty">No ${TAB_LABELS[panelName] || panelName} found</div>`;
+      } else if (type === 'products') {
+        panel.innerHTML = productItems(items);
+      } else if (type === 'collections') {
+        panel.innerHTML = collectionItems(items);
+      } else {
+        panel.innerHTML = partnerItems(items);
+      }
+      const tabBtn = sugg.querySelector(`.fs-sugg-tab[data-tab="${panelName}"]`);
+      if (tabBtn && items.length) {
+        let badge = tabBtn.querySelector('.fs-sugg-tab__badge');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'fs-sugg-tab__badge';
+          tabBtn.appendChild(badge);
+        }
+        badge.textContent = String(items.length);
+      }
+    }
+
+    function load(q) {
       if (q.length < 2) { hide(); return; }
       if (abort) abort.abort();
       abort = new AbortController();
       const signal = abort.signal;
 
+      initTabShell();
+
       const productUrl = `/search/suggest.json?q=${encodeURIComponent(q + ' -tag:_fp-base-fabric')}`
         + `&resources[type]=product&resources[limit]=6`
         + `&resources[options][unavailable_products]=hide`;
 
-      try {
-        const [products, collections, studios] = await Promise.all([
-          fetch(productUrl, { signal })
-            .then(r => r.ok ? r.json() : null)
-            .then(d => (d && d.resources && d.resources.results && d.resources.results.products) || [])
-            .catch(() => []),
-          fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(q)}`, { signal })
-            .then(r => r.ok ? r.json() : null)
-            .then(d => (d && d.results) || [])
-            .catch(() => []),
-          fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(q)}`, { signal })
-            .then(r => r.ok ? r.json() : null)
-            .then(d => (d && d.results) || [])
-            .catch(() => []),
-        ]);
+      fetch(productUrl, { signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (!signal.aborted) updatePanel('designs', (d && d.resources && d.resources.results && d.resources.results.products) || [], 'products'); })
+        .catch(e => { if (e && e.name !== 'AbortError') updatePanel('designs', [], 'products'); });
 
-        if (signal.aborted) return;
+      fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(q)}`, { signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (!signal.aborted) updatePanel('collections', (d && d.results) || [], 'collections'); })
+        .catch(e => { if (e && e.name !== 'AbortError') updatePanel('collections', [], 'collections'); });
 
-        const html = productGroup(products) + collectionGroup(collections) + studioGroup(studios);
-        if (!html) {
-          sugg.innerHTML = '<div class="fs-drawer__sugg-empty">No matches found</div>';
-        } else {
-          sugg.innerHTML = html;
-        }
-        sugg.hidden = false;
-      } catch (e) { /* aborted or network */ }
+      fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(q)}`, { signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (!signal.aborted) updatePanel('studios', (d && d.results) || [], 'studios'); })
+        .catch(e => { if (e && e.name !== 'AbortError') updatePanel('studios', [], 'studios'); });
     }
 
     dInput.addEventListener('input', () => {
