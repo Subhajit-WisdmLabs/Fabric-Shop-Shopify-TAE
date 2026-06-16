@@ -658,7 +658,9 @@
             return;
           }
           const query = qInput.value.trim();
-          if (activeScope === 'designs' && query) {
+          // Submit on Designs and All scopes — both route to the designs
+          // catalogue (printlab); studios/collections stay predictive-only.
+          if ((activeScope === 'designs' || activeScope === 'all') && query) {
             e.preventDefault();
             window.location.href = '/pages/printlab?q=' + encodeURIComponent(query);
           }
