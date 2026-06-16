@@ -101,6 +101,7 @@
   /* ── Wishlist badge ──────────────────────────────────────────────────────── */
   const wishlistBadge = document.getElementById('fs-wishlist-badge');
   const wishlistBadgeDrawer = document.getElementById('fs-drawer-wishlist-badge');
+  const wishlistBadgeHead = document.getElementById('fs-drawer-head-wishlist-badge');
 
   function setWishlistBadge(n) {
     n = parseInt(n, 10) || 0;
@@ -111,6 +112,10 @@
     if (wishlistBadgeDrawer) {
       wishlistBadgeDrawer.textContent = n > 0 ? n : '0';
       wishlistBadgeDrawer.style.display = n > 0 ? '' : 'none';
+    }
+    if (wishlistBadgeHead) {
+      wishlistBadgeHead.textContent = n > 0 ? n : '';
+      wishlistBadgeHead.style.display = n > 0 ? '' : 'none';
     }
   }
 
@@ -145,34 +150,92 @@
       if (abort) { abort.abort(); abort = null; }
     }
 
+    function productGroup(items) {
+      if (!items.length) return '';
+      const rows = items.map(p => {
+        const img = (p.featured_image && p.featured_image.url) || p.image;
+        const thumb = img
+          ? `<img src="${esc(img)}&width=80" alt="" loading="lazy">`
+          : '<span class="fs-drawer__sugg-thumb--empty"></span>';
+        return `<a class="fs-drawer__sugg-item" href="${esc(p.url)}">${thumb}`
+          + `<span class="fs-drawer__sugg-text">`
+          + `<span class="fs-drawer__sugg-title">${esc(p.title)}</span>`
+          + `<span class="fs-drawer__sugg-sub">${esc(p.vendor || '')}</span>`
+          + `</span></a>`;
+      }).join('');
+      return `<div class="fs-drawer__sugg-group-label">Designs</div>${rows}`;
+    }
+
+    function collectionGroup(items) {
+      if (!items.length) return '';
+      const rows = items.map(c => {
+        const url = `/pages/partners?handle=${encodeURIComponent(c.partnerSlug || '')}`
+          + `&tab=collection&slug=${encodeURIComponent(c.handle || '')}`;
+        const thumb = c.image
+          ? `<img src="${esc(c.image)}" alt="" loading="lazy">`
+          : '<span class="fs-drawer__sugg-thumb--empty"></span>';
+        return `<a class="fs-drawer__sugg-item" href="${esc(url)}">${thumb}`
+          + `<span class="fs-drawer__sugg-text">`
+          + `<span class="fs-drawer__sugg-title">${esc(c.title || '')}</span>`
+          + `<span class="fs-drawer__sugg-sub">${esc(c.partnerName || '')}</span>`
+          + `</span></a>`;
+      }).join('');
+      return `<div class="fs-drawer__sugg-group-label">Collections</div>${rows}`;
+    }
+
+    function studioGroup(items) {
+      if (!items.length) return '';
+      const rows = items.map(p => {
+        const studio = p.studioName || p.displayName || '';
+        const person = p.fullName || p.designerName || p.ownerName || '';
+        const initLetter = (studio || person || '?')[0].toUpperCase();
+        const thumb = p.profileImageUrl
+          ? `<img src="${esc(p.profileImageUrl)}" alt="" loading="lazy" style="border-radius:50%">`
+          : `<span class="fs-drawer__sugg-thumb--empty" style="border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5C7355">${esc(initLetter)}</span>`;
+        const sub = person && studio ? person : '';
+        return `<a class="fs-drawer__sugg-item" href="/pages/partners?handle=${encodeURIComponent(p.slug || '')}">${thumb}`
+          + `<span class="fs-drawer__sugg-text">`
+          + `<span class="fs-drawer__sugg-title">${esc(studio || person)}</span>`
+          + (sub ? `<span class="fs-drawer__sugg-sub">${esc(sub)}</span>` : '')
+          + `</span></a>`;
+      }).join('');
+      return `<div class="fs-drawer__sugg-group-label">Studios</div>${rows}`;
+    }
+
     async function load(q) {
       if (q.length < 2) { hide(); return; }
       if (abort) abort.abort();
       abort = new AbortController();
+      const signal = abort.signal;
+
+      const productUrl = `/search/suggest.json?q=${encodeURIComponent(q + ' -tag:_fp-base-fabric')}`
+        + `&resources[type]=product&resources[limit]=6`
+        + `&resources[options][unavailable_products]=hide`;
+
       try {
-        const url = `/search/suggest.json?q=${encodeURIComponent(q + ' -tag:_fp-base-fabric')}`
-          + `&resources[type]=product&resources[limit]=6`
-          + `&resources[options][unavailable_products]=hide`;
-        const r = await fetch(url, { signal: abort.signal });
-        if (!r.ok) return;
-        const data = await r.json();
-        const items = (data.resources && data.resources.results && data.resources.results.products) || [];
-        if (!items.length) {
+        const [products, collections, studios] = await Promise.all([
+          fetch(productUrl, { signal })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => (d && d.resources && d.resources.results && d.resources.results.products) || [])
+            .catch(() => []),
+          fetch(`/apps/fabric-shop/api/collection-search?q=${encodeURIComponent(q)}`, { signal })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => (d && d.results) || [])
+            .catch(() => []),
+          fetch(`/apps/fabric-shop/api/partner-search?q=${encodeURIComponent(q)}`, { signal })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => (d && d.results) || [])
+            .catch(() => []),
+        ]);
+
+        if (signal.aborted) return;
+
+        const html = productGroup(products) + collectionGroup(collections) + studioGroup(studios);
+        if (!html) {
           sugg.innerHTML = '<div class="fs-drawer__sugg-empty">No matches found</div>';
-          sugg.hidden = false;
-          return;
+        } else {
+          sugg.innerHTML = html;
         }
-        sugg.innerHTML = items.map(p => {
-          const img = (p.featured_image && p.featured_image.url) || p.image;
-          const thumb = img
-            ? `<img src="${esc(img)}&width=80" alt="" loading="lazy">`
-            : '<span class="fs-drawer__sugg-thumb--empty"></span>';
-          return `<a class="fs-drawer__sugg-item" href="${esc(p.url)}">${thumb}`
-            + `<span class="fs-drawer__sugg-text">`
-            + `<span class="fs-drawer__sugg-title">${esc(p.title)}</span>`
-            + `<span class="fs-drawer__sugg-sub">${esc(p.vendor || '')}</span>`
-            + `</span></a>`;
-        }).join('');
         sugg.hidden = false;
       } catch (e) { /* aborted or network */ }
     }
