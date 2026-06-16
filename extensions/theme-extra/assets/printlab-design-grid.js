@@ -117,7 +117,8 @@
         topic: _urlParams.get('topic') || '',
         themes: (_urlParams.get('theme') || '').split(',').filter(Boolean),
         suits_use: [], occasions: [],
-        scale: '', subject: '', palette: '', studio: ''
+        scale: '', subject: '', palette: '', studio: '',
+        q: _urlParams.get('q') || ''
       },
       sort: 'newest',
       cursor: null,
@@ -158,9 +159,10 @@
 
     if (clearAllBtn) {
       clearAllBtn.addEventListener('click', function () {
-        state.filters = { topic: '', themes: [], suits_use: [], occasions: [], scale: '', subject: '', palette: '', studio: '' };
+        state.filters = { topic: '', themes: [], suits_use: [], occasions: [], scale: '', subject: '', palette: '', studio: '', q: '' };
         syncTopicUrl();
         syncThemeUrl();
+        syncQUrl();
         syncFilterUI();
         updateChips();
         resetAndFetch();
@@ -257,6 +259,7 @@
       if (state.filters.subject)   p.set('subject', state.filters.subject);
       if (state.filters.palette)   p.set('palette', state.filters.palette);
       if (state.filters.studio)    p.set('studio', state.filters.studio);
+      if (state.filters.q)         p.set('q', state.filters.q);
       return p.toString();
     }
 
@@ -288,7 +291,8 @@
           renderGrid(data.products || [], append);
 
           if (countEl) {
-            countEl.textContent = 'Showing ' + state.showing + ' of ' + state.total + ' designs';
+            countEl.textContent = 'Showing ' + state.showing + ' of ' + state.total + ' designs'
+              + (state.filters.q ? ' for “' + state.filters.q + '”' : '');
           }
 
           var hasNext = data.pageInfo && data.pageInfo.hasNextPage;
@@ -318,7 +322,9 @@
       if (!append) grid.innerHTML = '';
 
       if (!products.length && !append) {
-        grid.innerHTML = '<div class="pdg-no-results">No designs match your filters.</div>';
+        grid.innerHTML = '<div class="pdg-no-results">' +
+          (state.filters.q ? 'No designs found for “' + esc(state.filters.q) + '”.' : 'No designs match your filters.') +
+          '</div>';
         return;
       }
 
@@ -858,6 +864,10 @@
 
       syncTopicUrl();
       syncThemeUrl();
+      syncQUrl();
+      if (state.filters.q) {
+        addChip('Search: ' + state.filters.q, function () { state.filters.q = ''; syncQUrl(); });
+      }
       if (state.filters.topic) {
         addChip(state.filters.topic, function () { state.filters.topic = ''; syncTopicUrl(); syncFilterUI(); });
       }
@@ -916,6 +926,15 @@
         var p = new URLSearchParams(window.location.search);
         if (state.filters.themes.length) { p.set('theme', state.filters.themes.join(',')); }
         else { p.delete('theme'); }
+        history.replaceState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
+      } catch (e) {}
+    }
+
+    function syncQUrl() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (state.filters.q) { p.set('q', state.filters.q); }
+        else { p.delete('q'); }
         history.replaceState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
       } catch (e) {}
     }

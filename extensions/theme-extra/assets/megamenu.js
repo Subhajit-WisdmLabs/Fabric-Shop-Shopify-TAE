@@ -281,6 +281,13 @@
       timer = setTimeout(() => load(q), 150);
     });
     dInput.addEventListener('blur', () => setTimeout(hide, 200));
+
+    // Enter → see full design results on the printlab catalogue page
+    dForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const q = dInput.value.trim();
+      if (q) window.location.href = '/pages/printlab?q=' + encodeURIComponent(q);
+    });
   })();
 
   function readLocalWishlist() {
@@ -394,7 +401,15 @@
       });
     });
 
-    if (form) form.addEventListener('submit', e => e.preventDefault());
+    if (form) form.addEventListener('submit', e => {
+      e.preventDefault();
+      // Enter submits only for the Designs scope — designs are the capped
+      // catalogue; studios/collections show everything in the dropdown.
+      const query = qInput ? qInput.value.trim() : '';
+      if (activeScope === 'designs' && query) {
+        window.location.href = '/pages/printlab?q=' + encodeURIComponent(query);
+      }
+    });
 
     document.addEventListener('click', e => {
       if (!searchWrap.contains(e.target)) { closeScopeDrop(); hideSugg(); }
