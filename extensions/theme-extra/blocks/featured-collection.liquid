@@ -66,7 +66,25 @@
       {%- if fc_collection != blank -%}
         {%- for product in fc_collection.products limit: products_limit -%}
           {%- liquid
-            assign spec = product.metafields.fabric.descriptor.value
+            assign fc_weight = product.metafields.fabric.gsm.value
+            assign fc_comp = product.metafields.fabric.fibre_content.value
+            assign fc_width = product.metafields.fabric.width_cm.value
+            assign spec = ''
+            if fc_weight != blank
+              assign spec = fc_weight
+            endif
+            if fc_comp != blank
+              if spec != ''
+                assign spec = spec | append: ' · '
+              endif
+              assign spec = spec | append: fc_comp
+            endif
+            if fc_width != blank
+              if spec != ''
+                assign spec = spec | append: ' · '
+              endif
+              assign spec = spec | append: fc_width
+            endif
             assign has_spec = false
             if spec != blank
               assign has_spec = true
