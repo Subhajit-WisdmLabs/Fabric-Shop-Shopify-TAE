@@ -1,0 +1,221 @@
+/* ── printing-methods.css ─────────────────────────────────────────────────── */
+
+.pm-section {
+  background: #1A1814;
+  color: #FAF8F3;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.pm-section *,
+.pm-section *::before,
+.pm-section *::after { box-sizing: border-box; }
+
+.pm-inner {
+  max-width: calc(var(--page-width, 1320px) + var(--gutter, 64px) * 2);
+  margin: 0 auto;
+  padding: 96px var(--gutter, 64px);
+}
+
+/* ── Head ───────────────────────────────────────────────────────────────── */
+
+.pm-head {
+  margin-bottom: 56px;
+  max-width: 720px;
+}
+
+.pm-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.55);
+  margin: 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pm-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 22px;
+  height: 1px;
+  background: rgba(250, 248, 243, 0.55);
+  flex-shrink: 0;
+}
+
+.pm-title {
+  font-family: 'Fabric-Shop-Heading', var(--font-heading-family, Georgia, serif);
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1.05;
+  letter-spacing: -0.022em;
+  color: #FAF8F3;
+  margin: 0 0 18px;
+}
+
+.pm-title p { margin: 0; }
+
+.pm-title em {
+  font-style: italic;
+  color: #A8BFA0;
+}
+
+.pm-sub {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: rgba(250, 248, 243, 0.70);
+  margin: 0;
+}
+
+/* ── Methods grid ───────────────────────────────────────────────────────── */
+
+.pm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(250, 248, 243, 0.12);
+  border-radius: 2px;
+}
+
+.pm-method {
+  padding: 36px 32px;
+  border-right: 1px solid rgba(250, 248, 243, 0.12);
+}
+
+.pm-method:last-child { border-right: none; }
+
+/* ── Method card ────────────────────────────────────────────────────────── */
+
+.pm-method__eb {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #A8BFA0;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pm-method__eb::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: #A8BFA0;
+  flex-shrink: 0;
+}
+
+.pm-method__name {
+  font-family: 'Fabric-Shop-Heading', var(--font-heading-family, Georgia, serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.022em;
+  color: #FAF8F3;
+  margin: 0 0 16px;
+}
+
+.pm-method__name p { margin: 0; }
+
+.pm-method__name em {
+  font-style: italic;
+  color: #A8BFA0;
+}
+
+.pm-method__desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(250, 248, 243, 0.78);
+  margin: 0 0 28px;
+}
+
+/* ── Specs ──────────────────────────────────────────────────────────────── */
+
+.pm-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(250, 248, 243, 0.12);
+  margin: 0;
+}
+
+.pm-spec-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.pm-spec-key {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.50);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pm-spec-val {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #FAF8F3;
+  margin: 0;
+}
+
+/* ── Foot link ──────────────────────────────────────────────────────────── */
+
+.pm-foot {
+  margin: 30px 0 0;
+  text-align: center;
+}
+
+.pm-foot__link {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #A8BFA0;
+  border-bottom: 1px solid #A8BFA0;
+  padding-bottom: 2px;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.pm-foot__link:hover {
+  color: #FAF8F3;
+  border-bottom-color: #FAF8F3;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .pm-inner        { padding-left: 40px; padding-right: 40px; }
+  .pm-title        { font-size: 40px; }
+  .pm-method__name { font-size: 28px; }
+}
+
+@media (max-width: 768px) {
+  .pm-inner        { padding: 64px 24px; }
+  .pm-title        { font-size: 34px; }
+  .pm-head         { margin-bottom: 40px; }
+  .pm-grid         { grid-template-columns: 1fr; }
+  .pm-method       { border-right: none; border-bottom: 1px solid rgba(250, 248, 243, 0.12); }
+  .pm-method:last-child { border-bottom: none; }
+  .pm-method__name { font-size: 26px; }
+}
+
+@media (max-width: 479px) {
+  .pm-inner        { padding: 48px 20px; }
+  .pm-title        { font-size: 28px; }
+  .pm-method__name { font-size: 24px; }
+  .pm-spec-row     { grid-template-columns: 100px 1fr; }
+}
