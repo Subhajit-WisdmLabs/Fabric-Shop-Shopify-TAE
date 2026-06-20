@@ -187,7 +187,7 @@
         <p class="fs-mega-col__heading">Featured this month</p>
         <ul class="fs-mega-featured" role="list">
           {%- for fp in block.settings.nav_2_feat_products -%}
-            {%- assign fp_desc = fp.metafields.fabric.descriptor.value -%}
+            {%- assign fp_desc = fp.metafields.fabric.fibre_content.value -%}
             {%- assign fp_ptype = fp.metafields.fabric.type.value -%}
             <li><a href="{{ fp.url }}" class="fs-mega-feat-item">
               <div class="fs-mega-feat-item__thumb">
