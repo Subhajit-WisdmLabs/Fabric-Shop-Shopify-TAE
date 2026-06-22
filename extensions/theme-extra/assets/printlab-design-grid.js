@@ -577,10 +577,17 @@
       document.body.appendChild(pop);
       toggleEl.classList.add('pdg-colours-toggle--open');
 
-      // Anchor below the toggle, clamped to the viewport.
+      // Match the card width (capped) and align to the card so the popover and
+      // its swatches always fit within the card — important on narrow mobile
+      // cards. Clamp to the viewport.
       var r = toggleEl.getBoundingClientRect();
+      var card = toggleEl.closest('.pdg-card');
+      var cardRect = card ? card.getBoundingClientRect() : r;
       var margin = 8;
-      var left = Math.min(r.left, window.innerWidth - pop.offsetWidth - margin);
+      var width = Math.min(280, cardRect.width);
+      pop.style.width = width + 'px';
+      var left = cardRect.left;
+      if (left + width > window.innerWidth - margin) left = window.innerWidth - width - margin;
       if (left < margin) left = margin;
       var top = r.bottom + 6;
       var maxH = window.innerHeight - top - margin;
