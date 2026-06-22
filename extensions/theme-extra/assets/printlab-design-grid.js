@@ -109,6 +109,20 @@
     var closeBtn        = root.querySelector('.pdg-sidebar-close');
     var mainEl          = root.querySelector('.pdg-main');
 
+    // Keep sidebar below the fixed nav — update whenever the chrome resizes
+    // (the utility bar collapses on scroll, changing the chrome height).
+    (function () {
+      var chrome = document.querySelector('.fs-chrome');
+      function applyNavOffset() {
+        var h = chrome ? chrome.getBoundingClientRect().height : 72;
+        root.style.setProperty('--pdg-nav-h', (h + 16) + 'px');
+      }
+      applyNavOffset();
+      if (chrome && window.ResizeObserver) {
+        new ResizeObserver(applyNavOffset).observe(chrome);
+      }
+    }());
+
     // Read topic and theme from URL on load
     var _urlParams = new URLSearchParams(window.location.search);
 
