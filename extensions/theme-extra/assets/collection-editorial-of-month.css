@@ -28,11 +28,11 @@
   align-items: center;
   gap: 12px;
   margin: 0;
-  font-size: 12.5px;
-  letter-spacing: 2.4px;
+  font-size: var(--hfd-eyebrow-size, 14px);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--eom-sage, #7d8a5c);
-  font-weight: 600;
+  font-weight: 500;
 }
 .eom-eyebrow::before {
   content: "";

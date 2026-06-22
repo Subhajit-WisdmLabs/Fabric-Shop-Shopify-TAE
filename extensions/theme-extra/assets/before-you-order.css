@@ -32,11 +32,11 @@
   align-items: center;
   gap: 12px;
   margin: 0;
-  font-size: 12.5px;
-  letter-spacing: 2.4px;
+  font-size: var(--hfd-eyebrow-size, 14px);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--byo-accent, #7d8a5c);
-  font-weight: 400;
+  font-weight: 500;
 }
 .byo-eyebrow::before,
 .byo-card__eyebrow::before {
