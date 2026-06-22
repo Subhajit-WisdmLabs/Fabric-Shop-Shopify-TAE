@@ -397,32 +397,24 @@
       if (p.isNew)        badgesHtml += '<span class="pdg-badge pdg-badge--new">New</span>';
       if (p.isBestseller) badgesHtml += '<span class="pdg-badge pdg-badge--bestseller">Bestseller</span>';
 
-      // Colour options — replaces the old scale/repeat meta line. Expander
-      // shows all colourways; each swatch deep-links to the PDP with that
-      // colour preselected (?colour=<value>, honoured by product-options.js).
+      // Colour options — replaces the old scale/repeat meta line. Only shown
+      // when there is more than one colourway (a single colour is just the
+      // card image itself). Opens a modal; each swatch deep-links to the PDP
+      // with that colour preselected (?colour=<value>).
       var metaHtml = '';
       var colours = Array.isArray(p.colours) ? p.colours : [];
-      if (colours.length) {
+      if (colours.length > 1) {
         var dotsHtml = colours.slice(0, 3).map(function (c) {
           return '<span class="pdg-colours-dot"' +
             (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></span>';
         }).join('');
-        var cellsHtml = colours.map(function (c) {
-          return '<span class="pdg-colour-swatch" role="link" tabindex="0"' +
-            ' data-handle="' + esc(p.handle) + '"' +
-            ' data-colour="' + esc(c.value) + '"' +
-            ' title="' + esc(c.name || '') + '"' +
-            (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></span>';
-        }).join('');
         metaHtml =
           '<div class="pdg-card-colours">' +
-            '<button class="pdg-colours-toggle" type="button" aria-expanded="false">' +
+            '<button class="pdg-colours-toggle" type="button">' +
               '<span class="pdg-colours-dots">' + dotsHtml + '</span>' +
-              '<span class="pdg-colours-count">' + colours.length +
-                (colours.length === 1 ? ' Color' : ' Colors') + '</span>' +
+              '<span class="pdg-colours-count">' + colours.length + ' Colors</span>' +
               '<svg class="pdg-colours-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
             '</button>' +
-            '<div class="pdg-colours-panel" hidden>' + cellsHtml + '</div>' +
           '</div>';
       }
 
@@ -539,35 +531,57 @@
         });
       }
 
-      // Bind colours expander + swatch deep-links
+      // Bind colours toggle → open modal (avoids reflowing the card grid)
       var coloursToggle = el.querySelector('.pdg-colours-toggle');
       if (coloursToggle) {
-        var coloursWrap  = el.querySelector('.pdg-card-colours');
-        var coloursPanel = el.querySelector('.pdg-colours-panel');
         coloursToggle.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          var willOpen = coloursPanel.hasAttribute('hidden');
-          if (willOpen) coloursPanel.removeAttribute('hidden');
-          else coloursPanel.setAttribute('hidden', '');
-          coloursToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-          coloursWrap.classList.toggle('pdg-card-colours--open', willOpen);
-        });
-        el.querySelectorAll('.pdg-colour-swatch').forEach(function (sw) {
-          var go = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = '/products/' + sw.getAttribute('data-handle') +
-              '?colour=' + encodeURIComponent(sw.getAttribute('data-colour'));
-          };
-          sw.addEventListener('click', go);
-          sw.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') go(e);
-          });
+          openColoursModal(p, colours);
         });
       }
 
       return el;
+    }
+
+    // Colour picker modal — appended to <body> so it overlays rather than
+    // pushing card content down. Swatches are plain anchors that navigate to
+    // the PDP with the colour preselected.
+    function openColoursModal(p, colours) {
+      var swatchesHtml = colours.map(function (c) {
+        return '<a class="pdg-colour-swatch" href="/products/' + esc(p.handle) +
+          '?colour=' + encodeURIComponent(c.value) + '"' +
+          ' title="' + esc(c.name || '') + '"' +
+          (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></a>';
+      }).join('');
+
+      var overlay = document.createElement('div');
+      overlay.className = 'pdg-colours-modal';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.innerHTML =
+        '<div class="pdg-colours-modal-backdrop"></div>' +
+        '<div class="pdg-colours-modal-box">' +
+          '<div class="pdg-colours-modal-head">' +
+            '<div class="pdg-colours-modal-titles">' +
+              '<span class="pdg-colours-modal-title">' + colours.length + ' Colors</span>' +
+              '<span class="pdg-colours-modal-sub">' + esc(p.title) + '</span>' +
+            '</div>' +
+            '<button class="pdg-colours-modal-close" type="button" aria-label="Close">&times;</button>' +
+          '</div>' +
+          '<div class="pdg-colours-modal-grid">' + swatchesHtml + '</div>' +
+        '</div>';
+
+      function close() {
+        document.removeEventListener('keydown', onKey);
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }
+      function onKey(e) { if (e.key === 'Escape') close(); }
+
+      overlay.querySelector('.pdg-colours-modal-backdrop').addEventListener('click', close);
+      overlay.querySelector('.pdg-colours-modal-close').addEventListener('click', close);
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(overlay);
     }
 
     function buildEditorialCard(slot) {
