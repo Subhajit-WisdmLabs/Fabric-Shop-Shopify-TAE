@@ -22,6 +22,7 @@
     --eom-ink:       {{ block.settings.ink_color }};
     --eom-sage:      {{ block.settings.accent_color }};
     --eom-aubergine: {{ block.settings.button_color }};
+    --eyebrow-size:  {{ block.settings.eyebrow_font_size }}px;
   }
 </style>
 
@@ -201,5 +202,5 @@
 </script>
 
 {% schema %}
-{"name":"Collection of the Month","target":"section","settings":[{"type":"header","content":"Collection"},{"type":"collection","id":"collection","label":"Collection"},{"type":"header","content":"Labels"},{"type":"text","id":"eyebrow","label":"Eyebrow text","info":"Leave blank to auto-generate from the current month, e.g. \"Featured Collection · May\""},{"type":"text","id":"viewall_label","label":"All-collections link label","default":"All collections"},{"type":"url","id":"viewall_url","label":"All-collections link URL","info":"Leave blank to link to /collections"},{"type":"header","content":"Colors"},{"type":"color","id":"bg_color","label":"Background","default":"#f5f0e6"},{"type":"color","id":"ink_color","label":"Headings / ink","default":"#1c1a17"},{"type":"color","id":"accent_color","label":"Accent (italic / eyebrow)","default":"#7d8a5c"},{"type":"color","id":"button_color","label":"Button / avatar","default":"#4a2742"}]}
+{"name":"Collection of the Month","target":"section","settings":[{"type":"header","content":"Collection"},{"type":"collection","id":"collection","label":"Collection"},{"type":"header","content":"Labels"},{"type":"text","id":"eyebrow","label":"Eyebrow text","info":"Leave blank to auto-generate from the current month, e.g. \"Featured Collection · May\""},{"type":"range","id":"eyebrow_font_size","label":"Eyebrow font size","min":8,"max":20,"step":1,"unit":"px","default":13},{"type":"text","id":"viewall_label","label":"All-collections link label","default":"All collections"},{"type":"url","id":"viewall_url","label":"All-collections link URL","info":"Leave blank to link to /collections"},{"type":"header","content":"Colors"},{"type":"color","id":"bg_color","label":"Background","default":"#f5f0e6"},{"type":"color","id":"ink_color","label":"Headings / ink","default":"#1c1a17"},{"type":"color","id":"accent_color","label":"Accent (italic / eyebrow)","default":"#7d8a5c"},{"type":"color","id":"button_color","label":"Button / avatar","default":"#4a2742"}]}
 {% endschema %}

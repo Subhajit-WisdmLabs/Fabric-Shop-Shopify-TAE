@@ -7,6 +7,7 @@
     --partner-accent: {{ block.settings.accent_color }};
     --partner-cta-bg: {{ block.settings.cta_bg_color }};
     --partner-cta-fg: {{ block.settings.cta_text_color }};
+    --eyebrow-size: {{ block.settings.eyebrow_font_size }}px;
   }
 </style>
 
@@ -46,5 +47,5 @@
 </div>
 
 {% schema %}
-{"name":"Partner — PrintLab","target":"section","settings":[{"type":"paragraph","content":"Design Partner Programme banner. Place above the footer on the homepage."},{"type":"text","id":"eyebrow","label":"Eyebrow","default":"Design Partner Programme · Open monthly · Small intake"},{"type":"text","id":"heading","label":"Heading","default":"Set up your studio"},{"type":"text","id":"heading_em","label":"Heading — italic suffix","default":"on PrintLab."},{"type":"richtext","id":"body_copy","label":"Body copy","default":"<p>Designers we choose, who choose us. Royalty per metre, a studio of your own, and twenty years of trade behind every print you sell.</p>"},{"type":"text","id":"cta_label","label":"CTA label","default":"Register your interest"},{"type":"url","id":"cta_url","label":"CTA URL"},{"type":"header","content":"Colours"},{"type":"color","id":"bg_color","label":"Background","default":"#5D4566"},{"type":"color","id":"heading_color","label":"Heading / body text","default":"#FAF8F3"},{"type":"color","id":"accent_color","label":"Italic accent (em)","default":"#A8BFA0"},{"type":"color","id":"cta_bg_color","label":"CTA background","default":"#FAF8F3"},{"type":"color","id":"cta_text_color","label":"CTA text","default":"#5D4566"}]}
+{"name":"Partner — PrintLab","target":"section","settings":[{"type":"paragraph","content":"Design Partner Programme banner. Place above the footer on the homepage."},{"type":"text","id":"eyebrow","label":"Eyebrow","default":"Design Partner Programme · Open monthly · Small intake"},{"type":"range","id":"eyebrow_font_size","label":"Eyebrow font size","min":8,"max":20,"step":1,"unit":"px","default":13},{"type":"text","id":"heading","label":"Heading","default":"Set up your studio"},{"type":"text","id":"heading_em","label":"Heading — italic suffix","default":"on PrintLab."},{"type":"richtext","id":"body_copy","label":"Body copy","default":"<p>Designers we choose, who choose us. Royalty per metre, a studio of your own, and twenty years of trade behind every print you sell.</p>"},{"type":"text","id":"cta_label","label":"CTA label","default":"Register your interest"},{"type":"url","id":"cta_url","label":"CTA URL"},{"type":"header","content":"Colours"},{"type":"color","id":"bg_color","label":"Background","default":"#5D4566"},{"type":"color","id":"heading_color","label":"Heading / body text","default":"#FAF8F3"},{"type":"color","id":"accent_color","label":"Italic accent (em)","default":"#A8BFA0"},{"type":"color","id":"cta_bg_color","label":"CTA background","default":"#FAF8F3"},{"type":"color","id":"cta_text_color","label":"CTA text","default":"#5D4566"}]}
 {% endschema %}
