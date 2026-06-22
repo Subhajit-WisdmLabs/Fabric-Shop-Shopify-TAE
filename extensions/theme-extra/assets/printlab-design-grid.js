@@ -397,13 +397,33 @@
       if (p.isNew)        badgesHtml += '<span class="pdg-badge pdg-badge--new">New</span>';
       if (p.isBestseller) badgesHtml += '<span class="pdg-badge pdg-badge--bestseller">Bestseller</span>';
 
+      // Colour options — replaces the old scale/repeat meta line. Expander
+      // shows all colourways; each swatch deep-links to the PDP with that
+      // colour preselected (?colour=<value>, honoured by product-options.js).
       var metaHtml = '';
-      if (p.scale || p.repeatSize) {
-        metaHtml = '<p class="pdg-card-meta">';
-        if (p.scale)                    metaHtml += esc(p.scale);
-        if (p.scale && p.repeatSize)    metaHtml += '<span class="pdg-card-meta-sep"> · </span>';
-        if (p.repeatSize)               metaHtml += esc(p.repeatSize);
-        metaHtml += '</p>';
+      var colours = Array.isArray(p.colours) ? p.colours : [];
+      if (colours.length) {
+        var dotsHtml = colours.slice(0, 3).map(function (c) {
+          return '<span class="pdg-colours-dot"' +
+            (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></span>';
+        }).join('');
+        var cellsHtml = colours.map(function (c) {
+          return '<span class="pdg-colour-swatch" role="link" tabindex="0"' +
+            ' data-handle="' + esc(p.handle) + '"' +
+            ' data-colour="' + esc(c.value) + '"' +
+            ' title="' + esc(c.name || '') + '"' +
+            (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></span>';
+        }).join('');
+        metaHtml =
+          '<div class="pdg-card-colours">' +
+            '<button class="pdg-colours-toggle" type="button" aria-expanded="false">' +
+              '<span class="pdg-colours-dots">' + dotsHtml + '</span>' +
+              '<span class="pdg-colours-count">' + colours.length +
+                (colours.length === 1 ? ' Color' : ' Colors') + '</span>' +
+              '<svg class="pdg-colours-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+            '</button>' +
+            '<div class="pdg-colours-panel" hidden>' + cellsHtml + '</div>' +
+          '</div>';
       }
 
       el.innerHTML =
@@ -515,6 +535,34 @@
             // Revert on network error
             favBtn.classList.toggle('pdg-fav-btn--active', wasAdded);
             if (icon) icon.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+          });
+        });
+      }
+
+      // Bind colours expander + swatch deep-links
+      var coloursToggle = el.querySelector('.pdg-colours-toggle');
+      if (coloursToggle) {
+        var coloursWrap  = el.querySelector('.pdg-card-colours');
+        var coloursPanel = el.querySelector('.pdg-colours-panel');
+        coloursToggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var willOpen = coloursPanel.hasAttribute('hidden');
+          if (willOpen) coloursPanel.removeAttribute('hidden');
+          else coloursPanel.setAttribute('hidden', '');
+          coloursToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+          coloursWrap.classList.toggle('pdg-card-colours--open', willOpen);
+        });
+        el.querySelectorAll('.pdg-colour-swatch').forEach(function (sw) {
+          var go = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = '/products/' + sw.getAttribute('data-handle') +
+              '?colour=' + encodeURIComponent(sw.getAttribute('data-colour'));
+          };
+          sw.addEventListener('click', go);
+          sw.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') go(e);
           });
         });
       }

@@ -701,6 +701,89 @@
 }
 .pdg-card-meta-sep { opacity: 0.5; }
 
+/* Colour options expander (replaces the old scale/repeat meta line) */
+.pdg-card-colours {
+  margin: 7px 0 0;
+}
+
+.pdg-colours-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--pdg-ink-soft, #5C564A);
+}
+
+.pdg-colours-dots {
+  display: inline-flex;
+}
+
+.pdg-colours-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #d9d4cb;
+  background-size: cover;
+  background-position: center;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px rgba(26, 24, 20, 0.12);
+}
+
+.pdg-colours-dot + .pdg-colours-dot {
+  margin-left: -7px;
+}
+
+.pdg-colours-count {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.pdg-colours-chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.pdg-card-colours--open .pdg-colours-chevron {
+  transform: rotate(180deg);
+}
+
+.pdg-colours-panel {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--pdg-line, rgba(26, 24, 20, 0.12));
+  border-radius: 8px;
+}
+
+.pdg-colours-panel[hidden] {
+  display: none;
+}
+
+.pdg-colour-swatch {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background-color: #d9d4cb;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(26, 24, 20, 0.12);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pdg-colour-swatch:hover,
+.pdg-colour-swatch:focus-visible {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 2px var(--pdg-ink, #1A1814);
+  outline: none;
+}
+
 /* Skeleton card */
 
 .pdg-card--skeleton .pdg-card-img-wrap {
