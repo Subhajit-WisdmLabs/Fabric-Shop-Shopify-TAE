@@ -531,23 +531,38 @@
         });
       }
 
-      // Bind colours toggle → open modal (avoids reflowing the card grid)
+      // Bind colours toggle → open anchored popover (overlays, no reflow)
       var coloursToggle = el.querySelector('.pdg-colours-toggle');
       if (coloursToggle) {
         coloursToggle.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          openColoursModal(p, colours);
+          openColoursPopover(p, colours, coloursToggle);
         });
       }
 
       return el;
     }
 
-    // Colour picker modal — appended to <body> so it overlays rather than
-    // pushing card content down. Swatches are plain anchors that navigate to
-    // the PDP with the colour preselected.
-    function openColoursModal(p, colours) {
+    // Colour picker popover — appended to <body> and fixed-positioned under the
+    // toggle so it floats over the cards below (the card has overflow:hidden, so
+    // an in-card popover would be clipped) and never reflows the grid. Swatches
+    // are anchors that open the PDP with the colour preselected.
+    function closeColoursPopover() {
+      var pop = document.querySelector('.pdg-colours-pop');
+      if (pop) {
+        if (typeof pop.cleanup === 'function') pop.cleanup();
+        if (pop.parentNode) pop.parentNode.removeChild(pop);
+      }
+    }
+
+    function openColoursPopover(p, colours, toggleEl) {
+      // Re-clicking the open toggle closes it.
+      var existing = document.querySelector('.pdg-colours-pop');
+      var wasForThis = existing && existing.owner === toggleEl;
+      closeColoursPopover();
+      if (wasForThis) return;
+
       var swatchesHtml = colours.map(function (c) {
         return '<a class="pdg-colour-swatch" href="/products/' + esc(p.handle) +
           '?colour=' + encodeURIComponent(c.value) + '"' +
@@ -555,33 +570,39 @@
           (c.image ? ' style="background-image:url(\'' + esc(c.image) + '\')"' : '') + '></a>';
       }).join('');
 
-      var overlay = document.createElement('div');
-      overlay.className = 'pdg-colours-modal';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.innerHTML =
-        '<div class="pdg-colours-modal-backdrop"></div>' +
-        '<div class="pdg-colours-modal-box">' +
-          '<div class="pdg-colours-modal-head">' +
-            '<div class="pdg-colours-modal-titles">' +
-              '<span class="pdg-colours-modal-title">' + colours.length + ' Colors</span>' +
-              '<span class="pdg-colours-modal-sub">' + esc(p.title) + '</span>' +
-            '</div>' +
-            '<button class="pdg-colours-modal-close" type="button" aria-label="Close">&times;</button>' +
-          '</div>' +
-          '<div class="pdg-colours-modal-grid">' + swatchesHtml + '</div>' +
-        '</div>';
+      var pop = document.createElement('div');
+      pop.className = 'pdg-colours-pop';
+      pop.innerHTML = '<div class="pdg-colours-pop-grid">' + swatchesHtml + '</div>';
+      pop.owner = toggleEl;
+      document.body.appendChild(pop);
+      toggleEl.classList.add('pdg-colours-toggle--open');
 
-      function close() {
-        document.removeEventListener('keydown', onKey);
-        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      // Anchor below the toggle, clamped to the viewport.
+      var r = toggleEl.getBoundingClientRect();
+      var margin = 8;
+      var left = Math.min(r.left, window.innerWidth - pop.offsetWidth - margin);
+      if (left < margin) left = margin;
+      var top = r.bottom + 6;
+      var maxH = window.innerHeight - top - margin;
+      if (maxH < pop.offsetHeight) pop.style.maxHeight = Math.max(140, maxH) + 'px';
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+
+      function onDocDown(e) {
+        if (!pop.contains(e.target) && !toggleEl.contains(e.target)) closeColoursPopover();
       }
-      function onKey(e) { if (e.key === 'Escape') close(); }
-
-      overlay.querySelector('.pdg-colours-modal-backdrop').addEventListener('click', close);
-      overlay.querySelector('.pdg-colours-modal-close').addEventListener('click', close);
+      function onKey(e) { if (e.key === 'Escape') closeColoursPopover(); }
+      pop.cleanup = function () {
+        document.removeEventListener('mousedown', onDocDown, true);
+        document.removeEventListener('keydown', onKey);
+        window.removeEventListener('scroll', closeColoursPopover, true);
+        window.removeEventListener('resize', closeColoursPopover);
+        toggleEl.classList.remove('pdg-colours-toggle--open');
+      };
+      document.addEventListener('mousedown', onDocDown, true);
       document.addEventListener('keydown', onKey);
-      document.body.appendChild(overlay);
+      window.addEventListener('scroll', closeColoursPopover, true);
+      window.addEventListener('resize', closeColoursPopover);
     }
 
     function buildEditorialCard(slot) {
