@@ -1,0 +1,37 @@
+{{ 'proof-strip.css' | asset_url | stylesheet_tag }}
+
+<div class="ps-section" style="--ps-bg:{{ block.settings.background_color }};--ps-border:{{ block.settings.border_color }};--ps-key:{{ block.settings.key_color }};--ps-val:{{ block.settings.val_color }};">
+  <div class="ps-inner">
+    {%- for i in (1..3) -%}
+      {%- assign key_id = 'item_' | append: i | append: '_key' -%}
+      {%- assign val_id = 'item_' | append: i | append: '_val' -%}
+      {%- assign key = block.settings[key_id] -%}
+      {%- assign val = block.settings[val_id] -%}
+      {%- if key != blank or val != blank -%}
+        <div class="ps-item">
+          {%- if key != blank -%}<span class="ps-key">{{ key | escape }}</span>{%- endif -%}
+          {%- if val != blank -%}<span class="ps-val">{{ val | escape }}</span>{%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{"name":"Proof Strip","target":"section","settings":[
+  {"type":"header","content":"Item 1"},
+  {"type":"text","id":"item_1_key","label":"Label","default":"Printed on demand"},
+  {"type":"text","id":"item_1_val","label":"Value","default":"Nothing is made before you order it."},
+  {"type":"header","content":"Item 2"},
+  {"type":"text","id":"item_2_key","label":"Label","default":"By the metre"},
+  {"type":"text","id":"item_2_val","label":"Value","default":"One metre or one hundred. No minimums."},
+  {"type":"header","content":"Item 3"},
+  {"type":"text","id":"item_3_key","label":"Label","default":"Shipped worldwide"},
+  {"type":"text","id":"item_3_val","label":"Value","default":"Duties shown at checkout. Door to door."},
+  {"type":"header","content":"Colours"},
+  {"type":"color","id":"background_color","label":"Background","default":"#FFFFFF"},
+  {"type":"color","id":"border_color","label":"Border","default":"#E8E3D8"},
+  {"type":"color","id":"key_color","label":"Label","default":"#5C7355"},
+  {"type":"color","id":"val_color","label":"Value","default":"#5C564A"}
+]}
+{% endschema %}
