@@ -1,7 +1,0 @@
-api_version = "2026-04"
-
-[[extensions]]
-name = "Fabric Shop Theme Pages"
-handle = "fabric-shop-theme-pages"
-
-type = "theme"
