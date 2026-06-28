@@ -261,6 +261,7 @@
 }
 @media (max-width: 860px) {
   .eom-inner { padding: 48px 24px; }
+  .eom-head  { flex-direction: column; align-items: flex-start; gap: 10px; }
   .eom-grid  { grid-template-columns: 1fr; gap: 32px; }
   .eom-img,
   .eom-img--placeholder,
