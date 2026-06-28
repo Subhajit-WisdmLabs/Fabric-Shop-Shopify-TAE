@@ -106,9 +106,9 @@
         <ul class="fs-mega-list" role="list">
           {%- for link in nav1_menu.links -%}
             {%- if link.links.size > 0 -%}
-            <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
-              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            <li class="fs-mega-list__item fs-mega-list__item--parent fs-mega-list__item--hover">
+              <a href="{{ link.url }}" class="fs-mega-list__link" aria-haspopup="true"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a>
+              <ul class="fs-mega-sub" role="list">{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
             <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
@@ -173,9 +173,9 @@
         <ul class="fs-mega-list" role="list">
           {%- for link in nav2_menu.links -%}
             {%- if link.links.size > 0 -%}
-            <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
-              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            <li class="fs-mega-list__item fs-mega-list__item--parent fs-mega-list__item--hover">
+              <a href="{{ link.url }}" class="fs-mega-list__link" aria-haspopup="true"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a>
+              <ul class="fs-mega-sub" role="list">{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
             <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
@@ -234,9 +234,9 @@
         <ul class="fs-mega-list" role="list">
           {%- for link in nav3_menu.links -%}
             {%- if link.links.size > 0 -%}
-            <li class="fs-mega-list__item fs-mega-list__item--parent">
-              <button class="fs-mega-list__link fs-mega-list__link--btn" type="button" aria-expanded="false"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</button>
-              <ul class="fs-mega-sub" role="list" hidden>{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+            <li class="fs-mega-list__item fs-mega-list__item--parent fs-mega-list__item--hover">
+              <a href="{{ link.url }}" class="fs-mega-list__link" aria-haspopup="true"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a>
+              <ul class="fs-mega-sub" role="list">{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
             </li>
             {%- else -%}
             <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
@@ -310,7 +310,16 @@
   {%- if has_about_sub -%}
   <div class="fs-mini-panel" role="region">
     <ul class="fs-mega-list" role="list">
-      {%- for link in about_menu.links -%}<li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>{%- endfor -%}
+      {%- for link in about_menu.links -%}
+        {%- if link.links.size > 0 -%}
+        <li class="fs-mega-list__item fs-mega-list__item--parent fs-mega-list__item--hover">
+          <a href="{{ link.url }}" class="fs-mega-list__link" aria-haspopup="true"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a>
+          <ul class="fs-mega-sub" role="list">{%- for sub in link.links -%}<li><a href="{{ sub.url }}" class="fs-mega-sub__link">{{- sub.title | escape -}}</a></li>{%- endfor -%}</ul>
+        </li>
+        {%- else -%}
+        <li class="fs-mega-list__item"><a href="{{ link.url }}" class="fs-mega-list__link"><span>{{- link.title | escape -}}</span>{{ ic_listchev }}</a></li>
+        {%- endif -%}
+      {%- endfor -%}
     </ul>
   </div>
   {%- endif -%}
@@ -370,7 +379,7 @@
         <div class="fs-drawer__item">
           <button class="fs-drawer__trigger">{{- block.settings.nav_about_label | escape -}}{{ ic_drawchev }}</button>
           <div class="fs-drawer__sub">
-            {%- for link in about_menu.links -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endfor -%}
+            {%- for link in about_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
           </div>
         </div>
         {%- else -%}

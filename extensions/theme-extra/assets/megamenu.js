@@ -716,18 +716,6 @@
       });
     });
   }
-  /* ── Browse menu nested item accordion ─────────────────────────────── */
-  chrome.querySelectorAll('.fs-mega-list__link--btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.fs-mega-list__item--parent');
-      const isOpen = item.classList.contains('is-open');
-      item.classList.toggle('is-open', !isOpen);
-      btn.setAttribute('aria-expanded', String(!isOpen));
-      const sub = item.querySelector('.fs-mega-sub');
-      if (sub) sub.hidden = isOpen;
-    });
-  });
-
   /* ── Cache helpers ──────────────────────────────────────────────────── */
   const HOUR = 3600000;
   const MIN  = 60000;
