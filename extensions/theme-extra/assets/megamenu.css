@@ -607,33 +607,66 @@
   transition: transform 0.2s ease;
 }
 
-/* Nested children: hidden by default, revealed on hover / keyboard focus */
-.fs-mega-list__item--hover > .fs-mega-sub { display: none; }
+/* Nested children: desktop flyout panel to the right of the parent row */
+.fs-mega-list__item--hover { position: relative; }
+
+.fs-mega-list__item--hover > .fs-mega-sub {
+  position: absolute;
+  top: -10px;
+  left: calc(100% + 14px);
+  z-index: 10;
+  min-width: 210px;
+  max-width: 280px;
+  padding: 8px 10px;
+  background: #FFFDF9;
+  border: 1px solid #E8E3D8;
+  border-radius: 10px;
+  box-shadow: 0 14px 38px rgba(26, 24, 20, 0.16);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+}
+
+/* invisible bridge so the cursor can cross the gap without closing the flyout */
+.fs-mega-list__item--hover > .fs-mega-sub::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -16px;
+  width: 16px;
+}
+
 .fs-mega-list__item--hover:hover > .fs-mega-sub,
-.fs-mega-list__item--hover:focus-within > .fs-mega-sub { display: block; }
+.fs-mega-list__item--hover:focus-within > .fs-mega-sub {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
 .fs-mega-list__item--hover:hover > .fs-mega-list__link,
 .fs-mega-list__item--hover:focus-within > .fs-mega-list__link { color: #5C7355; }
-.fs-mega-list__item--hover:hover > .fs-mega-list__link .fs-mega-list__icon,
-.fs-mega-list__item--hover:focus-within > .fs-mega-list__link .fs-mega-list__icon { transform: rotate(90deg); }
 
 .fs-mega-sub {
   list-style: none;
   margin: 0;
-  padding: 0 0 6px 0;
+  padding: 0;
 }
 
 .fs-mega-sub__link {
   display: block;
-  padding: 5px 0 5px 10px;
+  padding: 7px 8px;
   font-size: 13.5px;
-  color: #6B6560;
+  color: #1A1814;
   text-decoration: none;
-  border-left: 2px solid rgba(26, 24, 20, 0.10);
-  margin-bottom: 2px;
-  transition: color 0.15s, border-color 0.15s;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
 }
 
-.fs-mega-sub__link:hover { color: #5C7355; border-color: #5C7355; }
+.fs-mega-sub__link:hover { color: #5C7355; background: rgba(92, 115, 85, 0.08); }
 
 .fs-mega-list__link--aubergine { color: #6B4C8A; }
 .fs-mega-list__link--aubergine:hover { color: #8A6AAA; }
