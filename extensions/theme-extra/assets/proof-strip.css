@@ -2,12 +2,12 @@
   background: var(--ps-bg);
   border-top: 1px solid var(--ps-border);
   border-bottom: 1px solid var(--ps-border);
-  padding: 30px 64px;
 }
 
 .ps-inner {
   max-width: calc(var(--page-width, 1180px) + var(--gutter, 64px) * 2);
   margin: 0 auto;
+  padding: 30px var(--gutter, 64px);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
@@ -34,10 +34,9 @@
 }
 
 @media (max-width: 1024px) {
-  .ps-section { padding: 30px 40px; }
+  .ps-inner { padding-left: 40px; padding-right: 40px; }
 }
 
 @media (max-width: 768px) {
-  .ps-section { padding: 32px 24px; }
-  .ps-inner { grid-template-columns: 1fr; gap: 18px; }
+  .ps-inner { padding: 32px 24px; grid-template-columns: 1fr; gap: 18px; }
 }
