@@ -8,8 +8,7 @@
   max-width: calc(var(--page-width, 1180px) + var(--gutter, 64px) * 2);
   margin: 0 auto;
   padding: 30px var(--gutter, 64px);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 40px;
 }
 
@@ -38,5 +37,5 @@
 }
 
 @media (max-width: 768px) {
-  .ps-inner { padding: 32px 24px; grid-template-columns: 1fr; gap: 18px; }
+  .ps-inner { padding: 32px 24px; flex-direction: column; gap: 18px; }
 }
