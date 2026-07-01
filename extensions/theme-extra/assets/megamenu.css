@@ -668,7 +668,7 @@
   transition: color 0.15s, background 0.15s;
 }
 
-.fs-mega-sub__link:hover { color: #5C7355; background: rgba(92, 115, 85, 0.08); }
+.fs-mega-sub__link:hover { color: #5C7355; }
 
 .fs-mega-list__link--aubergine { color: #6B4C8A; }
 .fs-mega-list__link--aubergine:hover { color: #8A6AAA; }
