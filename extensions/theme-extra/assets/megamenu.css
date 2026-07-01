@@ -607,13 +607,17 @@
   transition: transform 0.2s ease;
 }
 
-/* Nested children: desktop flyout panel to the right of the parent row */
-.fs-mega-list__item--hover { position: relative; }
+/* Nested children: desktop flyout that extends the full height of the
+   dropdown's Browse column (or the mini-panel), so it reads as another
+   column rather than a separate floating popup. */
+.fs-mega-col--browse { position: relative; }
+.fs-mega-list__item--hover { position: static; }
 
 .fs-mega-list__item--hover > .fs-mega-sub {
   position: absolute;
-  top: -10px;
-  left: calc(100% + 1px);
+  top: 0;
+  bottom: 0;
+  left: 100%;
   z-index: 10;
   min-width: 210px;
   max-width: 280px;
