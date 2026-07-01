@@ -613,15 +613,16 @@
 .fs-mega-list__item--hover > .fs-mega-sub {
   position: absolute;
   top: -10px;
-  left: calc(100% + 14px);
+  left: calc(100% + 1px);
   z-index: 10;
   min-width: 210px;
   max-width: 280px;
   padding: 8px 10px;
-  background: #FFFDF9;
-  border: 1px solid #E8E3D8;
-  border-radius: 10px;
-  box-shadow: 0 14px 38px rgba(26, 24, 20, 0.16);
+  background: #FAF8F3;
+  border: 1px solid rgba(26, 24, 20, 0.10);
+  border-top: 2px solid #5C7355;
+  border-radius: 0;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.10);
   visibility: hidden;
   opacity: 0;
   transform: translateX(-6px);
@@ -634,8 +635,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -16px;
-  width: 16px;
+  left: -6px;
+  width: 6px;
 }
 
 .fs-mega-list__item--hover:hover > .fs-mega-sub,
