@@ -619,10 +619,9 @@
   max-width: 280px;
   padding: 8px 10px;
   background: #FAF8F3;
-  border: 1px solid rgba(26, 24, 20, 0.10);
-  border-top: 2px solid #5C7355;
+  border: none;
   border-radius: 0;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.10);
+  box-shadow: none;
   visibility: hidden;
   opacity: 0;
   transform: translateX(-6px);
