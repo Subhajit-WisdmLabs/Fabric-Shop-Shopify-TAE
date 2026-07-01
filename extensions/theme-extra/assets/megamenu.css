@@ -621,7 +621,7 @@
   max-width: 280px;
   padding: 8px 10px;
   background: #FAF8F3;
-  border: none;
+  border: 1px solid rgba(26, 24, 20, 0.08);
   border-radius: 0;
   box-shadow: none;
   visibility: hidden;
