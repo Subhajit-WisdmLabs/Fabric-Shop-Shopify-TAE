@@ -1034,14 +1034,34 @@
 .fs-drawer__sub-link:hover { color: #5C7355; padding-left: 4px; }
 
 .fs-drawer__sub-group {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   padding: 10px 0 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.10em;
   text-transform: uppercase;
   color: #A09890;
+  text-align: left;
 }
+
+.fs-drawer__sub-group svg {
+  flex-shrink: 0;
+  color: #A09890;
+  transition: transform 0.2s ease;
+}
+
+.fs-drawer__subgroup.is-open .fs-drawer__sub-group svg { transform: rotate(180deg); }
+
+.fs-drawer__subgroup-list { display: none; }
+
+.fs-drawer__subgroup.is-open .fs-drawer__subgroup-list { display: block; }
 
 .fs-drawer__sub-link--indent {
   padding-left: 12px;

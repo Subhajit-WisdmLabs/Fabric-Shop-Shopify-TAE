@@ -354,14 +354,14 @@
       {%- if block.settings.nav_1_label != blank -%}
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_1_label | escape -}}{{ ic_drawchev }}</button>
-        <div class="fs-drawer__sub">{%- for link in nav1_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
+        <div class="fs-drawer__sub">{%- for link in nav1_menu.links -%}{%- if link.links.size > 0 -%}<div class="fs-drawer__subgroup"><button type="button" class="fs-drawer__sub-group">{{- link.title | escape -}}{{ ic_drawchev }}</button><div class="fs-drawer__subgroup-list">{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}</div></div>{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
       {%- if block.settings.nav_2_label != blank -%}
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_2_label | escape -}}{{ ic_drawchev }}</button>
-        <div class="fs-drawer__sub">{%- for link in nav2_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
+        <div class="fs-drawer__sub">{%- for link in nav2_menu.links -%}{%- if link.links.size > 0 -%}<div class="fs-drawer__subgroup"><button type="button" class="fs-drawer__sub-group">{{- link.title | escape -}}{{ ic_drawchev }}</button><div class="fs-drawer__subgroup-list">{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}</div></div>{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}</div>
       </div>
       {%- endif -%}
 
@@ -369,7 +369,7 @@
       <div class="fs-drawer__item">
         <button class="fs-drawer__trigger">{{- block.settings.nav_3_label | escape -}}{{ ic_drawchev }}</button>
         <div class="fs-drawer__sub">
-          {%- for link in nav3_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
+          {%- for link in nav3_menu.links -%}{%- if link.links.size > 0 -%}<div class="fs-drawer__subgroup"><button type="button" class="fs-drawer__sub-group">{{- link.title | escape -}}{{ ic_drawchev }}</button><div class="fs-drawer__subgroup-list">{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}</div></div>{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
         </div>
       </div>
       {%- endif -%}
@@ -379,7 +379,7 @@
         <div class="fs-drawer__item">
           <button class="fs-drawer__trigger">{{- block.settings.nav_about_label | escape -}}{{ ic_drawchev }}</button>
           <div class="fs-drawer__sub">
-            {%- for link in about_menu.links -%}{%- if link.links.size > 0 -%}<span class="fs-drawer__sub-group">{{- link.title | escape -}}</span>{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
+            {%- for link in about_menu.links -%}{%- if link.links.size > 0 -%}<div class="fs-drawer__subgroup"><button type="button" class="fs-drawer__sub-group">{{- link.title | escape -}}{{ ic_drawchev }}</button><div class="fs-drawer__subgroup-list">{%- for sub in link.links -%}<a href="{{ sub.url }}" class="fs-drawer__sub-link fs-drawer__sub-link--indent">{{- sub.title | escape -}}</a>{%- endfor -%}</div></div>{%- else -%}<a href="{{ link.url }}" class="fs-drawer__sub-link">{{- link.title | escape -}}</a>{%- endif -%}{%- endfor -%}
           </div>
         </div>
         {%- else -%}

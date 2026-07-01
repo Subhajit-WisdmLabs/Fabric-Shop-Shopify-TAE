@@ -715,6 +715,14 @@
         if (!isOpen) item.classList.add('is-open');
       });
     });
+
+    /* nested accordion: sub-groups (e.g. About > FAQ) collapsed by default */
+    drawer.querySelectorAll('.fs-drawer__sub-group').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.fs-drawer__subgroup');
+        group.classList.toggle('is-open');
+      });
+    });
   }
   /* ── Cache helpers ──────────────────────────────────────────────────── */
   const HOUR = 3600000;
